@@ -12,7 +12,6 @@ import OAuthSwift
 class LoginVC: UIViewController {
     
     let callBackURL = URL(string: "FliPho://")
-    
     typealias completion = (String) -> Void
     
     override func viewDidLoad() {
@@ -56,7 +55,7 @@ class LoginVC: UIViewController {
                 
             case .failure(let error):
                 print("Authentication process ended with error: \(error.description)")
-                // add an alert here
+                self.showAlert(with: "Make sure you have internet connection")
             }
             
         }
@@ -74,13 +73,22 @@ class LoginVC: UIViewController {
                 self.performSegue(withIdentifier: "mainMenu", sender: nil)
             case .failure(let error):
                 print(error.localizedDescription)
-                // Add an alert here
+                self.showAlert(with: "Username / password might be wrong")
             }
             
         }
     }
 
+    func showAlert(with errorMessage: String) {
+        
+        let alert = UIAlertController(title: "Could not sign in", message: errorMessage, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
+    }
     
+    /*
     
     // MARK: - Navigation
 
@@ -92,6 +100,6 @@ class LoginVC: UIViewController {
         
         
     }
+     */
     
-
 }
