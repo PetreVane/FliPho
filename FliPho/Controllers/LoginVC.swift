@@ -13,6 +13,8 @@ class LoginVC: UIViewController {
     
     let callBackURL = URL(string: "FliPho://")
     
+    typealias completion = (String) -> Void
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -22,13 +24,23 @@ class LoginVC: UIViewController {
     
     @IBAction func loginButtonPressed(_ sender: UIButton) {
         
-        authenticateUser()
+        doFlickrAuthentication()
     }
     
-
-    func authenticateUser() {
+    
+    @IBAction func newAccountButtonPressed(_ sender: UIButton) {
         
-       let authenticator = OAuth1Swift( consumerKey: apiKey, consumerSecret: apiSecret,
+        if let url =  URL(string: "https://identity.flickr.com/sign-up") {
+            UIApplication.shared.open(url, completionHandler: nil)
+        }
+    }
+    
+    
+    
+
+    func doFlickrAuthentication() {
+        
+       let authenticator = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
                                         requestTokenUrl: requestTokenURL,
                                         authorizeUrl: authorizationURL,
                                         accessTokenUrl: accessTokenURL)
@@ -38,28 +50,48 @@ class LoginVC: UIViewController {
         _ =  authenticator.authorize(withCallbackURL: callBackURL!) { (result) in
             
             switch result {
-            case .success(let (credential, _, _)):
-                print("Here is your token: \(credential.oauthToken)")
+            case .success(let (_, _, parameters)):
+                print("Here is your token: \(parameters)")
+                self.fetchData(with: authenticator)
                 
             case .failure(let error):
-                print("Authentication process ended with error: \(error)")
+                print("Authentication process ended with error: \(error.description)")
+                // add an alert here
             }
             
         }
-        
-        
-        
     }
     
+
+    func fetchData (with oauthswift: OAuth1Swift) {
+        
+        let url = Flickr.apiMethod(where: APIMethod.isInterestingPhotos)
+        
+        _ = oauthswift.client.get(url) { response in
+        
+            switch response {
+            case .success:
+                self.performSegue(withIdentifier: "mainMenu", sender: nil)
+            case .failure(let error):
+                print(error.localizedDescription)
+                // Add an alert here
+            }
+            
+        }
+    }
+
     
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
+        
+        
     }
-    */
+    
 
 }
