@@ -7,19 +7,30 @@
 //
 
 import UIKit
+import Foundation
 import OAuthSwift
 
 class LoginVC: UIViewController {
     
+    let defaults = UserDefaults()
     let callBackURL = URL(string: "FliPho://")
-    typealias completion = (String) -> Void
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+   
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        if defaults.value(forKeyPath: "oauth_token") != nil {
+//            print("here is your user default token: \(token as! String)")
+//            performSegue(withIdentifier: "mainMenu", sender: nil)
+        }
+        
+    }
     
     @IBAction func loginButtonPressed(_ sender: UIButton) {
         
@@ -50,9 +61,13 @@ class LoginVC: UIViewController {
             
             switch result {
             case .success(let (_, _, parameters)):
-                print("Here is your token: \(parameters)")
+                for (key, value) in parameters {
+                    print("Each key \(key) has value \(value)")
+//                    self.defaults.set(value, forKey: key)
+                }
+//                print("Here is your token: \(parameters)")
                 self.fetchData(with: authenticator)
-                
+            
             case .failure(let error):
                 print("Authentication process ended with error: \(error.description)")
                 self.showAlert(with: "Make sure you have internet connection")
@@ -69,8 +84,9 @@ class LoginVC: UIViewController {
         _ = oauthswift.client.get(url) { response in
         
             switch response {
-            case .success:
+            case .success(let response):
                 self.performSegue(withIdentifier: "mainMenu", sender: nil)
+//                print("Response: \(response.dataString(encoding: .utf8))")
             case .failure(let error):
                 print(error.localizedDescription)
                 self.showAlert(with: "Username / password might be wrong")
