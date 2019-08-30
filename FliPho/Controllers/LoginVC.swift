@@ -7,16 +7,51 @@
 //
 
 import UIKit
+import OAuthSwift
 
 class LoginVC: UIViewController {
-
+    
+    let callBackURL = URL(string: "FliPho://")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
     
+    
+    @IBAction func loginButtonPressed(_ sender: UIButton) {
+        
+        authenticateUser()
+    }
+    
 
+    func authenticateUser() {
+        
+       let authenticator = OAuth1Swift( consumerKey: apiKey, consumerSecret: apiSecret,
+                                        requestTokenUrl: requestTokenURL,
+                                        authorizeUrl: authorizationURL,
+                                        accessTokenUrl: accessTokenURL)
+        
+        authenticator.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authenticator)
+        
+        _ =  authenticator.authorize(withCallbackURL: callBackURL!) { (result) in
+            
+            switch result {
+            case .success(let (credential, _, _)):
+                print("Here is your token: \(credential.oauthToken)")
+                
+            case .failure(let error):
+                print("Authentication process ended with error: \(error)")
+            }
+            
+        }
+        
+        
+        
+    }
+    
+    
     /*
     // MARK: - Navigation
 

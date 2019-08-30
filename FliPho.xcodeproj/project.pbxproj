@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */; };
 		0BB45AC823192E9F00066791 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB45AC723192E9F00066791 /* AppDelegate.swift */; };
 		0BB45ACD23192E9F00066791 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0BB45ACB23192E9F00066791 /* Main.storyboard */; };
 		0BB45ACF23192EA100066791 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0BB45ACE23192EA100066791 /* Assets.xcassets */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		0BB45AC423192E9F00066791 /* FliPho.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FliPho.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BB45AC723192E9F00066791 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BB45ACC23192E9F00066791 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -50,6 +52,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0BB0EE9E23193B140000A0C2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		0BB45ABB23192E9F00066791 = {
 			isa = PBXGroup;
 			children = (
@@ -71,6 +81,7 @@
 		0BB45AC623192E9F00066791 /* FliPho */ = {
 			isa = PBXGroup;
 			children = (
+				0BB0EE9E23193B140000A0C2 /* Supporting Files */,
 				0BE641BB2319318800D7DB44 /* Models */,
 				0BE641BA2319316B00D7DB44 /* Design Files */,
 				0BE641B92319316000D7DB44 /* Controllers */,
@@ -247,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */,
 				0BE641BD2319320900D7DB44 /* FeedsVC.swift in Sources */,
 				0BE641C4231933D100D7DB44 /* UserAccountVC.swift in Sources */,
 				0BE641C8231934AB00D7DB44 /* PhotoDetailsVC.swift in Sources */,
