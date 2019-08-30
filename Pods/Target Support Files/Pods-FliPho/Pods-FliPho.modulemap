@@ -1,0 +1,6 @@
+framework module Pods_FliPho {
+  umbrella header "Pods-FliPho-umbrella.h"
+
+  export *
+  module * { export * }
+}

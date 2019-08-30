@@ -17,6 +17,7 @@
 		0BE641C4231933D100D7DB44 /* UserAccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C3231933D100D7DB44 /* UserAccountVC.swift */; };
 		0BE641C62319340700D7DB44 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C52319340700D7DB44 /* LoginVC.swift */; };
 		0BE641C8231934AB00D7DB44 /* PhotoDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C7231934AB00D7DB44 /* PhotoDetailsVC.swift */; };
+		2D174A723C4F6692D1F9CDAB /* Pods_FliPho.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA01EE27133B16BF3A6A281 /* Pods_FliPho.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,9 @@
 		0BE641C3231933D100D7DB44 /* UserAccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountVC.swift; sourceTree = "<group>"; };
 		0BE641C52319340700D7DB44 /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		0BE641C7231934AB00D7DB44 /* PhotoDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailsVC.swift; sourceTree = "<group>"; };
+		0FA1302C19DC5158C7205616 /* Pods-FliPho.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FliPho.release.xcconfig"; path = "Pods/Target Support Files/Pods-FliPho/Pods-FliPho.release.xcconfig"; sourceTree = "<group>"; };
+		14461DB596336E4833880227 /* Pods-FliPho.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FliPho.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FliPho/Pods-FliPho.debug.xcconfig"; sourceTree = "<group>"; };
+		2CA01EE27133B16BF3A6A281 /* Pods_FliPho.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FliPho.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D174A723C4F6692D1F9CDAB /* Pods_FliPho.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +55,8 @@
 			children = (
 				0BB45AC623192E9F00066791 /* FliPho */,
 				0BB45AC523192E9F00066791 /* Products */,
+				AA6E3927DFCCEB6DD4B53110 /* Pods */,
+				C80B18E93354FF6C3EB38A26 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -111,6 +118,23 @@
 			path = StoryBoards;
 			sourceTree = "<group>";
 		};
+		AA6E3927DFCCEB6DD4B53110 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				14461DB596336E4833880227 /* Pods-FliPho.debug.xcconfig */,
+				0FA1302C19DC5158C7205616 /* Pods-FliPho.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C80B18E93354FF6C3EB38A26 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2CA01EE27133B16BF3A6A281 /* Pods_FliPho.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -118,9 +142,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0BB45AD623192EA100066791 /* Build configuration list for PBXNativeTarget "FliPho" */;
 			buildPhases = (
+				322965EA8C8AE823A9CCF3B8 /* [CP] Check Pods Manifest.lock */,
 				0BB45AC023192E9F00066791 /* Sources */,
 				0BB45AC123192E9F00066791 /* Frameworks */,
 				0BB45AC223192E9F00066791 /* Resources */,
+				15C83735F4C52823BFCBDF3F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -176,6 +202,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		15C83735F4C52823BFCBDF3F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-FliPho/Pods-FliPho-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/OAuthSwift/OAuthSwift.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OAuthSwift.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-FliPho/Pods-FliPho-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		322965EA8C8AE823A9CCF3B8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-FliPho-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0BB45AC023192E9F00066791 /* Sources */ = {
@@ -332,6 +397,7 @@
 		};
 		0BB45AD723192EA100066791 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14461DB596336E4833880227 /* Pods-FliPho.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -350,6 +416,7 @@
 		};
 		0BB45AD823192EA100066791 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0FA1302C19DC5158C7205616 /* Pods-FliPho.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
