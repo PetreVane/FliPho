@@ -27,7 +27,7 @@ class LoginVC: UIViewController {
         
         if defaults.value(forKeyPath: "oauth_token") != nil {
 //            print("here is your user default token: \(token as! String)")
-            performSegue(withIdentifier: "mainMenu", sender: nil)
+            performSegue(withIdentifier: mainMenu, sender: nil)
         }
         
     }
@@ -44,7 +44,6 @@ class LoginVC: UIViewController {
             UIApplication.shared.open(url, completionHandler: nil)
         }
     }
-    
     
     
 
@@ -65,7 +64,7 @@ class LoginVC: UIViewController {
 //                    print("Each key \(key) has value \(value)")
                     self.defaults.set(value, forKey: key)
                 }
-//                print("Here is your token: \(parameters)")
+                
                 self.authenticate(with: OauthObject)
             
             case .failure(let error):
@@ -78,18 +77,22 @@ class LoginVC: UIViewController {
     
 
     func authenticate (with oauthswift: OAuth1Swift) {
-        
+       
+        // come back and change this method
         let url = Flickr.apiMethod(where: APIMethod.isInterestingPhotos)
         
         _ = oauthswift.client.get(url) { response in
         
             switch response {
             case .success:
-                self.performSegue(withIdentifier: "mainMenu", sender: nil)
-//                print("Response: \(response.dataString(encoding: .utf8))")
+                
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "mainMenu", sender: nil)
+                }
             case .failure(let error):
                 print(error.localizedDescription)
-                self.showAlert(with: "Username / password might be wrong")
+                // This block should never be shown because Auth is handled by Flickr
+                self.showAlert(with: "Authentication: something went wrong")
             }
             
         }

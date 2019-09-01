@@ -13,6 +13,8 @@ import Foundation
 let consumerKey = "11ba962b3f2d30ee51503e7320929d65"
 let consumerSecret = "92e51d0a3248e2a2"
 var userID: String?
+
+// segue identifiers
 let mainMenu = "mainMenu"
 
 
