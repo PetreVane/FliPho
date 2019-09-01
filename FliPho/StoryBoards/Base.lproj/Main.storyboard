@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Item-->
+        <!--Feeds-->
         <scene sceneID="Zvf-JP-4Lo">
             <objects>
                 <tableViewController id="2WB-VC-2wh" customClass="FeedsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
@@ -34,7 +34,7 @@
                             <outlet property="delegate" destination="2WB-VC-2wh" id="Y2K-kv-lve"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Item" id="YTh-Ku-Ifd"/>
+                    <tabBarItem key="tabBarItem" title="Feeds" id="YTh-Ku-Ifd"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d4h-dN-3WE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -108,7 +108,7 @@
             </objects>
             <point key="canvasLocation" x="-972" y="-731"/>
         </scene>
-        <!--Item-->
+        <!--Photos-->
         <scene sceneID="A1H-W5-bWM">
             <objects>
                 <collectionViewController id="qBJ-IP-880" customClass="PhotosVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
@@ -137,13 +137,13 @@
                             <outlet property="delegate" destination="qBJ-IP-880" id="9Gr-mB-8kA"/>
                         </connections>
                     </collectionView>
-                    <tabBarItem key="tabBarItem" title="Item" id="cxM-mk-QXb"/>
+                    <tabBarItem key="tabBarItem" title="Photos" id="cxM-mk-QXb"/>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sDx-Ug-1ek" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1792.753623188406" y="141.96428571428569"/>
         </scene>
-        <!--Item-->
+        <!--Map-->
         <scene sceneID="cy0-U5-Adc">
             <objects>
                 <viewController id="vYg-ji-Hbc" customClass="MapVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
@@ -164,13 +164,13 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="iWb-1z-uYf"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="8OX-zN-Ua2"/>
+                    <tabBarItem key="tabBarItem" title="Map" id="8OX-zN-Ua2"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z5p-ZJ-Wjp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2644.9275362318845" y="141.96428571428569"/>
         </scene>
-        <!--Item-->
+        <!--Account-->
         <scene sceneID="nl3-1d-b7S">
             <objects>
                 <viewController id="KRy-co-e87" customClass="UserAccountVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
@@ -180,7 +180,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="xoa-Fm-HsO"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="vJ6-76-hk5"/>
+                    <tabBarItem key="tabBarItem" title="Account" id="vJ6-76-hk5"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7Hr-0h-6OM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -215,10 +215,10 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="KRy-co-e87" kind="relationship" relationship="viewControllers" id="oqC-lu-TrB"/>
                         <segue destination="2WB-VC-2wh" kind="relationship" relationship="viewControllers" id="RlF-s0-M8Q"/>
                         <segue destination="qBJ-IP-880" kind="relationship" relationship="viewControllers" id="99X-xR-uNd"/>
                         <segue destination="vYg-ji-Hbc" kind="relationship" relationship="viewControllers" id="Smc-mM-qAD"/>
+                        <segue destination="KRy-co-e87" kind="relationship" relationship="viewControllers" id="oqC-lu-TrB"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ltS-wC-E1j" userLabel="First Responder" sceneMemberID="firstResponder"/>

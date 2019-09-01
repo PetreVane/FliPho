@@ -27,14 +27,14 @@ class LoginVC: UIViewController {
         
         if defaults.value(forKeyPath: "oauth_token") != nil {
 //            print("here is your user default token: \(token as! String)")
-//            performSegue(withIdentifier: "mainMenu", sender: nil)
+            performSegue(withIdentifier: "mainMenu", sender: nil)
         }
         
     }
     
     @IBAction func loginButtonPressed(_ sender: UIButton) {
         
-        doFlickrAuthentication()
+        askForAuthorization()
     }
     
     
@@ -48,43 +48,43 @@ class LoginVC: UIViewController {
     
     
 
-    func doFlickrAuthentication() {
+    func askForAuthorization() {
         
-       let authenticator = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
+       let OauthObject = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
                                         requestTokenUrl: requestTokenURL,
                                         authorizeUrl: authorizationURL,
                                         accessTokenUrl: accessTokenURL)
         
-        authenticator.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authenticator)
+        OauthObject.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: OauthObject)
         
-        _ =  authenticator.authorize(withCallbackURL: callBackURL!) { (result) in
+        _ =  OauthObject.authorize(withCallbackURL: callBackURL!) { (result) in
             
             switch result {
             case .success(let (_, _, parameters)):
                 for (key, value) in parameters {
-                    print("Each key \(key) has value \(value)")
-//                    self.defaults.set(value, forKey: key)
+//                    print("Each key \(key) has value \(value)")
+                    self.defaults.set(value, forKey: key)
                 }
 //                print("Here is your token: \(parameters)")
-                self.fetchData(with: authenticator)
+                self.authenticate(with: OauthObject)
             
             case .failure(let error):
                 print("Authentication process ended with error: \(error.description)")
-                self.showAlert(with: "Make sure you have internet connection")
+                self.showAlert(with: "Make sure you're connected to internet")
             }
             
         }
     }
     
 
-    func fetchData (with oauthswift: OAuth1Swift) {
+    func authenticate (with oauthswift: OAuth1Swift) {
         
         let url = Flickr.apiMethod(where: APIMethod.isInterestingPhotos)
         
         _ = oauthswift.client.get(url) { response in
         
             switch response {
-            case .success(let response):
+            case .success:
                 self.performSegue(withIdentifier: "mainMenu", sender: nil)
 //                print("Response: \(response.dataString(encoding: .utf8))")
             case .failure(let error):
