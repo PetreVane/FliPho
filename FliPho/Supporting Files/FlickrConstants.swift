@@ -27,6 +27,8 @@ let accessTokenURL = "https://www.flickr.com/services/oauth/access_token"
 enum APIMethod: String {
     
     typealias RawValue = String
+    
+    case isCheckOauthToken = "flickr.auth.oauth.checkToken"
     case isInterestingPhotos = "flickr.interestingness.getList"
     case isUserPhotoActivity = "flickr.activity.userPhotos"
     case isGetPhotos = "flickr.people.getPhotos"

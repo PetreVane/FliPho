@@ -23,10 +23,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-//        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last as! String)
+//        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+        let userPreferences = UserDefaults()
+        print("App did finishLaunching with username:\(userPreferences.value(forKey: "username") ?? "no username")")
+        
+        if userPreferences.value(forKey: "username") != nil {
+//            self.window?.rootViewController?.present("FeedsVC", animated: <#T##Bool#>, completion: <#T##(() -> Void)?##(() -> Void)?##() -> Void#>)
+        }
     
-        
-        
         return true
     }
 
