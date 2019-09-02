@@ -10,6 +10,11 @@ import UIKit
 
 class FeedsVC: UITableViewController {
 
+    var images = [PhotoRecord]()
+    var pendingOperations = PendingOperations()
+    
+    let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -20,6 +25,72 @@ class FeedsVC: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
+}
+
+extension FeedsVC {
+    
+    // MARK: - Operations Management
+    
+    func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+        switch photoRecord.state {
+        case .new:
+            startDownload(for: photoRecord, indexPath: indexPath)
+        case .downloaded:
+            stopDownload(for: photoRecord, indexPath: indexPath)
+        default:
+            print("FeedsVC: StartOperations() default case")
+        }
+        
+    }
+    
+    func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
+        guard photoRecord.state == .new else { return }
+        
+        let imageFetching = ImageFetcher(photo: photoRecord)
+        
+        imageFetching.completionBlock = {
+            
+            if imageFetching.isCancelled {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+                print("ImageFetcher completed task for index \(indexPath)")
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+            }
+            
+        }
+        
+        pendingOperations.downloadInProgress[indexPath] = imageFetching
+        pendingOperations.downloadQueue.addOperation(imageFetching)
+        
+    }
+    
+    func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+    }
+    
+    func suspendOperations() {
+        
+    }
+    
+    func resumeOperations() {
+        
+    }
+    
+    func loadImagesOnVisibleCells() {
+        
+    }
+    
+}
+
+
+extension FeedsVC {
+    
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -42,6 +113,11 @@ class FeedsVC: UITableViewController {
     }
     */
 
+    
+}
+
+extension FeedsVC {
+    // MARK: - Table view delegate methods
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

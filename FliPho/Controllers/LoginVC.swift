@@ -73,7 +73,7 @@ class LoginVC: UIViewController {
     func authenticate(with oauthswift: OAuth1Swift) {
        
         // come back and change this method
-        let url = Flickr.apiMethod(where: APIMethod.isCheckOauthToken)
+        let url = Flickr.apiEndPoint(where: APIMethod.isCheckOauthToken)
         
         _ = oauthswift.client.get(url) { response in
         

@@ -73,7 +73,7 @@ struct URLValues {
 
 struct Flickr {
     
-    static func apiMethod(where method: APIMethod) -> String {
+    static func apiEndPoint(where method: APIMethod) -> String {
         
         var urlComponents = URLComponents()
         
