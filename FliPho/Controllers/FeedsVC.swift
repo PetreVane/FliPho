@@ -63,6 +63,7 @@ class FeedsVC: UITableViewController {
                     DispatchQueue.main.async {
                         
                         self.tableView.reloadData()
+                        print("You've got \(self.images.count) records")
                     }
                 
             } catch {
@@ -229,6 +230,14 @@ extension FeedsVC {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tableCell", for: indexPath)
 
         // Configure the cell...
+        let record = images[indexPath.row]
+        
+        // 
+        DispatchQueue.main.async {
+            if let cell = self.tableView.cellForRow(at: indexPath) {
+                cell.textLabel?.text = record.name
+            }
+        }
 
         return cell
     }
@@ -245,6 +254,23 @@ extension FeedsVC {
         
         tableView.deselectRow(at: indexPath, animated: true)
 //        print("You've selected cell: \(indexPath.row)")
+    }
+    
+    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        suspendOperations()
+    }
+    
+    override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        if !decelerate {
+            loadImagesOnVisibleCells()
+            resumeOperations()
+        }
+    }
+    
+    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        loadImagesOnVisibleCells()
+        resumeOperations()
     }
     
     /*

@@ -66,8 +66,8 @@ struct URLValues {
     static let userId = userID
     static let apiFormat = "json"
     static let jsonCallBack = "1"
-    static let perPage = "10"
-    static let page = "1"
+    static let perPage = " "
+    static let page = " "
     
 }
 
