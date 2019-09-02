@@ -10,25 +10,26 @@ import UIKit
 
 class FeedsVC: UITableViewController {
 
-    var images = [PhotoRecord]()
+    var images: [PhotoRecord] = []
     var pendingOperations = PendingOperations()
     
     let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        tableView.dataSource = self
-        tableView.delegate = self
         
         downloadImages(from: url)
+        
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+    }
     
     func downloadImages(from url: URL) {
         
-        let session = URLSession(configuration: .default)
-        
+        let session = URLSession.shared
         let task = session.dataTask(with: url) { (data, response, error) in
             
             guard error == nil else { self.showAlert(with: "Errors while connecting to Flickr")
@@ -53,33 +54,29 @@ class FeedsVC: UITableViewController {
                 
                 for photo in decodedPhotos {
                     
-                    if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg ") {
-                        print("photoUrl: \(photoURL.absoluteString)")
+                    if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                         let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                         self.images.append(photoRecord)
-                        print("You've got \(self.images.count) photo records")
                     }
-                    
-                    
                 }
+                    
+                    DispatchQueue.main.async {
+                        
+                        self.tableView.reloadData()
+                    }
                 
             } catch {
-                print("Errors while decoding Json: \(error.localizedDescription)")
                 
+                print("Errors while decoding JSON: \(error.localizedDescription)")
             }
-            
         }
-        
         task.resume()
-        
     }
-    
-    
 }
 
 extension FeedsVC {
-    // MARK: - Networking
-
+    
+    // MARK:
 
     func showAlert(with errorMessage: String) {
         
@@ -95,13 +92,13 @@ extension FeedsVC {
 }
 
 extension FeedsVC {
-    
+
     // MARK: - Operations Management
-    
+
     // Remember to document each method
-    
+
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
+
         switch photoRecord.state {
         case .new:
             startDownload(for: photoRecord, indexPath: indexPath)
@@ -110,97 +107,97 @@ extension FeedsVC {
         default:
             print("FeedsVC: StartOperations() default case")
         }
-        
+
     }
-    
+
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
+
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
         guard photoRecord.state == .new else { return }
-        
+
         let imageFetching = ImageFetcher(photo: photoRecord)
-        
+
         imageFetching.completionBlock = {
-            
+
             if imageFetching.isCancelled {
                 return
             }
-            
+
             DispatchQueue.main.async {
                 self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
                 print("ImageFetcher completed task for index \(indexPath)")
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
             }
-            
+
         }
-        
+
         pendingOperations.downloadInProgress[indexPath] = imageFetching
         pendingOperations.downloadQueue.addOperation(imageFetching)
-        
+
     }
-    
+
     func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
+
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-        
+
         let imageFetching = ImageFetcher(photo: photoRecord)
-        
+
         imageFetching.completionBlock = {
-            
+
             if imageFetching.isFinished {
                 return
             }
-            
+
             DispatchQueue.main.async {
                 photoRecord.state = .downloaded
                 print("StopDownload: imageFetching finished at index \(indexPath.row)")
             }
         }
-        
+
     }
-    
+
     func suspendOperations() {
-        
+
         pendingOperations.downloadQueue.isSuspended = true
     }
-    
+
     func resumeOperations() {
-        
+
         pendingOperations.downloadQueue.isSuspended = false
     }
-    
+
     func loadImagesOnVisibleCells() {
-        
+
         // getting a reference of all visible rows
         if let listOfVisibleRows = tableView.indexPathsForVisibleRows {
-            
+
             // making sure each indexPath is unique
             let visibleCells = Set(listOfVisibleRows)
-            
+
             // getting a reference of all indexPaths with pending operations
             let allPendingOperations = Set(pendingOperations.downloadInProgress.keys)
-            
+
             // preparing to cancel all operations, except those of visible cells
             var operationsToBeCancelled = allPendingOperations
-            
+
             // substracting operations of visible cells, from those waiting to be cancelled
             operationsToBeCancelled.subtract(visibleCells)
-            
+
             // getting a reference of operations to be started
             var opertationsToBeStarted = visibleCells
-            
+
             //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
             opertationsToBeStarted.subtract(allPendingOperations)
-            
+
             // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
             for operationIndexPath in operationsToBeCancelled {
-                
+
                 if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
                     pendingDownload.cancel()
                 }
                 pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
             }
-            
+
             // looping through the list of operations to be started and starting them
             for indexPath in opertationsToBeStarted {
                 let imageToBeFetched = images[indexPath.row]
@@ -222,6 +219,7 @@ extension FeedsVC {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
+        
         return images.count
     }
 
@@ -246,7 +244,7 @@ extension FeedsVC {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
-        print("You've selected cell: \(indexPath.row)")
+//        print("You've selected cell: \(indexPath.row)")
     }
     
     /*
