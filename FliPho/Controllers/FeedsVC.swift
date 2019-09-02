@@ -18,18 +18,87 @@ class FeedsVC: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        downloadImages(from: url)
     }
 
+    
+    func downloadImages(from url: URL) {
+        
+        let session = URLSession(configuration: .default)
+        
+        let task = session.dataTask(with: url) { (data, response, error) in
+            
+            guard error == nil else { self.showAlert(with: "Errors while connecting to Flickr")
+                print("Errors != nil")
+                return
+            }
+            
+            guard let serverResponse = response as? HTTPURLResponse,
+                serverResponse.statusCode == 200 else { print("FeedsVC -> DownloadImages: Server responded with unexpected status code")
+                    self.showAlert(with: "Flickr servers not reachable")
+                    return
+            }
+            
+            guard let receivedData = data else { return }
+            
+            let decoder = JSONDecoder()
+            
+            do {
+                
+                let decodedData = try decoder.decode(EncodedJSON.self, from: receivedData)
+                let decodedPhotos = decodedData.photos.photo
+                
+                for photo in decodedPhotos {
+                    
+                    if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg ") {
+                        print("photoUrl: \(photoURL.absoluteString)")
+                        let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                        self.images.append(photoRecord)
+                        print("You've got \(self.images.count) photo records")
+                    }
+                    
+                    
+                }
+                
+            } catch {
+                print("Errors while decoding Json: \(error.localizedDescription)")
+                
+            }
+            
+        }
+        
+        task.resume()
+        
+    }
+    
+    
+}
+
+extension FeedsVC {
+    // MARK: - Networking
+
+
+    func showAlert(with errorMessage: String) {
+        
+        let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+        let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+     
+ 
 }
 
 extension FeedsVC {
     
     // MARK: - Operations Management
+    
+    // Remember to document each method
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
@@ -72,20 +141,73 @@ extension FeedsVC {
     
     func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
+        
+        let imageFetching = ImageFetcher(photo: photoRecord)
+        
+        imageFetching.completionBlock = {
+            
+            if imageFetching.isFinished {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                photoRecord.state = .downloaded
+                print("StopDownload: imageFetching finished at index \(indexPath.row)")
+            }
+        }
+        
     }
     
     func suspendOperations() {
         
+        pendingOperations.downloadQueue.isSuspended = true
     }
     
     func resumeOperations() {
         
+        pendingOperations.downloadQueue.isSuspended = false
     }
     
     func loadImagesOnVisibleCells() {
         
+        // getting a reference of all visible rows
+        if let listOfVisibleRows = tableView.indexPathsForVisibleRows {
+            
+            // making sure each indexPath is unique
+            let visibleCells = Set(listOfVisibleRows)
+            
+            // getting a reference of all indexPaths with pending operations
+            let allPendingOperations = Set(pendingOperations.downloadInProgress.keys)
+            
+            // preparing to cancel all operations, except those of visible cells
+            var operationsToBeCancelled = allPendingOperations
+            
+            // substracting operations of visible cells, from those waiting to be cancelled
+            operationsToBeCancelled.subtract(visibleCells)
+            
+            // getting a reference of operations to be started
+            var opertationsToBeStarted = visibleCells
+            
+            //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
+            opertationsToBeStarted.subtract(allPendingOperations)
+            
+            // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
+            for operationIndexPath in operationsToBeCancelled {
+                
+                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
+                    pendingDownload.cancel()
+                }
+                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+            }
+            
+            // looping through the list of operations to be started and starting them
+            for indexPath in opertationsToBeStarted {
+                let imageToBeFetched = images[indexPath.row]
+                startOperations(for: imageToBeFetched, indexPath: indexPath)
+            }
+        }
     }
-    
 }
 
 
@@ -95,29 +217,38 @@ extension FeedsVC {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return images.count
     }
 
-    /*
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "tableCell", for: indexPath)
 
         // Configure the cell...
 
         return cell
     }
-    */
+ 
 
     
 }
 
 extension FeedsVC {
+    
     // MARK: - Table view delegate methods
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+        print("You've selected cell: \(indexPath.row)")
+    }
+    
     /*
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
