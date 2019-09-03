@@ -68,7 +68,7 @@ extension FeedsVC {
                     DispatchQueue.main.async {
                         
                         self.tableView.reloadData()
-                        print("You've got \(self.images.count) records")
+//                        print("You've got \(self.images.count) records")
                     }
                 
             } catch {

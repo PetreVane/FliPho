@@ -13,14 +13,18 @@ private let reuseIdentifier = "collectionCell"
 
 class PhotosVC: UICollectionViewController {
     
+    
     fileprivate let savedData = UserDefaults()
     fileprivate var userAlbum: [PhotoRecord] = []
     fileprivate let endpointURL = URL(string: Flickr.apiEndPoint(where: APIMethod.isGetPhotos))
 
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(endpointURL)
         fetchUserPhotos(from: endpointURL!)
+        
     }
 
 }
@@ -31,23 +35,49 @@ extension PhotosVC {
 
     func fetchUserPhotos(from url: URL) {
         
-        guard oauthAuth != nil else { print("no auth")
-            return
+        let jsonDecoder = JSONDecoder()
+        
+        let authObject = OAuthSwiftClient(consumerKey: Constants.consumerKey, consumerSecret: Constants.consumerSecret, oauthToken: savedData.value(forKey: "oauth_token") as! String, oauthTokenSecret: savedData.value(forKey: "oauth_token_secret") as! String, version: .oauth1)
+        
+        
+        authObject.get(url) { (result) in
+            
+            print(authObject.description)
+            
+            switch result {
+            case .success(let success):
+//                print("AuthObject success: \(success.dataString(encoding: .utf8))")
+                do {
+                    let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: success.data)
+                    let decodedPhotos = decodedData.photos.photo
+                    print("You've got \(decodedPhotos.count) images")
+                    
+                    for photo in decodedPhotos {
+                        if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                            let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                            self.userAlbum.append(photoRecord)
+                        }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                    
+                } catch {
+                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
+                }
+            case .failure(let failure):
+                print("Authobject error: \(failure)")
+            }
         }
         
-        print("Fetching user photos with auth:)")
-//        Constants.authenticator?.client.get(url, completionHandler: { (response) in
+//        do {
+////            let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: )
 //
-//            switch response {
-//            case .success(let result):
-//                print("Authenticator result: ..))")
-//
-//            case .failure(let error):
-//                print("Authenticator error: \(error.localizedDescription)")
-//            }
-//
-//        })
-        
+//        } catch {
+//            print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
+//        }
+
     }
     
     /*
@@ -78,6 +108,11 @@ extension PhotosVC {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
     
         // Configure the cell
+        DispatchQueue.main.async {
+            if let cell = collectionView.cellForItem(at: indexPath) {
+                
+            }
+        }
         
     
         return cell

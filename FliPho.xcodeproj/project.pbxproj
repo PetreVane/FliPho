@@ -93,7 +93,6 @@
 				0BB45AC723192E9F00066791 /* AppDelegate.swift */,
 				0BB0EE9E23193B140000A0C2 /* Supporting Files */,
 				0BE641BB2319318800D7DB44 /* Models */,
-				0BE641BA2319316B00D7DB44 /* Design Files */,
 				0BE641B92319316000D7DB44 /* Controllers */,
 				0BE641BE2319327F00D7DB44 /* StoryBoards */,
 				0BB45ACE23192EA100066791 /* Assets.xcassets */,
@@ -114,13 +113,6 @@
 				0BE641C7231934AB00D7DB44 /* PhotoDetailsVC.swift */,
 			);
 			path = Controllers;
-			sourceTree = "<group>";
-		};
-		0BE641BA2319316B00D7DB44 /* Design Files */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Design Files";
 			sourceTree = "<group>";
 		};
 		0BE641BB2319318800D7DB44 /* Models */ = {

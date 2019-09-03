@@ -11,14 +11,13 @@ import OAuthSwift
 
 
 let defaults = UserDefaults()
-var oauthAuth: OAuthSwift?
+
 // segue identifiers
 let mainMenu = "mainMenu"
 
 // MARK: Constants
 struct Constants {
     
-    static var authenticator: OAuthSwift?
     static var userID: String?
     static let consumerKey = "11ba962b3f2d30ee51503e7320929d65"
     static let consumerSecret = "92e51d0a3248e2a2"
@@ -72,8 +71,8 @@ struct URLValues {
     static let userId = Constants.userID
     static let apiFormat = "json"
     static let jsonCallBack = "1"
-    static let perPage = " "
-    static let page = " "
+    static let perPage = "250"
+    static let page = ""
     
 }
 
@@ -81,7 +80,7 @@ struct Flickr {
     
     static func apiEndPoint(where method: APIMethod) -> String {
         
-        Constants.userID = defaults.value(forKey: "user_nsid") as? String
+        let userNSID = defaults.value(forKey: "user_nsid") as? String
         
         var urlComponents = URLComponents()
         
@@ -95,7 +94,7 @@ struct Flickr {
         
         urlComponents.queryItems?.append(URLQueryItem.init(name: URLKeys.apiMethod, value: method.rawValue))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.apiKey, value: URLValues.apiKey))
-        urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.userId, value: URLValues.userId))
+        urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.userId, value: userNSID))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.perPage, value: URLValues.perPage))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.page, value: URLValues.page))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.apiFormat, value: URLValues.apiFormat))

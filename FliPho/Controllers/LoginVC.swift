@@ -49,8 +49,6 @@ class LoginVC: UIViewController {
                                         authorizeUrl: Constants.authorizationURL,
                                         accessTokenUrl: Constants.accessTokenURL)
         
-       oauthAuth = authObject
-        
         authObject.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authObject)
         
         _ =  authObject.authorize(withCallbackURL: callBackURL!) { (result) in
