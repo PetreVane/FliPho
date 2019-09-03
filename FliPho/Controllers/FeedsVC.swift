@@ -101,12 +101,12 @@ extension FeedsVC {
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
         switch photoRecord.state {
-        case .new:
-            startDownload(for: photoRecord, indexPath: indexPath)
-        case .downloaded:
-            stopDownload(for: photoRecord, indexPath: indexPath)
-        default:
-            print("FeedsVC: StartOperations() default case")
+            case .new:
+                startDownload(for: photoRecord, indexPath: indexPath)
+            case .downloaded:
+                stopDownload(for: photoRecord, indexPath: indexPath)
+            default:
+                print("FeedsVC: StartOperations() default case")
         }
 
     }

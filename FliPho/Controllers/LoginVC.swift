@@ -83,7 +83,7 @@ class LoginVC: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.performSegue(withIdentifier: "mainMenu", sender: nil)
-                    print("Authentication successful")
+//                    print("Authentication successful")
                 }
             case .failure(let error):
                 
@@ -99,7 +99,7 @@ class LoginVC: UIViewController {
 
     func showAlert(with errorMessage: String) {
         
-        let alert = UIAlertController(title: "Could not sign in", message: errorMessage, preferredStyle: .alert)
+        let alert = UIAlertController(title: "Couldn't sign you in", message: errorMessage, preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
         
         alert.addAction(action)
