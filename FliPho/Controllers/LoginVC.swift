@@ -12,8 +12,8 @@ import OAuthSwift
 
 class LoginVC: UIViewController {
     
-    let defaults = UserDefaults()
-    let callBackURL = URL(string: "FliPho://")
+    fileprivate let defaults = UserDefaults()
+    fileprivate let callBackURL = URL(string: "FliPho://")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,49 +44,47 @@ class LoginVC: UIViewController {
 
     func askForAuthorization() {
         
-       let authObject = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
-                                        requestTokenUrl: requestTokenURL,
-                                        authorizeUrl: authorizationURL,
-                                        accessTokenUrl: accessTokenURL)
+       let authObject = OAuth1Swift( consumerKey: Constants.consumerKey, consumerSecret: Constants.consumerSecret,
+                                        requestTokenUrl: Constants.requestTokenURL,
+                                        authorizeUrl: Constants.authorizationURL,
+                                        accessTokenUrl: Constants.accessTokenURL)
+        
+       oauthAuth = authObject
         
         authObject.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authObject)
-       
+        
         _ =  authObject.authorize(withCallbackURL: callBackURL!) { (result) in
             
             switch result {
             case .success(let (_, _, parameters)):
-                print("Auth returned: \(parameters)")
-                for (key, value) in parameters {
-                    self.defaults.set(value, forKey: key)
+                for (key, _) in parameters {
+                    if let valueAsString = parameters[key] as? String {
+//                        print("Value as string: \(valueAsString.removingPercentEncoding)")
+                        self.defaults.set(valueAsString.removingPercentEncoding, forKey: key)
+                    }
                 }
                 self.authenticate(with: authObject)
-                
             case .failure(let error):
                 print("Authentication process ended with error: \(error.description)")
                 self.showAlert(with: "Make sure you're connected to internet")
             }
-            
         }
     }
     
 
     func authenticate(with oauthswift: OAuth1Swift) {
        
-        // come back and change this method
         let url = Flickr.apiEndPoint(where: APIMethod.isCheckOauthToken)
         
         _ = oauthswift.client.get(url) { response in
         
             switch response {
-                
-            case .success:
-                
+                case .success:
                 DispatchQueue.main.async {
                     self.performSegue(withIdentifier: "mainMenu", sender: nil)
-//                    print("Authentication successful")
+                    print("Authentication successful")
                 }
             case .failure(let error):
-                
                 print(error.localizedDescription)
                 DispatchQueue.main.async {
                     self.showAlert(with: "Authentication: something went wrong")
@@ -106,6 +104,7 @@ class LoginVC: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+  
     /*
     
     // MARK: - Navigation

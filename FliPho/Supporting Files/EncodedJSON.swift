@@ -54,6 +54,5 @@ enum CodingKeys: String, CodingKey {
     }
 
 }
-    
 
 

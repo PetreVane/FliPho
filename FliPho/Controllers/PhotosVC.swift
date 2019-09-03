@@ -7,35 +7,60 @@
 //
 
 import UIKit
+import OAuthSwift
 
 private let reuseIdentifier = "collectionCell"
 
 class PhotosVC: UICollectionViewController {
     
-    var userAlbum: [PhotoRecord] = []
+    fileprivate let savedData = UserDefaults()
+    fileprivate var userAlbum: [PhotoRecord] = []
+    fileprivate let endpointURL = URL(string: Flickr.apiEndPoint(where: APIMethod.isGetPhotos))
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
-//        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        
+        fetchUserPhotos(from: endpointURL!)
     }
 
-    /*
-    // MARK: - Navigation
+}
 
+extension PhotosVC {
+    
+    // MARK: - Networking
+
+    func fetchUserPhotos(from url: URL) {
+        
+        guard oauthAuth != nil else { print("no auth")
+            return
+        }
+        
+        print("Fetching user photos with auth:)")
+//        Constants.authenticator?.client.get(url, completionHandler: { (response) in
+//
+//            switch response {
+//            case .success(let result):
+//                print("Authenticator result: ..))")
+//
+//            case .failure(let error):
+//                print("Authenticator error: \(error.localizedDescription)")
+//            }
+//
+//        })
+        
+    }
+    
+    /*
+     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using [segue destinationViewController].
         // Pass the selected object to the new view controller.
     }
     */
+}
 
+extension PhotosVC {
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -58,6 +83,10 @@ class PhotosVC: UICollectionViewController {
         return cell
     }
 
+}
+
+
+extension PhotosVC {
     // MARK: UICollectionViewDelegate
 
     /*

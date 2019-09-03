@@ -10,16 +10,16 @@ import UIKit
 
 class FeedsVC: UITableViewController {
 
-    var images: [PhotoRecord] = []
-    var pendingOperations = PendingOperations()
+
+    fileprivate var images: [PhotoRecord] = []
+    fileprivate var pendingOperations = PendingOperations()
     
-    let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
+    fileprivate let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         downloadImages(from: url)
-        
     }
 
     
@@ -233,7 +233,6 @@ extension FeedsVC {
         // Configure the cell...
         let record = images[indexPath.row]
         
-        // 
         DispatchQueue.main.async {
             if let cell = self.tableView.cellForRow(at: indexPath) {
                 cell.textLabel?.text = record.name

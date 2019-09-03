@@ -7,21 +7,27 @@
 //
 
 import Foundation
+import OAuthSwift
 
 
-// MARK: Constants
-let consumerKey = "11ba962b3f2d30ee51503e7320929d65"
-let consumerSecret = "92e51d0a3248e2a2"
-var userID: String?
-
+let defaults = UserDefaults()
+var oauthAuth: OAuthSwift?
 // segue identifiers
 let mainMenu = "mainMenu"
 
-
-let requestTokenURL = "https://www.flickr.com/services/oauth/request_token"
-let authorizationURL = "https://www.flickr.com/services/oauth/authorize"
-let accessTokenURL = "https://www.flickr.com/services/oauth/access_token"
-
+// MARK: Constants
+struct Constants {
+    
+    static var authenticator: OAuthSwift?
+    static var userID: String?
+    static let consumerKey = "11ba962b3f2d30ee51503e7320929d65"
+    static let consumerSecret = "92e51d0a3248e2a2"
+    
+    static let requestTokenURL = "https://www.flickr.com/services/oauth/request_token"
+    static let authorizationURL = "https://www.flickr.com/services/oauth/authorize"
+    static let accessTokenURL = "https://www.flickr.com/services/oauth/access_token"
+    
+}
 
 // MARK: Flick API Methods
 enum APIMethod: String {
@@ -62,8 +68,8 @@ struct URLKeys {
 
 struct URLValues {
     
-    static let apiKey = consumerKey
-    static let userId = userID
+    static let apiKey = Constants.consumerKey
+    static let userId = Constants.userID
     static let apiFormat = "json"
     static let jsonCallBack = "1"
     static let perPage = " "
@@ -74,6 +80,8 @@ struct URLValues {
 struct Flickr {
     
     static func apiEndPoint(where method: APIMethod) -> String {
+        
+        Constants.userID = defaults.value(forKey: "user_nsid") as? String
         
         var urlComponents = URLComponents()
         
@@ -87,6 +95,7 @@ struct Flickr {
         
         urlComponents.queryItems?.append(URLQueryItem.init(name: URLKeys.apiMethod, value: method.rawValue))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.apiKey, value: URLValues.apiKey))
+        urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.userId, value: URLValues.userId))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.perPage, value: URLValues.perPage))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.page, value: URLValues.page))
         urlComponents.queryItems?.append(URLQueryItem(name: URLKeys.apiFormat, value: URLValues.apiFormat))
