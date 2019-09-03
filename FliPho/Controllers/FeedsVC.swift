@@ -22,15 +22,20 @@ class FeedsVC: UITableViewController {
         
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
-    }
+    
+}
+
+extension FeedsVC {
+    
+    // MARK: - Networking
     
     func downloadImages(from url: URL) {
         
         let session = URLSession.shared
-        let task = session.dataTask(with: url) { (data, response, error) in
+        let task = session.dataTask(with: url) { [weak self] (data, response, error) in
+            
+            // weak capturing of self
+            guard let self = self else { return }
             
             guard error == nil else { self.showAlert(with: "Errors while connecting to Flickr")
                 print("Errors != nil")
@@ -73,11 +78,7 @@ class FeedsVC: UITableViewController {
         }
         task.resume()
     }
-}
 
-extension FeedsVC {
-    
-    // MARK:
 
     func showAlert(with errorMessage: String) {
         
