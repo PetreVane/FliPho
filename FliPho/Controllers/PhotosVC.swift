@@ -107,10 +107,11 @@ extension PhotosVC {
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
     
+        
         // Configure the cell
         DispatchQueue.main.async {
-            if let cell = collectionView.cellForItem(at: indexPath) {
-                
+            if let cell = collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
+                cell.cellPhotoView.image = self.userAlbum[indexPath.row].image
             }
         }
         
