@@ -10,19 +10,17 @@ import UIKit
 
 class FeedsVC: UITableViewController {
 
-
-    fileprivate var images: [PhotoRecord] = []
+    fileprivate var photoDetails: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     fileprivate var operationsManager = OperationsManager()
     fileprivate let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
-    let cachedImage = NSCache<AnyObject, AnyObject>()
-    
+    fileprivate let storage = Cache()
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        downloadImages(from: url)
+        fetchImageDetails(from: url)
     }
 
     
@@ -32,7 +30,7 @@ extension FeedsVC {
     
     // MARK: - Networking
     
-    func downloadImages(from url: URL) {
+    func fetchImageDetails(from url: URL) {
         
         let session = URLSession.shared
         let task = session.dataTask(with: url) { [weak self] (data, response, error) in
@@ -64,12 +62,13 @@ extension FeedsVC {
                     
                     if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                         let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                        self.images.append(photoRecord)
+                        self.photoDetails.append(photoRecord)
                     }
                 }
                     
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
+                    
                     }
                 
             } catch {
@@ -80,7 +79,6 @@ extension FeedsVC {
         task.resume()
     }
 
-
     func showAlert(with errorMessage: String) {
         
         let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
@@ -90,8 +88,6 @@ extension FeedsVC {
         self.present(alert, animated: true, completion: nil)
     }
     
-     
- 
 }
 
 extension FeedsVC {
@@ -132,16 +128,14 @@ extension FeedsVC {
 
             // looping through the list of operations to be started and starting them
             for indexPath in opertationsToBeStarted {
-                let imageToBeFetched = images[indexPath.row]
+                let imageToBeFetched = photoDetails[indexPath.row]
                 operationsManager.startOperations(for: imageToBeFetched, indexPath: indexPath)
-                tableView.reloadRows(at: [indexPath], with: .fade)
-//                print("Reloading rows from LoadImages()")
+//                tableView.reloadRows(at: [indexPath], with: .fade)
                 
             }
         }
     }
 }
-
 
 extension FeedsVC {
     
@@ -155,7 +149,7 @@ extension FeedsVC {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         
-        return images.count
+        return photoDetails.count
     }
 
     
@@ -164,50 +158,26 @@ extension FeedsVC {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "tableCell", for: indexPath) as? CustomTableViewCell else { return UITableViewCell() }
 
         // Configure the cell...
-        let record = images[indexPath.row]
+
+        let record = photoDetails[indexPath.row]
         
         switch record.state {
        
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
                 operationsManager.startOperations(for: record, indexPath: indexPath)
+                print("Starting operations for row nr: \(indexPath.row)")
             }
         case .downloaded:
-//            cachedImage.setObject(record, forKey: record.imageUrl as AnyObject)
-            print("Image downloaded & saved in cache, but not showing up")
+            storage.saveToCache(with: record.name as NSString, value: record as AnyObject)
             
         case .failed:
             print("Image failed to load at indexPath: \(indexPath.row)")
             // remember to add a default picture
         }
         
-        if let imageFromCache = cachedImage.object(forKey: record.imageUrl as AnyObject) {
-            DispatchQueue.main.async {
-                cell.tableImageView.image = imageFromCache as? UIImage
-                print("Image retrieved from cache")
-            }
-        } else {
-            DispatchQueue.main.async {
-                cell.tableImageView.image = record.image
-            }
-        }
+        cell.tableImageView.image = record.image
         
-//        DispatchQueue.main.async {
-//
-//            if let cell = self.tableView.cellForRow(at: indexPath) as? CustomTableViewCell {
-//
-//                cell.tableImageView.image = record.image
-////                if let imageFromCache = self.cachedImage.object(forKey: record.imageUrl as AnyObject) {
-////                    cell.tableImageView.image = imageFromCache as? UIImage
-////                    print("Image retrieved from cache")
-////                } else {
-////                    cell.tableImageView.image = record.image
-////                    print("Image retrieved from network")
-////                }
-//
-//            }
-//        }
-
         return cell
     }
  
@@ -235,43 +205,24 @@ extension FeedsVC {
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         if !decelerate {
-            
             loadImagesOnVisibleCells()
             operationsManager.resumeOperations()
-            print("Stopped decelerating now  and started refreshing allCells...")
-//            tableView.reloadData()
-
         }
     }
     
     override func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
         
-//        tableView.reloadData()
-//        loadImagesOnVisibleCells()
-//        operationsManager.resumeOperations()
-//        print("ScrollView will begin decelarating")
-//        tableView.reloadData()
-//        if let visibleCells = tableView.indexPathsForVisibleRows {
-//
-//            for cell in visibleCells {
-//                tableView.reloadRows(at: [cell], with: .fade)
-//            }
-//        }
-
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
         loadImagesOnVisibleCells()
         operationsManager.resumeOperations()
-        print("ScrollView didEnd decelerating and started refreshing visible cells")
-//        if let visibleCells = tableView.indexPathsForVisibleRows {
-//
-//            for cell in visibleCells {
-//                tableView.reloadRows(at: [cell], with: .fade)
-//            }
-//        }
-        
+        if let indexPath = tableView.indexPathsForVisibleRows {
+            for index in indexPath {
+                tableView.reloadRows(at: [index], with: .fade)
+            }
+        }
         
     }
     

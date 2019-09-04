@@ -14,17 +14,20 @@ class OperationsManager {
     // MARK: - Operations Management
     
     fileprivate let pendingOperations = PendingOperations()
-        
+    let storage = Cache()
+    
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
         switch photoRecord.state {
         case .new:
             startDownload(for: photoRecord, indexPath: indexPath)
-        case .downloaded:
-            print("Image fetched at indexPath: \(indexPath.row)")
-//            stopDownload(for: photoRecord, indexPath: indexPath)
         default:
-            print("FeedsVC: StartOperations() default case")
+            print("default case")
+//        case .downloaded:
+//            print("StartOperations: Image fetched and cached: \(indexPath.row)")
+//        case .failed:
+//            print("Image failed")
+
         }
         
     }
@@ -34,6 +37,7 @@ class OperationsManager {
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
         guard photoRecord.state == .new else { return }
         
+        
         let imageFetching = ImageFetcher(photo: photoRecord)
         
         imageFetching.completionBlock = {
@@ -42,15 +46,14 @@ class OperationsManager {
                 return
             }
             
+            if imageFetching.isFinished{
+                
+                photoRecord.state = .downloaded
+                self.storage.saveToCache(with: photoRecord.name as NSString, value: photoRecord as AnyObject)
+
+            }
+            
             self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
-            print("Pending Operation completed & removed task for index \(indexPath.row)")
-            
-//            DispatchQueue.main.async {
-//                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
-//                print("Pending Operation completed & removed task for index \(indexPath.row)")
-//
-//            }
-            
         }
         
         pendingOperations.downloadInProgress[indexPath] = imageFetching
@@ -58,25 +61,6 @@ class OperationsManager {
         
     }
     
-    func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-        
-        let imageFetching = ImageFetcher(photo: photoRecord)
-        
-        imageFetching.completionBlock = {
-            
-            if imageFetching.isFinished {
-                return
-            }
-            
-            DispatchQueue.main.async {
-                photoRecord.state = .downloaded
-                print("StopDownload: imageFetching finished at index \(indexPath.row)")
-            }
-        }
-        
-    }
     
     func suspendOperations() {
         
