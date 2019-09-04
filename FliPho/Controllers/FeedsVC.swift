@@ -13,6 +13,7 @@ class FeedsVC: UITableViewController {
 
     fileprivate var images: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
+    fileprivate var operationsManager = OperationsManager()
     
     fileprivate let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
     
@@ -99,74 +100,74 @@ extension FeedsVC {
 
     // Remember to document each method
 
-    func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//    func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//
+//        switch photoRecord.state {
+//            case .new:
+//                startDownload(for: photoRecord, indexPath: indexPath)
+//            case .downloaded:
+//                stopDownload(for: photoRecord, indexPath: indexPath)
+//            default:
+//                print("FeedsVC: StartOperations() default case")
+//        }
+//
+//    }
 
-        switch photoRecord.state {
-            case .new:
-                startDownload(for: photoRecord, indexPath: indexPath)
-            case .downloaded:
-                stopDownload(for: photoRecord, indexPath: indexPath)
-            default:
-                print("FeedsVC: StartOperations() default case")
-        }
+//    func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//
+//        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
+//        guard photoRecord.state == .new else { return }
+//
+//        let imageFetching = ImageFetcher(photo: photoRecord)
+//
+//        imageFetching.completionBlock = {
+//
+//            if imageFetching.isCancelled {
+//                return
+//            }
+//
+//            DispatchQueue.main.async {
+//                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+//                print("ImageFetcher completed task for index \(indexPath)")
+//                self.tableView.reloadRows(at: [indexPath], with: .fade)
+//            }
+//
+//        }
+//
+//        pendingOperations.downloadInProgress[indexPath] = imageFetching
+//        pendingOperations.downloadQueue.addOperation(imageFetching)
+//
+//    }
 
-    }
+//    func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//
+//        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
+//
+//        let imageFetching = ImageFetcher(photo: photoRecord)
+//
+//        imageFetching.completionBlock = {
+//
+//            if imageFetching.isFinished {
+//                return
+//            }
+//
+//            DispatchQueue.main.async {
+//                photoRecord.state = .downloaded
+//                print("StopDownload: imageFetching finished at index \(indexPath.row)")
+//            }
+//        }
+//
+//    }
 
-    func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//    func suspendOperations() {
+//
+//        pendingOperations.downloadQueue.isSuspended = true
+//    }
 
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-        guard photoRecord.state == .new else { return }
-
-        let imageFetching = ImageFetcher(photo: photoRecord)
-
-        imageFetching.completionBlock = {
-
-            if imageFetching.isCancelled {
-                return
-            }
-
-            DispatchQueue.main.async {
-                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
-                print("ImageFetcher completed task for index \(indexPath)")
-                self.tableView.reloadRows(at: [indexPath], with: .fade)
-            }
-
-        }
-
-        pendingOperations.downloadInProgress[indexPath] = imageFetching
-        pendingOperations.downloadQueue.addOperation(imageFetching)
-
-    }
-
-    func stopDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-
-        let imageFetching = ImageFetcher(photo: photoRecord)
-
-        imageFetching.completionBlock = {
-
-            if imageFetching.isFinished {
-                return
-            }
-
-            DispatchQueue.main.async {
-                photoRecord.state = .downloaded
-                print("StopDownload: imageFetching finished at index \(indexPath.row)")
-            }
-        }
-
-    }
-
-    func suspendOperations() {
-
-        pendingOperations.downloadQueue.isSuspended = true
-    }
-
-    func resumeOperations() {
-
-        pendingOperations.downloadQueue.isSuspended = false
-    }
+//    func resumeOperations() {
+//
+//        pendingOperations.downloadQueue.isSuspended = false
+//    }
 
     func loadImagesOnVisibleCells() {
 
@@ -203,7 +204,7 @@ extension FeedsVC {
             // looping through the list of operations to be started and starting them
             for indexPath in opertationsToBeStarted {
                 let imageToBeFetched = images[indexPath.row]
-                startOperations(for: imageToBeFetched, indexPath: indexPath)
+               operationsManager.startOperations(for: imageToBeFetched, indexPath: indexPath)
             }
         }
     }
@@ -257,20 +258,20 @@ extension FeedsVC {
     }
     
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        suspendOperations()
+        operationsManager.suspendOperations()
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         if !decelerate {
             loadImagesOnVisibleCells()
-            resumeOperations()
+            operationsManager.resumeOperations()
         }
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         loadImagesOnVisibleCells()
-        resumeOperations()
+        operationsManager.resumeOperations()
     }
     
     /*

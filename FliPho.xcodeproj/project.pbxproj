@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0BA60BAA231F9BC000154E7C /* OperationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA60BA9231F9BC000154E7C /* OperationsManager.swift */; };
 		0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */; };
 		0BB36E6C231CF003003151F2 /* PhotoRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB36E6B231CF003003151F2 /* PhotoRecord.swift */; };
 		0BB36E6E231D0D22003151F2 /* ImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */; };
@@ -27,6 +28,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0BA60BA9231F9BC000154E7C /* OperationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationsManager.swift; sourceTree = "<group>"; };
 		0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		0BB36E6B231CF003003151F2 /* PhotoRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoRecord.swift; sourceTree = "<group>"; };
 		0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFetcher.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 				0BB36E6B231CF003003151F2 /* PhotoRecord.swift */,
 				0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */,
 				0BB36E6F231D11EE003151F2 /* PendingOperations.swift */,
+				0BA60BA9231F9BC000154E7C /* OperationsManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -274,6 +277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BE2558B231D77DC00A1F266 /* EncodedJSON.swift in Sources */,
+				0BA60BAA231F9BC000154E7C /* OperationsManager.swift in Sources */,
 				0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */,
 				0BE641BD2319320900D7DB44 /* FeedsVC.swift in Sources */,
 				0BD84512231EF1F00033097F /* CustomCollectionViewCell.swift in Sources */,
