@@ -19,22 +19,30 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="sectionIndexBackgroundColor" red="0.30840110780000002" green="0.5618229508" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="tableCell" textLabel="2HY-Wp-d4S" style="IBUITableViewCellStyleDefault" id="Gnw-qa-Zfs">
-                                <rect key="frame" x="0.0" y="28" width="414" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="tableCell" rowHeight="150" id="Gnw-qa-Zfs" customClass="CustomTableViewCell" customModule="FliPho" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="414" height="150"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Gnw-qa-Zfs" id="mIY-64-7RW">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" ambiguous="YES" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Gnw-qa-Zfs" id="mIY-64-7RW">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="149.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="2HY-Wp-d4S">
-                                            <rect key="frame" x="20" y="0.0" width="374" height="43.5"/>
-                                            <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <nil key="textColor"/>
-                                            <nil key="highlightedColor"/>
-                                        </label>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gzw-gp-7FP">
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="145.5"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="145" id="Byo-Ll-bDu"/>
+                                            </constraints>
+                                        </imageView>
                                     </subviews>
+                                    <constraints>
+                                        <constraint firstItem="gzw-gp-7FP" firstAttribute="leading" secondItem="mIY-64-7RW" secondAttribute="leading" id="BgE-P4-5yt"/>
+                                        <constraint firstAttribute="bottom" secondItem="gzw-gp-7FP" secondAttribute="bottom" constant="5" id="QKc-ed-cwO"/>
+                                        <constraint firstAttribute="trailing" secondItem="gzw-gp-7FP" secondAttribute="trailing" id="QXJ-qa-0Sf"/>
+                                        <constraint firstItem="gzw-gp-7FP" firstAttribute="top" secondItem="mIY-64-7RW" secondAttribute="top" id="v1X-Df-qFw"/>
+                                    </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="tableImageView" destination="gzw-gp-7FP" id="gM2-sN-dAq"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -155,7 +163,7 @@
                                 </constraints>
                                 <size key="customSize" width="150" height="150"/>
                                 <connections>
-                                    <outlet property="cellPhotoView" destination="kee-5D-uGx" id="CKa-RU-kqb"/>
+                                    <outlet property="imageView" destination="kee-5D-uGx" id="CKa-RU-kqb"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
@@ -168,7 +176,7 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sDx-Ug-1ek" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1792.753623188406" y="141.96428571428569"/>
+            <point key="canvasLocation" x="1754" y="142"/>
         </scene>
         <!--Map-->
         <scene sceneID="cy0-U5-Adc">

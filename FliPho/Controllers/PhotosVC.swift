@@ -16,6 +16,7 @@ class PhotosVC: UICollectionViewController {
     
     fileprivate let savedData = UserDefaults()
     fileprivate var userAlbum: [PhotoRecord] = []
+    fileprivate let operationsManager = OperationsManager()
     fileprivate let endpointURL = URL(string: Flickr.apiEndPoint(where: APIMethod.isGetPhotos))
 
     
@@ -42,16 +43,13 @@ extension PhotosVC {
         
         authObject.get(url) { (result) in
             
-            print(authObject.description)
-            
             switch result {
-            case .success(let success):
-//                print("AuthObject success: \(success.dataString(encoding: .utf8))")
+            case .success(let response):
+
                 do {
-                    let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: success.data)
+                    let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: response.data)
                     let decodedPhotos = decodedData.photos.photo
-                    print("You've got \(decodedPhotos.count) images")
-                    
+            
                     for photo in decodedPhotos {
                         if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                             let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
@@ -70,14 +68,6 @@ extension PhotosVC {
                 print("Authobject error: \(failure)")
             }
         }
-        
-//        do {
-////            let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: )
-//
-//        } catch {
-//            print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
-//        }
-
     }
     
     /*
@@ -91,6 +81,7 @@ extension PhotosVC {
 }
 
 extension PhotosVC {
+    
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -98,24 +89,37 @@ extension PhotosVC {
         return 1
     }
 
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
         return userAlbum.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
-    
         
-        // Configure the cell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? CustomCollectionViewCell else { return UICollectionViewCell() }
+    
+        let record = userAlbum[indexPath.row]
+        
+        cell.imageView.image = record.image
+        
+        switch record.state {
+        case .new:
+            operationsManager.startOperations(for: record, indexPath: indexPath)
+            
+        case .downloaded:
+            print("Photo record at indexPath \(indexPath.row) has been downloaded")
+            
+        case .failed:
+            print("Photo record at indexPath \(indexPath.row) has failed")
+        }
+        
         DispatchQueue.main.async {
             if let cell = collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
-                cell.cellPhotoView.image = self.userAlbum[indexPath.row].image
+                cell.imageView.image = record.image
             }
         }
         
-    
+
         return cell
     }
 
@@ -125,6 +129,18 @@ extension PhotosVC {
 extension PhotosVC {
     // MARK: UICollectionViewDelegate
 
+//    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+//        
+//        let indexPath = collectionView.indexPathsForVisibleItems
+//        for index in indexPath {
+//            DispatchQueue.main.async {
+//                self.collectionView.reloadItems(at: [index])
+//            }
+////            collectionView.reloadItems(at: [index])
+//        }
+//           
+//        
+//    }
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
     override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {

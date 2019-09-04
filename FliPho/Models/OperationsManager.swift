@@ -8,19 +8,21 @@
 
 import Foundation
 
+
 class OperationsManager {
     
     // MARK: - Operations Management
     
     fileprivate let pendingOperations = PendingOperations()
-    
+        
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
         switch photoRecord.state {
         case .new:
             startDownload(for: photoRecord, indexPath: indexPath)
         case .downloaded:
-            stopDownload(for: photoRecord, indexPath: indexPath)
+            print("Image fetched at indexPath: \(indexPath.row)")
+//            stopDownload(for: photoRecord, indexPath: indexPath)
         default:
             print("FeedsVC: StartOperations() default case")
         }
@@ -40,10 +42,14 @@ class OperationsManager {
                 return
             }
             
-            DispatchQueue.main.async {
-                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
-                print("ImageFetcher completed task for index \(indexPath)")
-            }
+            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+            print("Pending Operation completed & removed task for index \(indexPath.row)")
+            
+//            DispatchQueue.main.async {
+//                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+//                print("Pending Operation completed & removed task for index \(indexPath.row)")
+//
+//            }
             
         }
         

@@ -26,15 +26,15 @@ class ImageFetcher: Operation {
         
         guard let imageData = try? Data(contentsOf: photo.imageUrl) else { return }
         
-        if imageData.isEmpty {
-            
-            photo.image = UIImage(named: "Could not fetch image")
-            photo.state = .failed
-            
-        } else {
+        if !imageData.isEmpty {
             
             photo.image = UIImage(data: imageData)
             photo.state = .downloaded
+            
+        } else {
+            
+            photo.image = UIImage(named: "Could not fetch image")
+            photo.state = .failed
         }
     }
     
