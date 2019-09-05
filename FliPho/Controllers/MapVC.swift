@@ -9,7 +9,6 @@
 import UIKit
 import MapKit
 import CoreLocation
-import OAuthSwift
 
 
 class MapVC: UIViewController {
@@ -17,7 +16,9 @@ class MapVC: UIViewController {
     fileprivate var locationManager = CLLocationManager()
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
-//    fileprivate let endPointURL = Flickr.apiEndPoint(where: APIMethod.isGetPhotosForLocation)
+    fileprivate var url: URL?
+    fileprivate var defaults = UserDefaults()
+    fileprivate var photoDetails: [String: URL] = [:]
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -32,6 +33,19 @@ class MapVC: UIViewController {
         locationManager.delegate = self
         
         confirmLocationServicesAreON()
+        
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        guard let currentLocationCoordinates = locationManager.location?.coordinate else { print("Coordinates could not be established")
+            return
+        }
+        url = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: currentLocationCoordinates.latitude, longitude: currentLocationCoordinates.longitude)
+//        print("Final url: \(url)")
+        fetchLocalImages(from: url!)
     }
     
     // MARK: - Alerting the user
@@ -146,9 +160,6 @@ extension MapVC: MKMapViewDelegate {
         
         guard let coordinates = locationManager.location?.coordinate else { return }
         print("User coordinates are: Lat \(coordinates.latitude) and lon \(coordinates.longitude)")
-        var photosUrl = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: coordinates.latitude, longitude: coordinates.longitude)
-        print("Photos url with coordinates: \(photosUrl)")
-
         
         let region = MKCoordinateRegion.init(center: coordinates, latitudinalMeters: areaInMeters, longitudinalMeters: areaInMeters)
        
@@ -189,5 +200,45 @@ extension MapVC {
     
     // MARK: - Networking
     
-    
+    func fetchLocalImages(from url: URL) {
+        
+        let jsonDecoder = JSONDecoder()
+        
+        let session = URLSession.shared
+        let task = session.dataTask(with: url) { (data, response, error) in
+            
+            guard error == nil else { print("Errors while requesting images for MapVC")
+                return }
+            
+            guard let serverResponse = response as? HTTPURLResponse,
+                serverResponse.statusCode == 200 else { print("Server responded with unexpected status code")
+                    return
+            }
+            
+            guard let receivedData = data else { return }
+            
+            do {
+                let decodedData = try jsonDecoder.decode(EncodedPhotos.self, from: receivedData)
+                let decodedPhotos = decodedData.photos.photo
+                
+                for photo in decodedPhotos {
+                    if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                        
+                        self.photoDetails.updateValue(photoUrl, forKey: photo.id)
+                        
+                    }
+                }
+                
+                DispatchQueue.main.async {
+                    print("You've got \(self.photoDetails.count) records")
+                }
+                
+            } catch {
+                print("Errors while parsing json: \(error.localizedDescription)")
+            }
+            
+        }
+        task.resume()
+    }
+        
 }

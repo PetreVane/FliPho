@@ -20,6 +20,8 @@ class PhotoRecord {
     
     let name: String
     let imageUrl: URL
+    var latitude: Double?
+    var longitude: Double?
     var image = UIImage(named: "placeHolder")
     var state = PhotoRecordState.new
     
@@ -27,6 +29,7 @@ class PhotoRecord {
     init(name: String, imageUrl: URL) {
         self.name = name
         self.imageUrl = imageUrl
+        
     }
     
 }

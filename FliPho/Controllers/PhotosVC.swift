@@ -49,7 +49,7 @@ extension PhotosVC {
             case .success(let response):
 
                 do {
-                    let decodedData = try jsonDecoder.decode(EncodedJSON.self, from: response.data)
+                    let decodedData = try jsonDecoder.decode(EncodedPhotos.self, from: response.data)
                     let decodedPhotos = decodedData.photos.photo
             
                     for photo in decodedPhotos {
@@ -102,7 +102,7 @@ extension PhotosVC {
     
         let record = userAlbum[indexPath.row]
         
-        cell.imageView.image = record.image
+//        cell.imageView.image = record.image
         
         switch record.state {
         case .new:

@@ -57,7 +57,7 @@ extension FeedsVC {
             
             do {
                 
-                let decodedData = try decoder.decode(EncodedJSON.self, from: receivedData)
+                let decodedData = try decoder.decode(EncodedPhotos.self, from: receivedData)
                 let decodedPhotos = decodedData.photos.photo
                 
                 for photo in decodedPhotos {
