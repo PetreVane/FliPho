@@ -19,6 +19,7 @@ class MapVC: UIViewController {
     fileprivate var url: URL?
     fileprivate var defaults = UserDefaults()
     fileprivate var photoDetails: [String: URL] = [:]
+    fileprivate var listOfGeoDataURLs: [URL] = []
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -229,16 +230,59 @@ extension MapVC {
                     }
                 }
                 
-                DispatchQueue.main.async {
-                    print("You've got \(self.photoDetails.count) records")
+               
+                for (key, _) in self.photoDetails {
+                    let imageGeoDataURL = FlickrURLs.fetchPhotosCoordinates(apiKey: consumerKey, photoID: key)
+                    self.listOfGeoDataURLs.append(imageGeoDataURL!)
+//                    if let imageData = try? Data(contentsOf: imageGeoDataURL!) {
+//                        let decodedData = try jsonDecoder.decode(EncodedGeoData.self, from: imageData)
+//                        print("Your GeoData: \(imageData.base64EncodedString())")
+//                    }
+                    self.fetchLocalImages(from: imageGeoDataURL!)
+                    
                 }
                 
+                
             } catch {
-                print("Errors while parsing json: \(error.localizedDescription)")
+                print("Errors while parsing Image json: \(error.localizedDescription)")
             }
             
         }
         task.resume()
-    }
         
+    }
+
+    func fetchFotoCoordinates(from url: URL) {
+        
+        let session = URLSession.shared
+        let task = session.dataTask(with: url) { (data, response, error) in
+            
+            let decoder = JSONDecoder()
+            
+            guard error == nil else { print("Errors while requesting image coordinates for MapVC")
+                return }
+            
+            guard let serverResponse = response as? HTTPURLResponse,
+                serverResponse.statusCode == 200 else { print("Server responded with unexpected status code")
+                    return
+            }
+            
+            guard let receivedData = data else {return}
+            print("Your data: \(receivedData.description)")
+            
+//            do {
+//                let geoData = try decoder.decode(EncodedGeoData.self, from: receivedData)
+//                let city = geoData.location.latitude
+//                print("Image taken in : \(geoData.self)")
+//
+//
+//            } catch {
+//                print("Errors while parsing GeoData: \(error.localizedDescription)")
+//            }
+            
+            
+        }
+        task.resume()
+    }
+
 }
