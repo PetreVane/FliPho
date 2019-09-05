@@ -50,7 +50,7 @@
                             <outlet property="delegate" destination="2WB-VC-2wh" id="KHl-Rd-cnr"/>
                         </connections>
                     </tableView>
-                    <tabBarItem key="tabBarItem" title="Feeds" id="YTh-Ku-Ifd"/>
+                    <tabBarItem key="tabBarItem" title="Feeds" image="Feed" id="YTh-Ku-Ifd"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d4h-dN-3WE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -172,7 +172,7 @@
                             <outlet property="delegate" destination="qBJ-IP-880" id="9Gr-mB-8kA"/>
                         </connections>
                     </collectionView>
-                    <tabBarItem key="tabBarItem" title="Photos" id="cxM-mk-QXb"/>
+                    <tabBarItem key="tabBarItem" title="Photos" image="Albums" id="cxM-mk-QXb"/>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sDx-Ug-1ek" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -189,17 +189,33 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="p7y-s8-sYx">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="813"/>
                             </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="45b-V2-bF5">
+                                <rect key="frame" x="314" y="713" width="50" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="50" id="UFa-PJ-3Kc"/>
+                                    <constraint firstAttribute="height" constant="50" id="p7T-Cl-wZJ"/>
+                                </constraints>
+                                <state key="normal" image="locationbutton"/>
+                                <connections>
+                                    <action selector="locationButtonPressed:" destination="vYg-ji-Hbc" eventType="touchUpInside" id="7st-6I-TK2"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="iWb-1z-uYf" firstAttribute="bottom" secondItem="45b-V2-bF5" secondAttribute="bottom" constant="50" id="9WJ-t9-mfz"/>
                             <constraint firstItem="iWb-1z-uYf" firstAttribute="bottom" secondItem="p7y-s8-sYx" secondAttribute="bottom" id="CB8-iM-s4H"/>
+                            <constraint firstItem="iWb-1z-uYf" firstAttribute="trailing" secondItem="45b-V2-bF5" secondAttribute="trailing" constant="50" id="Clv-lq-Hgf"/>
                             <constraint firstItem="p7y-s8-sYx" firstAttribute="top" secondItem="iWb-1z-uYf" secondAttribute="top" constant="-44" id="L9S-D8-dcD"/>
                             <constraint firstItem="iWb-1z-uYf" firstAttribute="trailing" secondItem="p7y-s8-sYx" secondAttribute="trailing" id="UDs-ZE-lL5"/>
                             <constraint firstItem="p7y-s8-sYx" firstAttribute="leading" secondItem="iWb-1z-uYf" secondAttribute="leading" id="ukf-HB-dXU"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="iWb-1z-uYf"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Map" id="8OX-zN-Ua2"/>
+                    <tabBarItem key="tabBarItem" title="Map" image="ic_add_location_24px" id="8OX-zN-Ua2"/>
+                    <connections>
+                        <outlet property="mapView" destination="p7y-s8-sYx" id="dL7-ai-UqF"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z5p-ZJ-Wjp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -215,7 +231,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <viewLayoutGuide key="safeArea" id="xoa-Fm-HsO"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Account" id="vJ6-76-hk5"/>
+                    <tabBarItem key="tabBarItem" title="Account" image="Profile" id="vJ6-76-hk5"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7Hr-0h-6OM" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -261,4 +277,11 @@
             <point key="canvasLocation" x="25" y="142"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Albums" width="30" height="30"/>
+        <image name="Feed" width="30" height="30"/>
+        <image name="Profile" width="30" height="30"/>
+        <image name="ic_add_location_24px" width="25" height="25"/>
+        <image name="locationbutton" width="67" height="67"/>
+    </resources>
 </document>

@@ -8,6 +8,7 @@
 
 import UIKit
 import OAuthSwift
+//import CoreLocation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
