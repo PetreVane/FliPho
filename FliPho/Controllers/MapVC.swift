@@ -9,14 +9,15 @@
 import UIKit
 import MapKit
 import CoreLocation
+import OAuthSwift
 
 
 class MapVC: UIViewController {
 
-    var locationManager = CLLocationManager()
-    
-    let authorizationStatus = CLLocationManager.authorizationStatus()
-    let areaInMeters: Double = 5000
+    fileprivate var locationManager = CLLocationManager()
+    fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
+    fileprivate let areaInMeters: Double = 5000
+//    fileprivate let endPointURL = Flickr.apiEndPoint(where: APIMethod.isGetPhotosForLocation)
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -30,7 +31,7 @@ class MapVC: UIViewController {
         mapView.delegate = self
         locationManager.delegate = self
         
-        
+        confirmLocationServicesAreON()
     }
     
     // MARK: - Alerting the user
@@ -91,7 +92,8 @@ class MapVC: UIViewController {
     }
     
     @IBAction func locationButtonPressed(_ sender: UIButton) {
-        showAlert(message: .restrictedLocationServices)
+
+        centerMapOnUserLocation()
     }
     
     
@@ -117,6 +119,7 @@ class MapVC: UIViewController {
             centerMapOnUserLocation()
         default:
             requestAuthorizationForLocationServices()
+            print("request auth for location services called")
         }
     }
     
@@ -139,6 +142,18 @@ extension MapVC: MKMapViewDelegate {
     
     func centerMapOnUserLocation() {
         
+        mapView.showsUserLocation = true
+        
+        guard let coordinates = locationManager.location?.coordinate else { return }
+        print("User coordinates are: Lat \(coordinates.latitude) and lon \(coordinates.longitude)")
+        var photosUrl = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: coordinates.latitude, longitude: coordinates.longitude)
+        print("Photos url with coordinates: \(photosUrl)")
+
+        
+        let region = MKCoordinateRegion.init(center: coordinates, latitudinalMeters: areaInMeters, longitudinalMeters: areaInMeters)
+       
+        mapView.setRegion(region, animated: true)
+        
     }
 }
 
@@ -148,9 +163,31 @@ extension MapVC: CLLocationManagerDelegate {
     
     func requestAuthorizationForLocationServices() {
         
+        switch authorizationStatus {
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted:
+            showAlert(message: .restrictedLocationServices)
+        case .denied:
+            showAlert(message: .allowLocationServices)
+        case .authorizedWhenInUse, .authorizedAlways:
+            centerMapOnUserLocation()
+
+        @unknown default:
+            print("unknown default case in requestAuthorizationForLocationServices()")
+        }
+        
     }
     
-//    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-//        <#code#>
-//    }
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    
+        centerMapOnUserLocation()
+    }
+}
+
+extension MapVC {
+    
+    // MARK: - Networking
+    
+    
 }

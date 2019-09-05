@@ -18,7 +18,6 @@ class LoginVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -44,10 +43,10 @@ class LoginVC: UIViewController {
 
     func askForAuthorization() {
         
-       let authObject = OAuth1Swift( consumerKey: Constants.consumerKey, consumerSecret: Constants.consumerSecret,
-                                        requestTokenUrl: Constants.requestTokenURL,
-                                        authorizeUrl: Constants.authorizationURL,
-                                        accessTokenUrl: Constants.accessTokenURL)
+       let authObject = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
+                                        requestTokenUrl: requestTokenURL,
+                                        authorizeUrl: authorizationURL,
+                                        accessTokenUrl: accessTokenURL)
         
         authObject.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authObject)
         
@@ -72,9 +71,10 @@ class LoginVC: UIViewController {
 
     func authenticate(with oauthswift: OAuth1Swift) {
        
-        let url = Flickr.apiEndPoint(where: APIMethod.isCheckOauthToken)
+        let savedUserID = defaults.value(forKey: "user_nsid")
+        let authenticationUrl = FlickrURLs.checkAuthToken(apiKey: consumerKey, userID: savedUserID as! String)
         
-        _ = oauthswift.client.get(url) { response in
+        _ = oauthswift.client.get(authenticationUrl!) { response in
         
             switch response {
                 case .success:

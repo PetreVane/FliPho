@@ -46,7 +46,7 @@ class OperationsManager {
                 return
             }
             
-            if imageFetching.isFinished{
+            if imageFetching.isFinished {
                 
                 photoRecord.state = .downloaded
                 self.storage.saveToCache(with: photoRecord.name as NSString, value: photoRecord as AnyObject)

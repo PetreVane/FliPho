@@ -17,15 +17,17 @@ class PhotosVC: UICollectionViewController {
     fileprivate let savedData = UserDefaults()
     fileprivate var userAlbum: [PhotoRecord] = []
     fileprivate let operationsManager = OperationsManager()
-    fileprivate let endpointURL = URL(string: Flickr.apiEndPoint(where: APIMethod.isGetPhotos))
-
+//    fileprivate let endpointURL = Flickr.apiEndPoint(where: APIMethod.isGetPhotos)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(endpointURL)
-        fetchUserPhotos(from: endpointURL!)
-        
+        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print("No user ID")
+            return }
+        // show an alert when user id cannot be retrieved
+
+        let url = FlickrURLs.fetchUserPhotos(apiKey: consumerKey, userID: savedID)
+        fetchUserPhotos(from: url!)
     }
 
 }
@@ -38,7 +40,7 @@ extension PhotosVC {
         
         let jsonDecoder = JSONDecoder()
         
-        let authObject = OAuthSwiftClient(consumerKey: Constants.consumerKey, consumerSecret: Constants.consumerSecret, oauthToken: savedData.value(forKey: "oauth_token") as! String, oauthTokenSecret: savedData.value(forKey: "oauth_token_secret") as! String, version: .oauth1)
+        let authObject = OAuthSwiftClient(consumerKey: consumerKey, consumerSecret: consumerSecret, oauthToken: savedData.value(forKey: "oauth_token") as! String, oauthTokenSecret: savedData.value(forKey: "oauth_token_secret") as! String, version: .oauth1)
         
         
         authObject.get(url) { (result) in

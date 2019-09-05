@@ -13,14 +13,16 @@ class FeedsVC: UITableViewController {
     fileprivate var photoDetails: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     fileprivate var operationsManager = OperationsManager()
-    fileprivate let url = URL(string: Flickr.apiEndPoint(where: APIMethod.isInterestingPhotos))!
     fileprivate let storage = Cache()
+    
+    let url = FlickrURLs.fetchInterestingPhotos(apiKey: consumerKey)
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        fetchImageDetails(from: url)
+        fetchImageDetails(from: url!)
+//        print("FeedsVC isInterestingPhotos: \(imagesURL)")
     }
 
     
