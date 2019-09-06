@@ -16,8 +16,8 @@ class PhotosVC: UICollectionViewController {
     
     fileprivate let savedData = UserDefaults()
     fileprivate var userAlbum: [PhotoRecord] = []
-    fileprivate let operationsManager = OperationsManager()
-//    fileprivate let endpointURL = Flickr.apiEndPoint(where: APIMethod.isGetPhotos)
+
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,7 +26,7 @@ class PhotosVC: UICollectionViewController {
             return }
         // show an alert when user id cannot be retrieved
 
-        let url = FlickrURLs.fetchUserPhotos(apiKey: consumerKey, userID: savedID)
+        let url = FlickrURLs.fetchUserPhotos(userID: savedID)
         fetchUserPhotos(from: url!)
     }
 
@@ -106,7 +106,7 @@ extension PhotosVC {
         
         switch record.state {
         case .new:
-            operationsManager.startOperations(for: record, indexPath: indexPath)
+            print("Should start image fetching")
             
         case .downloaded:
             print("Photo record at indexPath \(indexPath.row) has been downloaded")

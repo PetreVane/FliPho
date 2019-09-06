@@ -12,10 +12,9 @@ class FeedsVC: UITableViewController {
 
     fileprivate var photoDetails: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-    fileprivate var operationsManager = OperationsManager()
     fileprivate let storage = Cache()
     
-    let url = FlickrURLs.fetchInterestingPhotos(apiKey: consumerKey) // pass the key in method call
+    let url = FlickrURLs.fetchInterestingPhotos()
     
 
     override func viewDidLoad() {
@@ -131,13 +130,68 @@ extension FeedsVC {
             // looping through the list of operations to be started and starting them
             for indexPath in opertationsToBeStarted {
                 let imageToBeFetched = photoDetails[indexPath.row]
-                operationsManager.startOperations(for: imageToBeFetched, indexPath: indexPath)
-//                tableView.reloadRows(at: [indexPath], with: .fade)
+                startOperations(for: imageToBeFetched, indexPath: indexPath)
 
             }
         }
     }
 }
+
+extension FeedsVC {
+    // MARK: - Operations Management
+    
+    func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+        switch (photoRecord.state) {
+        case .new:
+            startDownload(for: photoRecord, indexPath: indexPath)
+        case .downloaded:
+            print("Cache image at index:\(indexPath)")
+        case .failed:
+            print("Image failed")
+            
+        }
+        
+    }
+
+    func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
+        
+        let imageFetching = ImageFetcher(photo: photoRecord)
+        
+        imageFetching.completionBlock = {
+            
+            if imageFetching.isCancelled {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+            }
+            
+        }
+        
+        pendingOperations.downloadInProgress[indexPath] = imageFetching
+        pendingOperations.downloadQueue.addOperation(imageFetching)
+        
+    }
+    
+    func suspendOperations() {
+        
+        pendingOperations.downloadQueue.isSuspended = true
+    }
+    
+    func resumeOperations() {
+        
+        pendingOperations.downloadQueue.isSuspended = false
+    }
+    
+    
+}
+
+
 
 extension FeedsVC {
     
@@ -163,18 +217,16 @@ extension FeedsVC {
        
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
-                operationsManager.startOperations(for: record, indexPath: indexPath)
+                startOperations(for: record, indexPath: indexPath)
             }
         case .downloaded:
-            tableView.reloadRows(at: [indexPath], with: .fade)
+//            tableView.reloadRows(at: [indexPath], with: .fade)
             storage.saveToCache(with: record.name as NSString, value: record as AnyObject)
             
         case .failed:
             print("Image failed to load at indexPath: \(indexPath.row)")
             // remember to add a default picture
         }
-        
-        
         
         return cell
     }
@@ -196,28 +248,30 @@ extension FeedsVC {
     // MARK: - ScrollView delegate methods
     
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
-        operationsManager.suspendOperations()
+
+        suspendOperations()
     }
     
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         if !decelerate {
             loadImagesOnVisibleCells()
-            operationsManager.resumeOperations()
+            resumeOperations()
         }
     }
     
     override func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        
+
     }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
         loadImagesOnVisibleCells()
-        operationsManager.resumeOperations()
+        resumeOperations()
         
+
     }
+    
     
     /*
     // Override to support conditional editing of the table view.

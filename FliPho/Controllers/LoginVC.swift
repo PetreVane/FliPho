@@ -72,7 +72,7 @@ class LoginVC: UIViewController {
     func authenticate(with oauthswift: OAuth1Swift) {
        
         let savedUserID = defaults.value(forKey: "user_nsid")
-        let authenticationUrl = FlickrURLs.checkAuthToken(apiKey: consumerKey, userID: savedUserID as! String)
+        let authenticationUrl = FlickrURLs.checkAuthToken(userID: savedUserID as! String)
         
         _ = oauthswift.client.get(authenticationUrl!) { response in
         

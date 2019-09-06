@@ -43,7 +43,8 @@ class MapVC: UIViewController {
             showAlert(message: .locationNotDetermined)
             return
         }
-        url = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+        url = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+//        let flickrUrl = FlickrURLs.fetchPhotosFromCoordinates(apiKey: <#T##String#>, latitude: <#T##Double#>, longitude: <#T##Double#>)
         fetchLocalImages(from: url!)
         showPinsOnMap()
     }
@@ -226,8 +227,8 @@ extension MapVC {
                 let decodedPhotos = decodedData.photos.photo
                 
                 for photo in decodedPhotos {
-                    
-                    if let photoCoordinatesURL = FlickrURLs.fetchPhotosCoordinates(apiKey: consumerKey, photoID: photo.id) {
+
+                    if let photoCoordinatesURL = FlickrURLs.fetchPhotosCoordinates(photoID: photo.id) {
 
 //                      calling async fetching method instead of Data(contentsOf: url) which runs synchronously
                         self.fetchFotoCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
