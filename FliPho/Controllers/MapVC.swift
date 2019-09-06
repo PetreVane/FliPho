@@ -13,13 +13,13 @@ import CoreLocation
 
 class MapVC: UIViewController {
 
+    // MARK: - Variables & constants
     fileprivate var locationManager = CLLocationManager()
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
     fileprivate var url: URL?
-    fileprivate var defaults = UserDefaults()
-    fileprivate var photoDetails: [String: URL] = [:]
-    fileprivate var listOfGeoDataURLs: [URL] = []
+    fileprivate var pin = MKPointAnnotation()
+    fileprivate var photoAlbum: [String : PhotoRecord] = [:]
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -32,29 +32,38 @@ class MapVC: UIViewController {
         
         mapView.delegate = self
         locationManager.delegate = self
-        
-        confirmLocationServicesAreON()
-        
-        
+
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        guard let currentLocationCoordinates = locationManager.location?.coordinate else { print("Coordinates could not be established")
+        confirmLocationServicesAreON()
+        guard let currentLocation = locationManager.location?.coordinate else { print("Coordinates could not be established")
+            showAlert(message: .locationNotDetermined)
             return
         }
-        url = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: currentLocationCoordinates.latitude, longitude: currentLocationCoordinates.longitude)
-//        print("Final url: \(url)")
+        url = FlickrURLs.fetchPhotosFromCoordinates(apiKey: consumerKey, latitude: currentLocation.latitude, longitude: currentLocation.longitude)
         fetchLocalImages(from: url!)
+        showPinsOnMap()
     }
     
-    // MARK: - Alerting the user
-    enum ErrorMessages {
+    
+    
+    @IBAction func locationButtonPressed(_ sender: UIButton) {
+        
+        centerMapOnUserLocation()
+    }
+    
+    
+    
+    // MARK: - Error handling
+    enum ErrorMessages: Error {
         
         case locationDisabled
         case allowLocationServices
         case restrictedLocationServices
+        case locationNotDetermined
         
         var description: String {
             
@@ -65,6 +74,8 @@ class MapVC: UIViewController {
                 return "Restricted Location Services"
             case .allowLocationServices:
                 return "Can FliPho use your Location? "
+            case .locationNotDetermined:
+                return "Your location cannot be determined. Are you connected to internet?"
     
             }
         }
@@ -102,15 +113,19 @@ class MapVC: UIViewController {
             alert.addAction(dismissAction)
             present(alert, animated: true, completion: nil)
             
+        default:
+            
+            alert = UIAlertController(title: "Error", message: message.description, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "OK, I'll try later", style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            
         }
     
     }
     
-    @IBAction func locationButtonPressed(_ sender: UIButton) {
-
-        centerMapOnUserLocation()
-    }
     
+    // MARK: - Location Services
     
     func confirmLocationServicesAreON() {
         
@@ -137,18 +152,6 @@ class MapVC: UIViewController {
             print("request auth for location services called")
         }
     }
-    
-    
-    
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 
@@ -223,25 +226,23 @@ extension MapVC {
                 let decodedPhotos = decodedData.photos.photo
                 
                 for photo in decodedPhotos {
-                    if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                        
-                        self.photoDetails.updateValue(photoUrl, forKey: photo.id)
-                        
+                    
+                    if let photoCoordinatesURL = FlickrURLs.fetchPhotosCoordinates(apiKey: consumerKey, photoID: photo.id) {
+
+//                      calling async fetching method instead of Data(contentsOf: url) which runs synchronously
+                        self.fetchFotoCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
+                            
+                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+        
+                                let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoUrl)
+                                photoRecord.latitude = latitude
+                                photoRecord.longitude = longitude
+                                self.photoAlbum.updateValue(photoRecord, forKey: photo.id)
+
+                            }
+                        }
                     }
                 }
-                
-               
-                for (key, _) in self.photoDetails {
-                    let imageGeoDataURL = FlickrURLs.fetchPhotosCoordinates(apiKey: consumerKey, photoID: key)
-                    self.listOfGeoDataURLs.append(imageGeoDataURL!)
-//                    if let imageData = try? Data(contentsOf: imageGeoDataURL!) {
-//                        let decodedData = try jsonDecoder.decode(EncodedGeoData.self, from: imageData)
-//                        print("Your GeoData: \(imageData.base64EncodedString())")
-//                    }
-                    self.fetchLocalImages(from: imageGeoDataURL!)
-                    
-                }
-                
                 
             } catch {
                 print("Errors while parsing Image json: \(error.localizedDescription)")
@@ -252,7 +253,7 @@ extension MapVC {
         
     }
 
-    func fetchFotoCoordinates(from url: URL) {
+    func fetchFotoCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
         
         let session = URLSession.shared
         let task = session.dataTask(with: url) { (data, response, error) in
@@ -267,22 +268,69 @@ extension MapVC {
                     return
             }
             
-            guard let receivedData = data else {return}
-            print("Your data: \(receivedData.description)")
+            guard let receivedData = data else { return }
             
-//            do {
-//                let geoData = try decoder.decode(EncodedGeoData.self, from: receivedData)
-//                let city = geoData.location.latitude
-//                print("Image taken in : \(geoData.self)")
-//
-//
-//            } catch {
-//                print("Errors while parsing GeoData: \(error.localizedDescription)")
-//            }
-            
-            
+            do {
+                
+                let geoData = try decoder.decode(Json.EncodedGeoData.self, from: receivedData)
+                if let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) {
+                    coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
+                } else {
+                    
+                    print("Failed passing geoData to completionHandler")
+                    // show an alert here
+                    
+                    }
+                } catch {
+                    
+                    print("Errors while parsing GeoData: \(error.localizedDescription)")
+            }
         }
         task.resume()
     }
+}
+
+
+extension MapVC {
+    
+    // MARK: - Show Pins
+    
+    func dropPin(for photoRecord: PhotoRecord) {
+        
+        let pin = MKPointAnnotation()
+        
+        if let latitude = photoRecord.latitude {
+            pin.coordinate.latitude = latitude
+        }
+        
+        if let longitude = photoRecord.longitude {
+            pin.coordinate.longitude = longitude
+        }
+        
+        DispatchQueue.main.async {
+            self.mapView.addAnnotation(pin)
+        }
+        
+        
+        
+    }
+    
+    func showPinsOnMap() {
+        
+        for (_, photoRecord) in self.photoAlbum {
+//            print("Key is: \(key) and value is: \(value.name)")
+            dropPin(for: photoRecord)
+        }
+    }
+    
+    /*
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
 
 }

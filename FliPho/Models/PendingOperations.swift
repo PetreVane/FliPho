@@ -15,7 +15,7 @@ class PendingOperations {
     lazy var downloadQueue: OperationQueue = {
         
         var queue = OperationQueue()
-        queue.name = "Downloading Queue"
+        queue.name = "Flickr fetching queue"
         
         return queue
     }()

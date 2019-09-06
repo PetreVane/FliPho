@@ -22,7 +22,7 @@ class PhotoRecord {
     let imageUrl: URL
     var latitude: Double?
     var longitude: Double?
-    var image = UIImage(named: "placeHolder")
+    var image = UIImage(named: "Flickr image")
     var state = PhotoRecordState.new
     
     

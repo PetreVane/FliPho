@@ -15,14 +15,13 @@ class FeedsVC: UITableViewController {
     fileprivate var operationsManager = OperationsManager()
     fileprivate let storage = Cache()
     
-    let url = FlickrURLs.fetchInterestingPhotos(apiKey: consumerKey)
+    let url = FlickrURLs.fetchInterestingPhotos(apiKey: consumerKey) // pass the key in method call
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
         fetchImageDetails(from: url!)
-//        print("FeedsVC isInterestingPhotos: \(imagesURL)")
     }
 
     
@@ -76,6 +75,7 @@ extension FeedsVC {
             } catch {
                 
                 print("Errors while decoding JSON: \(error.localizedDescription)")
+                // present an alert here
             }
         }
         task.resume()
@@ -133,7 +133,7 @@ extension FeedsVC {
                 let imageToBeFetched = photoDetails[indexPath.row]
                 operationsManager.startOperations(for: imageToBeFetched, indexPath: indexPath)
 //                tableView.reloadRows(at: [indexPath], with: .fade)
-                
+
             }
         }
     }
@@ -142,11 +142,6 @@ extension FeedsVC {
 extension FeedsVC {
     
     // MARK: - Table view data source
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 1
-    }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
@@ -162,15 +157,16 @@ extension FeedsVC {
         // Configure the cell...
 
         let record = photoDetails[indexPath.row]
+        cell.tableImageView.image = record.image
         
-        switch record.state {
+        switch (record.state) {
        
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
                 operationsManager.startOperations(for: record, indexPath: indexPath)
-                print("Starting operations for row nr: \(indexPath.row)")
             }
         case .downloaded:
+            tableView.reloadRows(at: [indexPath], with: .fade)
             storage.saveToCache(with: record.name as NSString, value: record as AnyObject)
             
         case .failed:
@@ -178,7 +174,7 @@ extension FeedsVC {
             // remember to add a default picture
         }
         
-        cell.tableImageView.image = record.image
+        
         
         return cell
     }
@@ -220,11 +216,6 @@ extension FeedsVC {
         
         loadImagesOnVisibleCells()
         operationsManager.resumeOperations()
-        if let indexPath = tableView.indexPathsForVisibleRows {
-            for index in indexPath {
-                tableView.reloadRows(at: [index], with: .fade)
-            }
-        }
         
     }
     
@@ -282,5 +273,9 @@ extension FeedsVC {
  
  */
     
+    
+}
+
+extension FeedsVC {
     
 }

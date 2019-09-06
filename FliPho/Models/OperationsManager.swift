@@ -13,20 +13,19 @@ class OperationsManager {
     
     // MARK: - Operations Management
     
-    fileprivate let pendingOperations = PendingOperations()
+    let pendingOperations = PendingOperations()
     let storage = Cache()
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
-        switch photoRecord.state {
+        switch (photoRecord.state) {
         case .new:
             startDownload(for: photoRecord, indexPath: indexPath)
-        default:
-            print("default case")
-//        case .downloaded:
-//            print("StartOperations: Image fetched and cached: \(indexPath.row)")
-//        case .failed:
-//            print("Image failed")
+
+        case .downloaded:
+            print("Cache image at index:\(indexPath)")
+        case .failed:
+            print("Image failed")
 
         }
         
@@ -35,7 +34,7 @@ class OperationsManager {
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-        guard photoRecord.state == .new else { return }
+//        guard photoRecord.state == .new else { return }
         
         
         let imageFetching = ImageFetcher(photo: photoRecord)
@@ -44,13 +43,6 @@ class OperationsManager {
             
             if imageFetching.isCancelled {
                 return
-            }
-            
-            if imageFetching.isFinished {
-                
-                photoRecord.state = .downloaded
-                self.storage.saveToCache(with: photoRecord.name as NSString, value: photoRecord as AnyObject)
-
             }
             
             self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
