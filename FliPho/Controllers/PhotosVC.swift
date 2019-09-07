@@ -16,6 +16,10 @@ class PhotosVC: UICollectionViewController {
     
     fileprivate let savedData = UserDefaults()
     fileprivate var userAlbum: [PhotoRecord] = []
+    
+    private let spacing: CGFloat = 1
+    private let columns: CGFloat = 3
+    private var cellSize: CGFloat?
 
     
     
@@ -27,7 +31,7 @@ class PhotosVC: UICollectionViewController {
         // show an alert when user id cannot be retrieved
 
         let url = FlickrURLs.fetchUserPhotos(userID: savedID)
-        fetchUserPhotos(from: url!)
+        fetchPhotoURLs(from: url!)
     }
 
 }
@@ -36,7 +40,7 @@ extension PhotosVC {
     
     // MARK: - Networking
 
-    func fetchUserPhotos(from url: URL) {
+    func fetchPhotoURLs(from url: URL) {
         
         let jsonDecoder = JSONDecoder()
         
@@ -58,11 +62,7 @@ extension PhotosVC {
                             self.userAlbum.append(photoRecord)
                         }
                     }
-                    
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                    
+                    print("Fetched \(self.userAlbum.count) urls")
                 } catch {
                     print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
                 }
@@ -71,6 +71,36 @@ extension PhotosVC {
             }
         }
     }
+    
+    
+    func fetchUserPhotos(at indexPath: IndexPath) {
+        
+        let session = URLSession.shared
+        let currentRecordURL = userAlbum[indexPath.row].imageUrl
+        
+        let task = session.dataTask(with: currentRecordURL) { [weak self] (data, response, error) in
+            
+            guard error == nil,
+                let self = self else { print( "You should show an alert with this error: \(error.debugDescription)")
+                return }
+            
+            guard let serverResponse = response as? HTTPURLResponse,
+                serverResponse.statusCode == 200 else { print("You should show an alert with error /serverResponse status code")
+                    return
+            }
+            guard let imageData = data,
+            let image = UIImage(data: imageData) else { return }
+            
+            DispatchQueue.main.async {
+                if let cell = self.collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
+                    cell.imageView.image = image
+                }
+            }
+        }
+        
+        task.resume()
+    }
+    
     
     /*
      
@@ -86,10 +116,6 @@ extension PhotosVC {
     
     // MARK: UICollectionViewDataSource
 
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 1
-    }
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -100,76 +126,33 @@ extension PhotosVC {
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as? CustomCollectionViewCell else { return UICollectionViewCell() }
     
-        let record = userAlbum[indexPath.row]
+//        cell.imageView.image = nil
+        fetchUserPhotos(at: indexPath)
         
-//        cell.imageView.image = record.image
-        
-        switch record.state {
-        case .new:
-            print("Should start image fetching")
-            
-        case .downloaded:
-            print("Photo record at indexPath \(indexPath.row) has been downloaded")
-            
-        case .failed:
-            print("Photo record at indexPath \(indexPath.row) has failed")
-        }
-        
-        DispatchQueue.main.async {
-            if let cell = collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
-                cell.imageView.image = record.image
-            }
-        }
-        
-
         return cell
     }
 
 }
 
 
-extension PhotosVC {
-    // MARK: UICollectionViewDelegate
+extension PhotosVC: UICollectionViewDelegateFlowLayout {
 
-//    override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-//        
-//        let indexPath = collectionView.indexPathsForVisibleItems
-//        for index in indexPath {
-//            DispatchQueue.main.async {
-//                self.collectionView.reloadItems(at: [index])
-//            }
-////            collectionView.reloadItems(at: [index])
-//        }
-//           
-//        
-//    }
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if cellSize == nil {
+            let layout = collectionViewLayout as! UICollectionViewFlowLayout
+            let emptySpace = layout.sectionInset.left + layout.sectionInset.right + (columns * spacing - 1)
+            cellSize = (view.frame.size.width - emptySpace) / columns
+        }
+        
+        return CGSize(width: cellSize!, height: cellSize!)
     }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return spacing
     }
-    */
-
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return spacing
+    }
+    
 }
