@@ -16,8 +16,6 @@ class FeedsVC: UITableViewController {
     
     let url = FlickrURLs.fetchInterestingPhotos()
     
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -126,10 +124,10 @@ extension FeedsVC {
             operationsToBeCancelled.subtract(visibleCells)
 
             // getting a reference of operations to be started
-            var opertationsToBeStarted = visibleCells
+            var operationsToBeStarted = visibleCells
 
             //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
-            opertationsToBeStarted.subtract(allPendingOperations)
+            operationsToBeStarted.subtract(allPendingOperations)
 
             // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
             for operationIndexPath in operationsToBeCancelled {
@@ -141,7 +139,7 @@ extension FeedsVC {
             }
 
             // looping through the list of operations to be started and starting them
-            for indexPath in opertationsToBeStarted {
+            for indexPath in operationsToBeStarted {
                 let imageToBeFetched = photoDetails[indexPath.row]
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
 
@@ -156,13 +154,17 @@ extension FeedsVC {
     fileprivate func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
         switch (photoRecord.state) {
+            
         case .new:
             startDownload(for: photoRecord, indexPath: indexPath)
             
         case .downloaded:
+            
             if storage.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) != nil {
                 print("Image at indexPath: \(indexPath.row) is already in cache now")
+                
             } else {
+                
                 print("This image is not cached yet. Caching now at indexPath: \(indexPath.row)")
                 storage.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
 
@@ -197,10 +199,10 @@ extension FeedsVC {
                 self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
             }
             
-            if imageFetching.isFinished {
-                print("ImageFetching.isFinished; should cache at indexPath: \(indexPath.row)")
-
-            }
+//            if imageFetching.isFinished {
+//                print("ImageFetching.isFinished; should cache at indexPath: \(indexPath.row)")
+//
+//            }
         }
         
     }
@@ -292,9 +294,6 @@ extension FeedsVC {
         }
     }
     
-    override func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-
-    }
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         

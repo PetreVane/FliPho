@@ -35,6 +35,7 @@ class ImageFetcher: Operation {
             
             photo.image = UIImage(named: "Could not fetch image")
             photo.state = .failed
+            print("Failed fetching image")
         }
     }
     
