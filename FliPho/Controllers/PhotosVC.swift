@@ -13,7 +13,7 @@ import OAuthSwift
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
      let savedData = UserDefaults()
-     let cache = Cache()
+//     let cache = Cache()
      var userPhotoRecords: [PhotoRecord] = []
      let pendingOperations = PendingOperations()
     
@@ -73,6 +73,10 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
                         }
                     }
                     
+                    DispatchQueue.main.async {
+                        self.collectionView.reloadData()
+                    }
+                    
                 } catch {
                     
                     print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
@@ -94,7 +98,7 @@ extension PhotosVC {
     // MARK: - Operations Management
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
+        print("Operations started for indexPAth: \(indexPath.item)")
         switch photoRecord.state {
             
         case .new:
@@ -102,7 +106,10 @@ extension PhotosVC {
         
         case .downloaded:
             print("Caching now image at indexPath: \(indexPath.item) ...")
-            self.cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+            DispatchQueue.main.async {
+                self.collectionView.reloadItems(at: [indexPath])
+            }
+//            self.cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
             
         case .failed:
             print("Image failed; consider showing a default image")
@@ -144,6 +151,49 @@ extension PhotosVC {
         print("operation resumed")
         pendingOperations.downloadQueue.isSuspended = false
     }
+    
+    
+    // MARK: - Loading images on Visible Cells
+    
+    func loadImagesOnVisibleItems() {
+    
+        // getting a reference of all visible rows
+            let listOfVisibleItems = collectionView.indexPathsForVisibleItems
+            
+            // making sure each indexPath is unique
+            let visibleItems = Set(listOfVisibleItems)
+            
+            // getting a reference of all indexPaths with pending operations
+            let allPendingOperations = Set(pendingOperations.downloadInProgress.keys)
+            
+            // preparing to cancel all operations, except those of visible cells
+            var operationsToBeCancelled = allPendingOperations
+            
+            // substracting operations of visible cells, from those waiting to be cancelled
+            operationsToBeCancelled.subtract(visibleItems)
+            
+            // getting a reference of operations to be started
+            var operationsToBeStarted = visibleItems
+            
+            //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
+            operationsToBeStarted.subtract(allPendingOperations)
+            
+            // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
+            for operationIndexPath in operationsToBeCancelled {
+                
+                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
+                    pendingDownload.cancel()
+                }
+                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+            }
+            
+            // looping through the list of operations to be started and starting them
+            for indexPath in operationsToBeStarted {
+                let imageToBeFetched = userPhotoRecords[indexPath.item]
+                startOperations(for: imageToBeFetched, indexPath: indexPath)
+                
+            }
+    }
 }
 
 
@@ -162,19 +212,21 @@ extension PhotosVC {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { print("Failed casting cell in cellForItem")
             return UICollectionViewCell() }
         
-//        cell.imageView.image = nil
+        cell.imageView.image = nil
         let currentRecord = userPhotoRecords[indexPath.item]
         
-        switch currentRecord.state {
+        switch (currentRecord.state) {
             
         case .new:
             startOperations(for: currentRecord, indexPath: indexPath)
         
         case .downloaded:
-            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-                print("Succes fetching image from cache at indexPath: \(indexPath.item)")
-                cell.imageView.image = imageFromCache as? UIImage
-            }
+            print("Should fetch image from cache at indexPath: \(indexPath.item)")
+
+//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+//                print("Succes fetching image from cache at indexPath: \(indexPath.item)")
+//                cell.imageView.image = imageFromCache as? UIImage
+//            }
             
         case .failed:
             print("Image failed; showing default image")
@@ -222,13 +274,16 @@ extension PhotosVC {
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 
         if !decelerate {
+            loadImagesOnVisibleItems()
             resumeOperations()
         }
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
+        loadImagesOnVisibleItems()
         resumeOperations()
+        
     }
 }
 

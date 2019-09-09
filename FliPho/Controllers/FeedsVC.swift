@@ -12,7 +12,7 @@ class FeedsVC: UITableViewController, OperationsManagement {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-//    fileprivate let storage = Cache()
+    fileprivate let cache = Cache()
     
     let url = FlickrURLs.fetchInterestingPhotos()
     
@@ -102,51 +102,6 @@ extension FeedsVC {
 //    }
 }
 
-extension FeedsVC {
-
-    // MARK: - Loading images on Visible Cells
-
-   fileprivate func loadImagesOnVisibleCells() {
-
-        // getting a reference of all visible rows
-        if let listOfVisibleRows = tableView.indexPathsForVisibleRows {
-
-            // making sure each indexPath is unique
-            let visibleCells = Set(listOfVisibleRows)
-
-            // getting a reference of all indexPaths with pending operations
-            let allPendingOperations = Set(pendingOperations.downloadInProgress.keys)
-
-            // preparing to cancel all operations, except those of visible cells
-            var operationsToBeCancelled = allPendingOperations
-
-            // substracting operations of visible cells, from those waiting to be cancelled
-            operationsToBeCancelled.subtract(visibleCells)
-
-            // getting a reference of operations to be started
-            var operationsToBeStarted = visibleCells
-
-            //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
-            operationsToBeStarted.subtract(allPendingOperations)
-
-            // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
-            for operationIndexPath in operationsToBeCancelled {
-
-                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
-                    pendingDownload.cancel()
-                }
-                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
-            }
-
-            // looping through the list of operations to be started and starting them
-            for indexPath in operationsToBeStarted {
-                let imageToBeFetched = photoRecords[indexPath.row]
-                startOperations(for: imageToBeFetched, indexPath: indexPath)
-
-            }
-        }
-    }
-}
 
 extension FeedsVC {
     // MARK: - Operations Management
@@ -159,8 +114,8 @@ extension FeedsVC {
             startDownload(for: photoRecord, indexPath: indexPath)
             
         case .downloaded:
+            print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
             
-            print("Image at indexPath: \(indexPath.row) should be cached")
 
         case .failed:
             print("Image failed")
@@ -187,7 +142,7 @@ extension FeedsVC {
             }
             
             DispatchQueue.main.async {
-                self.tableView.reloadRows(at: [indexPath], with: .fade)
+                self.tableView.reloadRows(at: [indexPath], with: .left)
                 self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
             }
             
@@ -205,6 +160,48 @@ extension FeedsVC {
         pendingOperations.downloadQueue.isSuspended = false
     }
     
+    // MARK: - Loading images on Visible Cells
+    
+    func loadImagesOnVisibleRows() {
+        
+        // getting a reference of all visible rows
+        if let listOfVisibleRows = tableView.indexPathsForVisibleRows {
+            
+            // making sure each indexPath is unique
+            let visibleCells = Set(listOfVisibleRows)
+            
+            // getting a reference of all indexPaths with pending operations
+            let allPendingOperations = Set(pendingOperations.downloadInProgress.keys)
+            
+            // preparing to cancel all operations, except those of visible cells
+            var operationsToBeCancelled = allPendingOperations
+            
+            // substracting operations of visible cells, from those waiting to be cancelled
+            operationsToBeCancelled.subtract(visibleCells)
+            
+            // getting a reference of operations to be started
+            var operationsToBeStarted = visibleCells
+            
+            //  ensuring there is no pending operation within the list of indexPaths, where operations are due to be started
+            operationsToBeStarted.subtract(allPendingOperations)
+            
+            // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
+            for operationIndexPath in operationsToBeCancelled {
+                
+                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
+                    pendingDownload.cancel()
+                }
+                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+            }
+            
+            // looping through the list of operations to be started and starting them
+            for indexPath in operationsToBeStarted {
+                let imageToBeFetched = photoRecords[indexPath.row]
+                startOperations(for: imageToBeFetched, indexPath: indexPath)
+                
+            }
+        }
+    }
 }
 
 
@@ -236,7 +233,7 @@ extension FeedsVC {
                 startOperations(for: record, indexPath: indexPath)
             }
         case .downloaded:
-            print("Caching now...")
+            print("Caching now for indexPath: \(indexPath.row)")
 //            if let imageFromCache = retrieveImageFromCache(at: indexPath) {
 //                print("Success getting image from cache")
 //                if !tableView.isDragging && !tableView.isDecelerating {
@@ -278,7 +275,7 @@ extension FeedsVC {
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         if !decelerate {
-            loadImagesOnVisibleCells()
+            loadImagesOnVisibleRows()
             resumeOperations()
         }
     }
@@ -286,7 +283,7 @@ extension FeedsVC {
     
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
-        loadImagesOnVisibleCells()
+        loadImagesOnVisibleRows()
         resumeOperations()
         
 

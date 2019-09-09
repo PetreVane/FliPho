@@ -32,15 +32,16 @@ class MapVC: UIViewController {
         
         mapView.delegate = self
         locationManager.delegate = self
+        confirmLocationServicesAreON()
 
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        confirmLocationServicesAreON()
+        
         guard let currentLocation = locationManager.location?.coordinate else { print("Coordinates could not be established")
-            showAlert(message: .locationNotDetermined)
+            showAlert(message: .allowLocationServices)
             return
         }
         url = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
@@ -64,7 +65,6 @@ class MapVC: UIViewController {
         case locationDisabled
         case allowLocationServices
         case restrictedLocationServices
-        case locationNotDetermined
         
         var description: String {
             
@@ -75,8 +75,7 @@ class MapVC: UIViewController {
                 return "Restricted Location Services"
             case .allowLocationServices:
                 return "Can FliPho use your Location? "
-            case .locationNotDetermined:
-                return "Your location cannot be determined. Are you connected to internet?"
+
     
             }
         }
@@ -199,6 +198,10 @@ extension MapVC: CLLocationManagerDelegate {
     
         centerMapOnUserLocation()
     }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        print("didUpdateLocations called")
+    }
 }
 
 extension MapVC {
@@ -230,7 +233,6 @@ extension MapVC {
 
                     if let photoCoordinatesURL = FlickrURLs.fetchPhotosCoordinates(photoID: photo.id) {
 
-//                      calling async fetching method instead of Data(contentsOf: url) which runs synchronously
                         self.fetchFotoCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
                             
                             if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
@@ -246,9 +248,9 @@ extension MapVC {
                 }
                 
             } catch {
+                
                 print("Errors while parsing Image json: \(error.localizedDescription)")
             }
-            
         }
         task.resume()
         
@@ -278,7 +280,7 @@ extension MapVC {
                     coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
                 } else {
                     
-                    print("Failed passing geoData to completionHandler")
+                    print("Failed passing parsed geoData to completionHandler")
                     // show an alert here
                     
                     }
@@ -310,10 +312,9 @@ extension MapVC {
         
         DispatchQueue.main.async {
             self.mapView.addAnnotation(pin)
+            self.mapView.reloadInputViews()
         }
-        
-        
-        
+ 
     }
     
     func showPinsOnMap() {
