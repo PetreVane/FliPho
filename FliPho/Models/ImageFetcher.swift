@@ -29,7 +29,7 @@ class ImageFetcher: Operation {
         if !imageData.isEmpty {
             
             photo.image = UIImage(data: imageData)
-            photo.state = .downloaded
+//            photo.state = .downloaded
             
         } else {
             

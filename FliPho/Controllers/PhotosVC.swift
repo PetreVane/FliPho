@@ -9,12 +9,11 @@
 import UIKit
 import OAuthSwift
 
-private let reuseIdentifier = "collectionCell"
 
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
      let savedData = UserDefaults()
-     let storage = Cache()
+     let cache = Cache()
      var userPhotoRecords: [PhotoRecord] = []
      let pendingOperations = PendingOperations()
     
@@ -30,7 +29,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
         super.viewDidLoad()
         
 
-        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print("No user ID")
+        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print ("No user ID")
             return }
         let url = FlickrURLs.fetchUserPhotos(userID: savedID)
         fetchPhotoURLs(from: url!)
@@ -61,11 +60,14 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
             case .success(let response):
 
                 do {
+                    
                     let decodedData = try jsonDecoder.decode(EncodedPhotos.self, from: response.data)
                     let decodedPhotos = decodedData.photos.photo
             
                     for photo in decodedPhotos {
+                        
                         if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                            
                             let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                             self.userPhotoRecords.append(photoRecord)
                         }
@@ -85,28 +87,6 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
             self.collectionView.reloadData()
         }
     }
-    
-    
-     func downloadWithUrlSession(at indexPath: IndexPath) {
-        URLSession.shared.dataTask(with: userPhotoRecords[indexPath.item].imageUrl) {
-            [weak self] data, response, error in
-            
-            guard let self = self,
-                let data = data,
-                let image = UIImage(data: data) else { print("Failed casting data as image")
-                    return
-            }
-            
-            DispatchQueue.main.async {
-                if let cell = self.collectionView.cellForItem(at: indexPath) as? CustomCollectionViewCell {
-                    cell.imageView.image = image
-                    print("Assigning image to cell image")
-                } else {
-                    print("Failed assigning image to cell image")
-                }
-            }
-        }.resume()
-    }
 }
 
 extension PhotosVC {
@@ -114,21 +94,56 @@ extension PhotosVC {
     // MARK: - Operations Management
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        <#code#>
+        
+        switch photoRecord.state {
+            
+        case .new:
+            startDownload(for: photoRecord, indexPath: indexPath)
+        
+        case .downloaded:
+            print("Caching now image at indexPath: \(indexPath.item) ...")
+            self.cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+            
+        case .failed:
+            print("Image failed; consider showing a default image")
+            
+        }
+            
     }
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        <#code#>
+        
+        print("started downloading image at indexPath: \(indexPath.item)")
+        
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { print("download already in progress for indexPath: \(indexPath.item)")
+            return
+        }
+        
+        let imageFetching = ImageFetcher(photo: photoRecord)
+        
+        pendingOperations.downloadInProgress.updateValue(imageFetching, forKey: indexPath)
+        pendingOperations.downloadQueue.addOperation(imageFetching)
+        
+        imageFetching.completionBlock = {
+            
+            photoRecord.state = .downloaded
+            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+            
+            DispatchQueue.main.async {
+                self.collectionView.reloadItems(at: [indexPath])
+            }
+        }
     }
     
     func suspendOperations() {
-        <#code#>
+        print("operation suspended")
+        pendingOperations.downloadQueue.isSuspended = true
     }
     
     func resumeOperations() {
-        <#code#>
+        print("operation resumed")
+        pendingOperations.downloadQueue.isSuspended = false
     }
-    
 }
 
 
@@ -147,7 +162,24 @@ extension PhotosVC {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { print("Failed casting cell in cellForItem")
             return UICollectionViewCell() }
         
+        cell.imageView.image = nil
+        let currentRecord = userPhotoRecords[indexPath.item]
+        
+        switch currentRecord.state {
+            
+        case .new:
+            startOperations(for: currentRecord, indexPath: indexPath)
+        
+        case .downloaded:
+            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+                print("Succes fetching image from cache at indexPath: \(indexPath.item)")
+                cell.imageView.image = imageFromCache as? UIImage
+            }
+            
+        case .failed:
+            print("Image failed; showing default image")
 
+        }
 
         return cell
     }
@@ -182,15 +214,19 @@ extension PhotosVC {
     // MARK: CollectionView delegate methods
 
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
+        suspendOperations()
     }
 
     override func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 
+        if !decelerate {
+            resumeOperations()
+        }
     }
 
     override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 
+        resumeOperations()
     }
 }
 

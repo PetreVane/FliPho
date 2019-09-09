@@ -27,6 +27,7 @@
 		0BE641C4231933D100D7DB44 /* UserAccountVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C3231933D100D7DB44 /* UserAccountVC.swift */; };
 		0BE641C62319340700D7DB44 /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C52319340700D7DB44 /* LoginVC.swift */; };
 		0BE641C8231934AB00D7DB44 /* PhotoDetailsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C7231934AB00D7DB44 /* PhotoDetailsVC.swift */; };
+		0BEE9E58232664F000FAEB80 /* OperationsManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */; };
 		2D174A723C4F6692D1F9CDAB /* Pods_FliPho.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CA01EE27133B16BF3A6A281 /* Pods_FliPho.framework */; };
 /* End PBXBuildFile section */
 
@@ -53,6 +54,7 @@
 		0BE641C3231933D100D7DB44 /* UserAccountVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountVC.swift; sourceTree = "<group>"; };
 		0BE641C52319340700D7DB44 /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		0BE641C7231934AB00D7DB44 /* PhotoDetailsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailsVC.swift; sourceTree = "<group>"; };
+		0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationsManagement.swift; sourceTree = "<group>"; };
 		0FA1302C19DC5158C7205616 /* Pods-FliPho.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FliPho.release.xcconfig"; path = "Pods/Target Support Files/Pods-FliPho/Pods-FliPho.release.xcconfig"; sourceTree = "<group>"; };
 		14461DB596336E4833880227 /* Pods-FliPho.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FliPho.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FliPho/Pods-FliPho.debug.xcconfig"; sourceTree = "<group>"; };
 		2CA01EE27133B16BF3A6A281 /* Pods_FliPho.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FliPho.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -144,6 +146,7 @@
 				0BB36E6B231CF003003151F2 /* PhotoRecord.swift */,
 				0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */,
 				0BB36E6F231D11EE003151F2 /* PendingOperations.swift */,
+				0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 				0BE641C22319331F00D7DB44 /* MapVC.swift in Sources */,
 				0B368CCE23201000003D93F7 /* Cache.swift in Sources */,
 				0BE641C0231932E000D7DB44 /* PhotosVC.swift in Sources */,
+				0BEE9E58232664F000FAEB80 /* OperationsManagement.swift in Sources */,
 				0BB36E6C231CF003003151F2 /* PhotoRecord.swift in Sources */,
 				0BB45AC823192E9F00066791 /* AppDelegate.swift in Sources */,
 				0B8AF2F423218830003D2750 /* EncodedGeoData.swift in Sources */,
