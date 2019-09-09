@@ -8,9 +8,9 @@
 
 import UIKit
 
-class FeedsVC: UITableViewController {
+class FeedsVC: UITableViewController, OperationsManagement {
 
-    fileprivate var photoDetails: [PhotoRecord] = []
+    fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     fileprivate let storage = Cache()
     
@@ -61,7 +61,7 @@ extension FeedsVC {
                     
                     if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                         let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                        self.photoDetails.append(photoRecord)
+                        self.photoRecords.append(photoRecord)
                     }
                 }
                     
@@ -90,7 +90,7 @@ extension FeedsVC {
     
     func retrieveImageFromCache(at indexPath: IndexPath) -> UIImage? {
         
-        let currentRecord = photoDetails[indexPath.row]
+        let currentRecord = photoRecords[indexPath.row]
         
         var imageFromCache: UIImage?
         if let cachedImage = storage.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
@@ -140,7 +140,7 @@ extension FeedsVC {
 
             // looping through the list of operations to be started and starting them
             for indexPath in operationsToBeStarted {
-                let imageToBeFetched = photoDetails[indexPath.row]
+                let imageToBeFetched = photoRecords[indexPath.item]
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
 
             }
@@ -151,7 +151,7 @@ extension FeedsVC {
 extension FeedsVC {
     // MARK: - Operations Management
     
-    fileprivate func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
         switch (photoRecord.state) {
             
@@ -178,7 +178,7 @@ extension FeedsVC {
 
     }
 
-    fileprivate func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
         
@@ -199,20 +199,16 @@ extension FeedsVC {
                 self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
             }
             
-//            if imageFetching.isFinished {
-//                print("ImageFetching.isFinished; should cache at indexPath: \(indexPath.row)")
-//
-//            }
         }
         
     }
     
-    fileprivate func suspendOperations() {
+     func suspendOperations() {
         
         pendingOperations.downloadQueue.isSuspended = true
     }
     
-    fileprivate func resumeOperations() {
+     func resumeOperations() {
         
         pendingOperations.downloadQueue.isSuspended = false
     }
@@ -228,7 +224,7 @@ extension FeedsVC {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         
-        return photoDetails.count
+        return photoRecords.count
     }
 
     
@@ -238,8 +234,8 @@ extension FeedsVC {
 
         // Configure the cell...
 
-        let record = photoDetails[indexPath.row]
-        
+        let record = photoRecords[indexPath.item]
+        cell.tableImageView.image = nil
         
         switch (record.state) {
        
@@ -256,7 +252,7 @@ extension FeedsVC {
             }
 
         case .failed:
-            print("Image failed to load at indexPath: \(indexPath.row)")
+            print("Image failed to load at indexPath: \(indexPath.item)")
             // remember to add a default picture
         }
         
@@ -302,7 +298,7 @@ extension FeedsVC {
         
 
     }
-    
+}
     
     /*
     // Override to support conditional editing of the table view.
@@ -352,14 +348,14 @@ extension FeedsVC {
     
     /*
  
-     let imagecache = nSCache()
+ 
      
-     then save the image to cache when you retrieve image!
+    
  
  */
     
     
-}
+
 
 extension FeedsVC {
     
