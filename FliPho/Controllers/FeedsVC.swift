@@ -12,7 +12,7 @@ class FeedsVC: UITableViewController, OperationsManagement {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-    fileprivate let storage = Cache()
+//    fileprivate let storage = Cache()
     
     let url = FlickrURLs.fetchInterestingPhotos()
     
@@ -88,18 +88,18 @@ extension FeedsVC {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func retrieveImageFromCache(at indexPath: IndexPath) -> UIImage? {
-        
-        let currentRecord = photoRecords[indexPath.row]
-        
-        var imageFromCache: UIImage?
-        if let cachedImage = storage.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-            imageFromCache = cachedImage as? UIImage
-        }
-    
-        return imageFromCache
-        
-    }
+//    func retrieveImageFromCache(at indexPath: IndexPath) -> UIImage? {
+//
+//        let currentRecord = photoRecords[indexPath.row]
+//
+//        var imageFromCache: UIImage?
+//        if let cachedImage = storage.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+//            imageFromCache = cachedImage as? UIImage
+//        }
+//
+//        return imageFromCache
+//
+//    }
 }
 
 extension FeedsVC {
@@ -140,7 +140,7 @@ extension FeedsVC {
 
             // looping through the list of operations to be started and starting them
             for indexPath in operationsToBeStarted {
-                let imageToBeFetched = photoRecords[indexPath.item]
+                let imageToBeFetched = photoRecords[indexPath.row]
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
 
             }
@@ -160,16 +160,8 @@ extension FeedsVC {
             
         case .downloaded:
             
-            if storage.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) != nil {
-                print("Image at indexPath: \(indexPath.row) is already in cache now")
-                
-            } else {
-                
-                print("This image is not cached yet. Caching now at indexPath: \(indexPath.row)")
-                storage.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+            print("Image at indexPath: \(indexPath.row) should be cached")
 
-            }
-            
         case .failed:
             print("Image failed")
             // show a default image
@@ -234,7 +226,7 @@ extension FeedsVC {
 
         // Configure the cell...
 
-        let record = photoRecords[indexPath.item]
+        let record = photoRecords[indexPath.row]
         cell.tableImageView.image = nil
         
         switch (record.state) {
@@ -244,15 +236,16 @@ extension FeedsVC {
                 startOperations(for: record, indexPath: indexPath)
             }
         case .downloaded:
-            if let imageFromCache = retrieveImageFromCache(at: indexPath) {
-                print("Success getting image from cache")
-                if !tableView.isDragging && !tableView.isDecelerating {
-                    cell.tableImageView.image = imageFromCache
-                }
-            }
+            print("Caching now...")
+//            if let imageFromCache = retrieveImageFromCache(at: indexPath) {
+//                print("Success getting image from cache")
+//                if !tableView.isDragging && !tableView.isDecelerating {
+//                    cell.tableImageView.image = imageFromCache
+//                }
+//            }
 
         case .failed:
-            print("Image failed to load at indexPath: \(indexPath.item)")
+            print("Image failed to load at indexPath: \(indexPath.row)")
             // remember to add a default picture
         }
         

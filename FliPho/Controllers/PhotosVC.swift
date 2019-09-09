@@ -162,7 +162,7 @@ extension PhotosVC {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { print("Failed casting cell in cellForItem")
             return UICollectionViewCell() }
         
-        cell.imageView.image = nil
+//        cell.imageView.image = nil
         let currentRecord = userPhotoRecords[indexPath.item]
         
         switch currentRecord.state {
@@ -180,6 +180,8 @@ extension PhotosVC {
             print("Image failed; showing default image")
 
         }
+        
+        cell.imageView.image = currentRecord.image
 
         return cell
     }
