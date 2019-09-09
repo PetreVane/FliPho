@@ -12,10 +12,10 @@ import OAuthSwift
 
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
-     let savedData = UserDefaults()
-//     let cache = Cache()
-     var userPhotoRecords: [PhotoRecord] = []
-     let pendingOperations = PendingOperations()
+     fileprivate let savedData = UserDefaults()
+     fileprivate let cache = Cache()
+     fileprivate var userPhotoRecords: [PhotoRecord] = []
+     fileprivate let pendingOperations = PendingOperations()
     
     
     // Cell custoamizations
@@ -29,8 +29,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
         super.viewDidLoad()
         
 
-        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print ("No user ID")
-            return }
+        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print ("No user ID"); return }
         let url = FlickrURLs.fetchUserPhotos(userID: savedID)
         fetchPhotoURLs(from: url!)
     }
@@ -86,16 +85,12 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
                 print("Authobject error: \(failure)")
             }
         }
-        
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
     }
 }
 
 extension PhotosVC {
 
-    // MARK: - Operations Management
+    // MARK: - Operations Management Protocol stubs
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         print("Operations started for indexPAth: \(indexPath.item)")
@@ -105,11 +100,18 @@ extension PhotosVC {
             startDownload(for: photoRecord, indexPath: indexPath)
         
         case .downloaded:
-            print("Caching now image at indexPath: \(indexPath.item) ...")
+            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+                
+                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
+                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+                
+            } else {
+                print("Image at \(indexPath.item) cached already")
+            }
+            
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
             }
-//            self.cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
             
         case .failed:
             print("Image failed; consider showing a default image")
@@ -133,7 +135,6 @@ extension PhotosVC {
         
         imageFetching.completionBlock = {
             
-            photoRecord.state = .downloaded
             self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
             
             DispatchQueue.main.async {
@@ -193,8 +194,8 @@ extension PhotosVC {
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
                 
             }
+        }
     }
-}
 
 
 
@@ -209,10 +210,9 @@ extension PhotosVC {
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { print("Failed casting cell in cellForItem")
-            return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { return UICollectionViewCell() }
         
-        cell.imageView.image = nil
+//        cell.imageView.image = nil
         let currentRecord = userPhotoRecords[indexPath.item]
         
         switch (currentRecord.state) {
@@ -221,12 +221,12 @@ extension PhotosVC {
             startOperations(for: currentRecord, indexPath: indexPath)
         
         case .downloaded:
-            print("Should fetch image from cache at indexPath: \(indexPath.item)")
-
-//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-//                print("Succes fetching image from cache at indexPath: \(indexPath.item)")
-//                cell.imageView.image = imageFromCache as? UIImage
-//            }
+            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+                if !collectionView.isDragging && !collectionView.isDecelerating {
+                    cell.imageView.image = imageFromCache as? UIImage
+                    print("Succces showing image from cache at indexPath \(indexPath.item)")
+                }
+            }
             
         case .failed:
             print("Image failed; showing default image")

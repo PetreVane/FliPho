@@ -87,19 +87,6 @@ extension FeedsVC {
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
     }
-    
-//    func retrieveImageFromCache(at indexPath: IndexPath) -> UIImage? {
-//
-//        let currentRecord = photoRecords[indexPath.row]
-//
-//        var imageFromCache: UIImage?
-//        if let cachedImage = storage.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-//            imageFromCache = cachedImage as? UIImage
-//        }
-//
-//        return imageFromCache
-//
-//    }
 }
 
 
@@ -115,12 +102,17 @@ extension FeedsVC {
             
         case .downloaded:
             if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+                
                 print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
                 cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+
             } else {
                 print("Image at \(indexPath.row) is already in cache")
             }
             
+            DispatchQueue.main.async {
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+            }
 
         case .failed:
             print("Image failed")
@@ -147,10 +139,10 @@ extension FeedsVC {
             }
             
             DispatchQueue.main.async {
-                self.tableView.reloadRows(at: [indexPath], with: .left)
-                self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+                
             }
-            
+            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
         
     }
@@ -229,20 +221,20 @@ extension FeedsVC {
         // Configure the cell...
 
         let currentRecord = photoRecords[indexPath.row]
-        cell.tableImageView.image = nil
         
         switch (currentRecord.state) {
-       
+
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
                 startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
             if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-                print("Success getting image from cache for indexPath: \(indexPath.row)")
                 
                 if !tableView.isDragging && !tableView.isDecelerating {
                     cell.tableImageView.image = imageFromCache as? UIImage
+                    print("Success showing image from cache for indexPath: \(indexPath.row)")
+
                 }
             }
 
@@ -294,64 +286,17 @@ extension FeedsVC {
 
     }
 }
-    
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-    
-    /*
- 
- 
-     
-    
- 
- */
-    
-    
-
 
 extension FeedsVC {
+    
+    /*
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
     
 }
