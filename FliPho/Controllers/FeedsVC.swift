@@ -114,7 +114,12 @@ extension FeedsVC {
             startDownload(for: photoRecord, indexPath: indexPath)
             
         case .downloaded:
-            print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
+            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
+                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+            } else {
+                print("Image at \(indexPath.row) is already in cache")
+            }
             
 
         case .failed:
@@ -223,30 +228,30 @@ extension FeedsVC {
 
         // Configure the cell...
 
-        let record = photoRecords[indexPath.row]
+        let currentRecord = photoRecords[indexPath.row]
         cell.tableImageView.image = nil
         
-        switch (record.state) {
+        switch (currentRecord.state) {
        
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
-                startOperations(for: record, indexPath: indexPath)
+                startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
-            print("Caching now for indexPath: \(indexPath.row)")
-//            if let imageFromCache = retrieveImageFromCache(at: indexPath) {
-//                print("Success getting image from cache")
-//                if !tableView.isDragging && !tableView.isDecelerating {
-//                    cell.tableImageView.image = imageFromCache
-//                }
-//            }
+            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+                print("Success getting image from cache for indexPath: \(indexPath.row)")
+                
+                if !tableView.isDragging && !tableView.isDecelerating {
+                    cell.tableImageView.image = imageFromCache as? UIImage
+                }
+            }
 
         case .failed:
             print("Image failed to load at indexPath: \(indexPath.row)")
             // remember to add a default picture
         }
         
-        cell.tableImageView.image = record.image
+        cell.tableImageView.image = currentRecord.image
       
         return cell
     }
