@@ -25,12 +25,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         // Override point for customization after application launch.
-//        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
         let userPreferences = UserDefaults()
-//        print("App did finishLaunching with username: \(userPreferences.value(forKey: "username") ?? "no username")")
+        print("App did finishLaunching with username: \(userPreferences.value(forKey: "username") ?? "no username")")
         
         if userPreferences.value(forKey: "username") != nil {
-//            self.window?.rootViewController?.present("FeedsVC", animated: <#T##Bool#>, completion: <#T##(() -> Void)?##(() -> Void)?##() -> Void#>)
+            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+            
+            if let tabBarViewController = storyBoard.instantiateViewController(withIdentifier: "tabView") as? UITabBarController {
+//                print("TabView success")
+                self.window?.rootViewController = tabBarViewController
+            }
+            
+//            if let FeedsViewController = storyBoard.instantiateViewController(withIdentifier: "Feeds") as? FeedsVC {
+//                print("Succedd getting a reference of FeedsVC")
+//                self.window?.rootViewController = FeedsViewController
+//            }
         }
     
         return true

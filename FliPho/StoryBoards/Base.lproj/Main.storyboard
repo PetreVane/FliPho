@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="hhv-3M-nw3">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="F7e-Zx-rlk">
     <device id="retina6_1" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -12,7 +12,7 @@
         <!--My Feeds-->
         <scene sceneID="Zvf-JP-4Lo">
             <objects>
-                <tableViewController id="2WB-VC-2wh" customClass="FeedsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="Feeds" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2WB-VC-2wh" customClass="FeedsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="7o0-a9-1ek">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -55,22 +55,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d4h-dN-3WE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="918.84057971014499" y="141.96428571428569"/>
-        </scene>
-        <!--Photo DetailsVC-->
-        <scene sceneID="kaa-Pq-n6S">
-            <objects>
-                <viewController id="llf-xP-LWK" customClass="PhotoDetailsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="7dP-dl-ZIi">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <viewLayoutGuide key="safeArea" id="hi3-L7-8IA"/>
-                    </view>
-                    <navigationItem key="navigationItem" id="U3x-ee-9uO"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="JsK-eF-loB" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="907.24637681159425" y="877.90178571428567"/>
         </scene>
         <!--LoginVC-->
         <scene sceneID="Xc7-Qo-l9V">
@@ -244,7 +228,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="llf-xP-LWK" kind="relationship" relationship="rootViewController" id="cq6-NT-E0e"/>
+                        <segue destination="JSR-GW-CV6" kind="relationship" relationship="rootViewController" id="cq6-NT-E0e"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ejX-Dj-04V" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -254,7 +238,7 @@
         <!--Tab Bar Controller-->
         <scene sceneID="n8Q-PG-GdL">
             <objects>
-                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="hhv-3M-nw3" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="tabView" automaticallyAdjustsScrollViewInsets="NO" id="hhv-3M-nw3" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="0vj-bb-AXP">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
@@ -271,6 +255,16 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ltS-wC-E1j" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="25" y="142"/>
+        </scene>
+        <!--Second-->
+        <scene sceneID="F1M-OZ-tfE">
+            <objects>
+                <viewControllerPlaceholder storyboardName="Second" id="JSR-GW-CV6" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="gtc-df-TRH"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tYP-MZ-2MO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="907.24637681159425" y="877.90178571428567"/>
         </scene>
     </scenes>
     <resources>

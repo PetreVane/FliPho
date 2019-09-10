@@ -113,13 +113,6 @@ class MapVC: UIViewController {
             alert.addAction(dismissAction)
             present(alert, animated: true, completion: nil)
             
-        default:
-            
-            alert = UIAlertController(title: "Error", message: message.description, preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "OK, I'll try later", style: .cancel, handler: nil)
-            alert.addAction(okAction)
-            present(alert, animated: true, completion: nil)
-            
         }
     
     }
