@@ -12,7 +12,7 @@ import OAuthSwift
 
 class LoginVC: UIViewController {
     
-    fileprivate let defaults = UserDefaults()
+    fileprivate let userDefaults = UserDefaults.standard
     fileprivate let callBackURL = URL(string: "FliPho://")
     
     override func viewDidLoad() {
@@ -56,8 +56,9 @@ class LoginVC: UIViewController {
             case .success(let (_, _, parameters)):
                 for (key, _) in parameters {
                     if let valueAsString = parameters[key] as? String {
-//                        print("Value as string: \(valueAsString.removingPercentEncoding)")
-                        self.defaults.set(valueAsString.removingPercentEncoding, forKey: key)
+                        print("Value as string: \(valueAsString.removingPercentEncoding)")
+                        self.userDefaults.set(valueAsString.removingPercentEncoding, forKey: key)
+                        self.userDefaults.set(true, forKey: "loggedIn")
                     }
                 }
                 self.authenticate(with: authObject)
@@ -71,7 +72,7 @@ class LoginVC: UIViewController {
 
     func authenticate(with oauthswift: OAuth1Swift) {
        
-        let savedUserID = defaults.value(forKey: "user_nsid")
+        let savedUserID = userDefaults.value(forKey: "user_nsid")
         let authenticationUrl = FlickrURLs.checkAuthToken(userID: savedUserID as! String)
         
         _ = oauthswift.client.get(authenticationUrl!) { response in

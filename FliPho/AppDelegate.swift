@@ -32,14 +32,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let storyBoard = UIStoryboard(name: "Main", bundle: nil)
             
             if let tabBarViewController = storyBoard.instantiateViewController(withIdentifier: "tabView") as? UITabBarController {
-//                print("TabView success")
                 self.window?.rootViewController = tabBarViewController
             }
             
-//            if let FeedsViewController = storyBoard.instantiateViewController(withIdentifier: "Feeds") as? FeedsVC {
-//                print("Succedd getting a reference of FeedsVC")
-//                self.window?.rootViewController = FeedsViewController
-//            }
         }
     
         return true

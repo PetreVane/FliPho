@@ -14,6 +14,7 @@ import OAuthSwift
 
 // segue identifiers
 let mainMenu = "mainMenu"
+let logout = "logout"
 
 // MARK: Constants
 
