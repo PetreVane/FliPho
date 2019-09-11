@@ -39,15 +39,12 @@ class MapVC: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
+//        print("Current auth status is: \(authorizationStatus.rawValue)")
         
-        guard let currentLocation = locationManager.location?.coordinate else { print("Coordinates could not be established")
-            showAlert(message: .allowLocationServices)
-            return
-        }
-        url = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-//        let flickrUrl = FlickrURLs.fetchPhotosFromCoordinates(apiKey: <#T##String#>, latitude: <#T##Double#>, longitude: <#T##Double#>)
-        fetchLocalImages(from: url!)
+        getLocationCoordinates()
         showPinsOnMap()
+        
+        
     }
     
     
@@ -88,7 +85,7 @@ class MapVC: UIViewController {
         switch message {
             
         case .allowLocationServices:
-            alert = UIAlertController(title: "Error", message: message.description, preferredStyle: .alert)
+            alert = UIAlertController(title: "Allow Location Access", message: message.description, preferredStyle: .alert)
             let openSettingsAction = UIAlertAction(title: "Allow", style: .default) { (action) in
                 guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
                 UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
@@ -189,7 +186,10 @@ extension MapVC: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     
+        print("Auth status changed to: \(status.rawValue)")
+        getLocationCoordinates()
         centerMapOnUserLocation()
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -200,6 +200,33 @@ extension MapVC: CLLocationManagerDelegate {
 extension MapVC {
     
     // MARK: - Networking
+    
+    func getLocationCoordinates() {
+        
+        /*
+        This method gets the coordinates for user location, and uses them as parametes when constructing the URL, which is later used in fetching images relevant for user location.
+        
+         1. gets geographic coordinates
+         2. uses geographic coordinates to construct a Flickr URL
+         3. uses the URL to call Flickr endpoint Api
+         4. receives images from user location area. The area accounts for 5000 meters.
+         
+         */
+        
+        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
+            showAlert(message: .allowLocationServices)
+            return
+        }
+        
+        guard let urlWithLocation = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
+            return
+        }
+       
+        
+        fetchLocalImages(from: urlWithLocation)
+        
+    }
     
     func fetchLocalImages(from url: URL) {
         
@@ -302,6 +329,8 @@ extension MapVC {
         if let longitude = photoRecord.longitude {
             pin.coordinate.longitude = longitude
         }
+        pin.title = photoRecord.name
+        
         
         DispatchQueue.main.async {
             self.mapView.addAnnotation(pin)
