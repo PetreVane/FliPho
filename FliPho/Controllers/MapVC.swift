@@ -189,9 +189,12 @@ extension MapVC: MKMapViewDelegate {
         let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
         
         // fetching image from dictionary
-        if let image = photoAlbum[annotationTitle]?.image {
+        if let record = photoAlbum[annotationTitle] {
+            fetchImage(record: record)
+            
             DispatchQueue.main.async {
-                annotationImageView.image = image
+                annotationImageView.image = record.image
+                self.mapView.reloadInputViews()
             }
         }
         
@@ -306,7 +309,7 @@ extension MapVC {
                                 photoRecord.latitude = latitude
                                 photoRecord.longitude = longitude
                                 self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-                                self.fetchImage(record: photoRecord)
+//                                self.fetchImage(record: photoRecord)
                                 self.dropPin(for: photoRecord)
        
                             }
