@@ -18,8 +18,9 @@ class MapVC: UIViewController {
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
     fileprivate var url: URL?
-    fileprivate var pin = MKPointAnnotation()
     fileprivate var photoAlbum: [String : PhotoRecord] = [:]
+    let pendingOperations = PendingOperations()
+    
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -32,19 +33,15 @@ class MapVC: UIViewController {
         
         mapView.delegate = self
         locationManager.delegate = self
+    
         confirmLocationServicesAreON()
-
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
-        
-//        print("Current auth status is: \(authorizationStatus.rawValue)")
-        
+    
         getLocationCoordinates()
-        showPinsOnMap()
-        
-        
+//        showPinsOnMap()
     }
     
     
@@ -148,6 +145,8 @@ class MapVC: UIViewController {
 
 extension MapVC: MKMapViewDelegate {
     
+    // MARK: - MapView Delegate methods
+    
     func centerMapOnUserLocation() {
         
         mapView.showsUserLocation = true
@@ -160,8 +159,52 @@ extension MapVC: MKMapViewDelegate {
         mapView.setRegion(region, animated: true)
         
     }
-}
+    
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
 
+        let identifier = "annotation"
+        var annotationView: MKAnnotationView?
+
+        if annotation.isKind(of: MKUserLocation.self) {
+            return nil
+        }
+
+        var markerAnnotation: MKMarkerAnnotationView? = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKMarkerAnnotationView
+        
+
+        if markerAnnotation == nil {
+            markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            markerAnnotation?.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            markerAnnotation?.canShowCallout = true
+        }
+        annotationView = markerAnnotation
+
+        // here annotation refers to annotationPoint declared in dropPin method
+        guard let annotationTitle = annotation.title as? String else { print("Failed casting annotation title as string")
+            return nil
+        }
+    
+        // view that holds the image shown whithin the annotation object, when tapped
+        let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
+        
+        // fetching image from dictionary
+        if let image = photoAlbum[annotationTitle]?.image {
+            DispatchQueue.main.async {
+                annotationImageView.image = image
+            }
+        }
+        
+        // positioning the image view
+        annotationView?.leftCalloutAccessoryView = annotationImageView
+        // adding a button for segue
+        annotationView?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+
+        return annotationView
+    }
+    
+    
+}
 
 extension MapVC: CLLocationManagerDelegate {
    
@@ -181,7 +224,6 @@ extension MapVC: CLLocationManagerDelegate {
         @unknown default:
             print("unknown default case in requestAuthorizationForLocationServices()")
         }
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -190,10 +232,6 @@ extension MapVC: CLLocationManagerDelegate {
         getLocationCoordinates()
         centerMapOnUserLocation()
         
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("didUpdateLocations called")
     }
 }
 
@@ -206,10 +244,15 @@ extension MapVC {
         /*
         This method gets the coordinates for user location, and uses them as parametes when constructing the URL, which is later used in fetching images relevant for user location.
         
-         1. gets geographic coordinates
-         2. uses geographic coordinates to construct a Flickr URL
-         3. uses the URL to call Flickr endpoint Api
-         4. receives images from user location area. The area accounts for 5000 meters.
+         Tasks accomplished in Networking extension:
+         
+         1. getting the user geographic coordinates
+         2. using geographic coordinates to construct a Flickr URL
+         3. using the URL to call Flickr endpoint Api, which returns an encoded json with the urls of images taken around the user location
+            The span area containing pictures accounts for 5000 meters.
+         4. iterating over each image url, to get the final image
+         5. using each image ID, to call another Flickr endPpoint, which returns the geographic coordinates for that particular imageID
+         6. using the returned geoGraphic coordinates, to establish the exact location where the image has been taken.
          
          */
         
@@ -218,17 +261,19 @@ extension MapVC {
             return
         }
         
-        guard let urlWithLocation = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
             else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
             return
         }
        
         
-        fetchLocalImages(from: urlWithLocation)
+        fetchImageURLs(from: urlWithLocationCoordinates)
         
     }
     
-    func fetchLocalImages(from url: URL) {
+    func fetchImageURLs(from url: URL) {
+        
+        print("fetchImageURLs called")
         
         let jsonDecoder = JSONDecoder()
         
@@ -251,17 +296,19 @@ extension MapVC {
                 
                 for photo in decodedPhotos {
 
-                    if let photoCoordinatesURL = FlickrURLs.fetchPhotosCoordinates(photoID: photo.id) {
+                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
 
-                        self.fetchFotoCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
+                        self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
                             
-                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
         
                                 let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoUrl)
                                 photoRecord.latitude = latitude
                                 photoRecord.longitude = longitude
-                                self.photoAlbum.updateValue(photoRecord, forKey: photo.id)
-
+                                self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
+                                self.fetchImage(record: photoRecord)
+                                self.dropPin(for: photoRecord)
+       
                             }
                         }
                     }
@@ -276,7 +323,9 @@ extension MapVC {
         
     }
 
-    func fetchFotoCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
+    func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
+        
+        print("fetchImageCoordinates called")
         
         let session = URLSession.shared
         let task = session.dataTask(with: url) { (data, response, error) in
@@ -311,41 +360,49 @@ extension MapVC {
         }
         task.resume()
     }
+    
+    
+    func fetchImage(record: PhotoRecord) {
+        
+        print("fetchImage(recod:) called")
+        
+        let imageFetcher = ImageFetcher(photo: record)
+        pendingOperations.downloadQueue.addOperation(imageFetcher)
+        
+        imageFetcher.completionBlock = {
+            DispatchQueue.main.async {
+                print("Image named: \(record.name) has been successfully fetched")
+            }
+            
+        }
+    }
 }
-
 
 extension MapVC {
     
-    // MARK: - Show Pins
+    // MARK: - Showing Pins
     
     func dropPin(for photoRecord: PhotoRecord) {
+        print("dropPin(for record:) called")
         
-        let pin = MKPointAnnotation()
+        let pointAnnotation = MKPointAnnotation()
         
         if let latitude = photoRecord.latitude {
-            pin.coordinate.latitude = latitude
+            pointAnnotation.coordinate.latitude = latitude
         }
         
         if let longitude = photoRecord.longitude {
-            pin.coordinate.longitude = longitude
+            pointAnnotation.coordinate.longitude = longitude
         }
-        pin.title = photoRecord.name
         
+        pointAnnotation.title = photoRecord.name
         
         DispatchQueue.main.async {
-            self.mapView.addAnnotation(pin)
-            self.mapView.reloadInputViews()
+            self.mapView.addAnnotation(pointAnnotation)
         }
- 
     }
     
-    func showPinsOnMap() {
-        
-        for (_, photoRecord) in self.photoAlbum {
-//            print("Key is: \(key) and value is: \(value.name)")
-            dropPin(for: photoRecord)
-        }
-    }
+
     
     /*
      // MARK: - Navigation
@@ -356,5 +413,6 @@ extension MapVC {
      // Pass the selected object to the new view controller.
      }
      */
-
+    
 }
+

@@ -21,8 +21,6 @@ class FeedsVC: UITableViewController, OperationsManagement {
         
         fetchImageDetails(from: url!)
     }
-
-    
 }
 
 extension FeedsVC {
@@ -110,9 +108,9 @@ extension FeedsVC {
                 print("Image at \(indexPath.row) is already in cache")
             }
             
-            DispatchQueue.main.async {
-                self.tableView.reloadRows(at: [indexPath], with: .fade)
-            }
+//            DispatchQueue.main.async {
+//                self.tableView.reloadRows(at: [indexPath], with: .fade)
+//            }
 
         case .failed:
             print("Image failed")
