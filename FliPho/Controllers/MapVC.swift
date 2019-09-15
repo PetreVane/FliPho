@@ -41,7 +41,6 @@ class MapVC: UIViewController {
         super.viewDidAppear(true)
     
         getLocationCoordinates()
-//        showPinsOnMap()
     }
     
     
@@ -177,6 +176,7 @@ extension MapVC: MKMapViewDelegate {
             markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             markerAnnotation?.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
             markerAnnotation?.canShowCallout = true
+            
         }
         annotationView = markerAnnotation
 
@@ -190,11 +190,10 @@ extension MapVC: MKMapViewDelegate {
         
         // fetching image from dictionary
         if let record = photoAlbum[annotationTitle] {
-            fetchImage(record: record)
             
             DispatchQueue.main.async {
                 annotationImageView.image = record.image
-                self.mapView.reloadInputViews()
+                print("Image \(record.name) has been assigned")
             }
         }
         
@@ -204,6 +203,48 @@ extension MapVC: MKMapViewDelegate {
         annotationView?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
 
         return annotationView
+    }
+    
+    
+//    func mapView(_ mapView: MKMapView, clusterAnnotationForMemberAnnotations memberAnnotations: [MKAnnotation]) -> MKClusterAnnotation {
+//
+//        var clusteredAnnotations: MKClusterAnnotation?
+//
+//        if let cluster = memberAnnotations as? MKClusterAnnotation {
+//            print("You've got\(cluster) annotation")
+//            clusteredAnnotations = cluster
+//        } else {
+//            print("No cluster so far")
+//        }
+////        cluster.memberAnnotations = [memberAnnotations]
+//
+//
+//
+//        return clusteredAnnotations!
+//    }
+    
+    
+    
+    
+    // MARK: - Showing Pins
+    
+    func dropPin(for photoRecord: PhotoRecord) {
+//        print("dropPin(for record:) called")
+        
+        let pointAnnotation = MKPointAnnotation()
+        
+        if let latitude = photoRecord.latitude {
+            pointAnnotation.coordinate.latitude = latitude
+        }
+        
+        if let longitude = photoRecord.longitude {
+            pointAnnotation.coordinate.longitude = longitude
+        }
+        
+        pointAnnotation.title = photoRecord.name
+        DispatchQueue.main.async {
+            self.mapView.addAnnotation(pointAnnotation)
+        }
     }
     
     
@@ -309,14 +350,14 @@ extension MapVC {
                                 photoRecord.latitude = latitude
                                 photoRecord.longitude = longitude
                                 self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-//                                self.fetchImage(record: photoRecord)
-                                self.dropPin(for: photoRecord)
+                                self.fetchImage(record: photoRecord)
+//                                self.dropPin(for: photoRecord)
        
                             }
                         }
                     }
                 }
-                
+               
             } catch {
                 
                 print("Errors while parsing Image json: \(error.localizedDescription)")
@@ -328,7 +369,7 @@ extension MapVC {
 
     func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
         
-        print("fetchImageCoordinates called")
+//        print("fetchImageCoordinates called")
         
         let session = URLSession.shared
         let task = session.dataTask(with: url) { (data, response, error) in
@@ -367,7 +408,7 @@ extension MapVC {
     
     func fetchImage(record: PhotoRecord) {
         
-        print("fetchImage(recod:) called")
+//        print("fetchImage(recod:) called")
         
         let imageFetcher = ImageFetcher(photo: record)
         pendingOperations.downloadQueue.addOperation(imageFetcher)
@@ -382,31 +423,7 @@ extension MapVC {
 }
 
 extension MapVC {
-    
-    // MARK: - Showing Pins
-    
-    func dropPin(for photoRecord: PhotoRecord) {
-        print("dropPin(for record:) called")
-        
-        let pointAnnotation = MKPointAnnotation()
-        
-        if let latitude = photoRecord.latitude {
-            pointAnnotation.coordinate.latitude = latitude
-        }
-        
-        if let longitude = photoRecord.longitude {
-            pointAnnotation.coordinate.longitude = longitude
-        }
-        
-        pointAnnotation.title = photoRecord.name
-        
-        DispatchQueue.main.async {
-            self.mapView.addAnnotation(pointAnnotation)
-        }
-    }
-    
 
-    
     /*
      // MARK: - Navigation
      
