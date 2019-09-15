@@ -35,19 +35,20 @@ class MapVC: UIViewController {
         locationManager.delegate = self
     
         confirmLocationServicesAreON()
+
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
     
-        getLocationCoordinates()
+//        getLocationCoordinates()
     }
-    
     
     
     @IBAction func locationButtonPressed(_ sender: UIButton) {
         
         centerMapOnUserLocation()
+        getLocationCoordinates()
     }
     
     
@@ -141,10 +142,8 @@ class MapVC: UIViewController {
 
 }
 
-
+// MARK: - MapView Delegate methods
 extension MapVC: MKMapViewDelegate {
-    
-    // MARK: - MapView Delegate methods
     
     func centerMapOnUserLocation() {
         
@@ -161,8 +160,8 @@ extension MapVC: MKMapViewDelegate {
     
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-
-        let identifier = "annotation"
+        
+        let identifier = "annotationIdentifier"
         var annotationView: MKAnnotationView?
 
         if annotation.isKind(of: MKUserLocation.self) {
@@ -176,6 +175,7 @@ extension MapVC: MKMapViewDelegate {
             markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: identifier)
             markerAnnotation?.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
             markerAnnotation?.canShowCallout = true
+            markerAnnotation?.clusteringIdentifier = identifier
             
         }
         annotationView = markerAnnotation
@@ -205,43 +205,27 @@ extension MapVC: MKMapViewDelegate {
         return annotationView
     }
     
-    
-//    func mapView(_ mapView: MKMapView, clusterAnnotationForMemberAnnotations memberAnnotations: [MKAnnotation]) -> MKClusterAnnotation {
-//
-//        var clusteredAnnotations: MKClusterAnnotation?
-//
-//        if let cluster = memberAnnotations as? MKClusterAnnotation {
-//            print("You've got\(cluster) annotation")
-//            clusteredAnnotations = cluster
-//        } else {
-//            print("No cluster so far")
-//        }
-////        cluster.memberAnnotations = [memberAnnotations]
-//
-//
-//
-//        return clusteredAnnotations!
-//    }
-    
-    
-    
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        print("Button pressed: trigger segue here")
+    }
     
     // MARK: - Showing Pins
     
     func dropPin(for photoRecord: PhotoRecord) {
 //        print("dropPin(for record:) called")
-        
+
         let pointAnnotation = MKPointAnnotation()
-        
+
         if let latitude = photoRecord.latitude {
             pointAnnotation.coordinate.latitude = latitude
         }
-        
+
         if let longitude = photoRecord.longitude {
             pointAnnotation.coordinate.longitude = longitude
         }
-        
+
         pointAnnotation.title = photoRecord.name
+        pointAnnotation.subtitle = photoRecord.imageUrl.absoluteString
         DispatchQueue.main.async {
             self.mapView.addAnnotation(pointAnnotation)
         }
@@ -279,9 +263,9 @@ extension MapVC: CLLocationManagerDelegate {
     }
 }
 
+// MARK: - Networking
+
 extension MapVC {
-    
-    // MARK: - Networking
     
     func getLocationCoordinates() {
         
@@ -344,7 +328,7 @@ extension MapVC {
 
                         self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
                             
-                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
+                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
         
                                 let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoUrl)
                                 photoRecord.latitude = latitude
@@ -416,6 +400,7 @@ extension MapVC {
         imageFetcher.completionBlock = {
             DispatchQueue.main.async {
                 print("Image named: \(record.name) has been successfully fetched")
+                self.dropPin(for: record)
             }
             
         }

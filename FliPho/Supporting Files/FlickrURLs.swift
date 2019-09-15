@@ -49,7 +49,7 @@ struct FlickrURLs {
         
         // flickr.photos.search
         
-        guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(consumerKey)&accuracy=11&has_geo=1&lat=\(latitude)&lon=\(longitude)&radius=5&radius_units=km&per_page=20&format=json&nojsoncallback=1") else
+        guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(consumerKey)&accuracy=11&has_geo=1&lat=\(latitude)&lon=\(longitude)&radius=5&radius_units=km&per_page=&format=json&nojsoncallback=1") else
         { print("Failed getting url for photos with location coordinates")
             return URL(string: "No url for photos from location")
         }

@@ -135,11 +135,12 @@ extension PhotosVC {
         
         imageFetching.completionBlock = {
             
-            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
             
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
             }
+            
+            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
     }
     
