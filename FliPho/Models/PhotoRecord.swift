@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import MapKit
+
 
 enum PhotoRecordState {
     
@@ -18,12 +20,12 @@ enum PhotoRecordState {
 
 class PhotoRecord {
     
-    let name: String
     let imageUrl: URL
     var latitude: Double?
     var longitude: Double?
     var image = UIImage(named: "Flickr image")
     var state = PhotoRecordState.new
+    let name: String
     
     
     init(name: String, imageUrl: URL) {
