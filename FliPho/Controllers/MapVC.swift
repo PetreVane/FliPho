@@ -40,13 +40,6 @@ class MapVC: UIViewController {
         getLocationCoordinates()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-    
-        
-    }
-    
-    
     @IBAction func locationButtonPressed(_ sender: UIButton) {
         
         centerMapOnUserLocation()
