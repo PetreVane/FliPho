@@ -31,19 +31,24 @@ class UserAccountVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        fetchUserInfo()
+//        fetchUserInfo()
+        showUserDetails()
 
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
+    }
+    
+    
+    func showUserDetails() {
         
-        if let userName = userDefaults.object(forKey: "username" as String) {
-            print("Your username is: \(userName)")
-        } else {
-            print("no key with this name")
+        guard let name = userDefaults.object(forKey: "fullname") as? String else { print("No name in User Defults"); return }
+        guard let userName = userDefaults.object(forKey: "username") as? String else { print("No userName in User Defaults"); return }
+        DispatchQueue.main.async {
+            self.realNameLabel.text = "Hello \(name)!"
+            self.userNameLabel.text = "You are logged in as: \(userName)"
         }
-        
     }
     
     
@@ -65,17 +70,17 @@ class UserAccountVC: UIViewController {
 
     func fetchUserInfo() {
         guard let id = userDefaults.value(forKey: "user_nsid") as? String else { print("No user with this id"); return }
-        guard let url = FlickrURLs.fetchUserInfo(userID: id) else {return }
+        guard let url = FlickrURLs.fetchUserInfo(userID: id) else { return }
         
         let session = URLSession.shared
         let task = session.dataTask(with: url) { (data, response, error) in
             
-            guard error == nil else {return}
+            guard error == nil else { return }
             
             guard let serverResponse = response as? HTTPURLResponse,
-                serverResponse.statusCode == 200 else {return}
+                serverResponse.statusCode == 200 else { return }
             
-            guard let receivedData = data else {return}
+            guard let receivedData = data else { return }
             
             let decoder = JSONDecoder()
             
@@ -84,6 +89,14 @@ class UserAccountVC: UIViewController {
                 let decodedInfo = decodedData.person
                 
                 print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")
+                guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
+                
+                guard let imageData = try? Data(contentsOf: profilePictUrl) else { return }
+                let image = UIImage(data: imageData)
+                
+                DispatchQueue.main.async {
+                    self.imageView.image = image
+                }
                 
             } catch let error {
                 print("Errors in fetchUserInfo: \(error.localizedDescription)")
@@ -92,5 +105,9 @@ class UserAccountVC: UIViewController {
         }
         task.resume()
     }
+    
+    
+    
+    
     
 }
