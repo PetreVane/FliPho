@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0B368CCE23201000003D93F7 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B368CCD23201000003D93F7 /* Cache.swift */; };
+		0B5A71E223365E1200C89B18 /* EncodedUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */; };
 		0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B891803232FD546008950D0 /* FlickrAnnotation.swift */; };
 		0B8AF2F22321352D003D2750 /* FlickrURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AF2F12321352D003D2750 /* FlickrURLs.swift */; };
 		0B8AF2F423218830003D2750 /* EncodedGeoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AF2F323218830003D2750 /* EncodedGeoData.swift */; };
@@ -35,6 +36,7 @@
 
 /* Begin PBXFileReference section */
 		0B368CCD23201000003D93F7 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedUserInfo.swift; sourceTree = "<group>"; };
 		0B891803232FD546008950D0 /* FlickrAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrAnnotation.swift; sourceTree = "<group>"; };
 		0B8AF2F12321352D003D2750 /* FlickrURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrURLs.swift; sourceTree = "<group>"; };
 		0B8AF2F323218830003D2750 /* EncodedGeoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedGeoData.swift; sourceTree = "<group>"; };
@@ -83,6 +85,7 @@
 				0B8AF2F12321352D003D2750 /* FlickrURLs.swift */,
 				0B8AF2F323218830003D2750 /* EncodedGeoData.swift */,
 				0B9686E9232189D4008873F9 /* EncodedPhotos.swift */,
+				0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
@@ -304,6 +307,7 @@
 				0BE641C62319340700D7DB44 /* LoginVC.swift in Sources */,
 				0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */,
 				0BE641C22319331F00D7DB44 /* MapVC.swift in Sources */,
+				0B5A71E223365E1200C89B18 /* EncodedUserInfo.swift in Sources */,
 				0B368CCE23201000003D93F7 /* Cache.swift in Sources */,
 				0BE641C0231932E000D7DB44 /* PhotosVC.swift in Sources */,
 				0BEE9E58232664F000FAEB80 /* OperationsManagement.swift in Sources */,

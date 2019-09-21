@@ -19,7 +19,6 @@ protocol OperationsManagement {
     
     func resumeOperations()
     
-
 }
 
 

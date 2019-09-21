@@ -56,7 +56,7 @@ class LoginVC: UIViewController {
             case .success(let (_, _, parameters)):
                 for (key, _) in parameters {
                     if let valueAsString = parameters[key] as? String {
-                        print("Value as string: \(valueAsString.removingPercentEncoding)")
+//                        print("Value as string: \(valueAsString.removingPercentEncoding)")
                         self.userDefaults.set(valueAsString.removingPercentEncoding, forKey: key)
                         self.userDefaults.set(true, forKey: "loggedIn")
                     }
@@ -102,20 +102,5 @@ class LoginVC: UIViewController {
         alert.addAction(action)
         self.present(alert, animated: true, completion: nil)
     }
-    
-  
-    /*
-    
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-        
-        
-    }
-     */
     
 }

@@ -13,10 +13,25 @@ class UserAccountVC: UIViewController {
     fileprivate let userDefaults = UserDefaults.standard
     fileprivate let userDefaultsKeys = ["oauth_token", "oauth_token_secret", "fullname", "user_nsid", "username"]
     
+    
+    @IBOutlet weak var imageContainer: UIView!
+    @IBOutlet weak var userNameContainer: UIView!
+    @IBOutlet weak var realNameContainer: UIView!
+    @IBOutlet weak var logOutButtonContainer: UIView!
+    
+    
+    
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var userNameLabel: UILabel!
+    @IBOutlet weak var realNameLabel: UILabel!
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        fetchUserInfo()
 
     }
     
@@ -29,10 +44,6 @@ class UserAccountVC: UIViewController {
             print("no key with this name")
         }
         
-//        if let userLoggedIn = userDefaults.object(forKey: "loggedIn") as? Bool {
-//            print("User is logged in: \(userLoggedIn)")
-//        }
-        
     }
     
     
@@ -40,6 +51,7 @@ class UserAccountVC: UIViewController {
         
         userLogOut()
     }
+    
     
     func userLogOut() {
         
@@ -51,4 +63,34 @@ class UserAccountVC: UIViewController {
         performSegue(withIdentifier: "logout", sender: nil)
     }
 
+    func fetchUserInfo() {
+        guard let id = userDefaults.value(forKey: "user_nsid") as? String else { print("No user with this id"); return }
+        guard let url = FlickrURLs.fetchUserInfo(userID: id) else {return }
+        
+        let session = URLSession.shared
+        let task = session.dataTask(with: url) { (data, response, error) in
+            
+            guard error == nil else {return}
+            
+            guard let serverResponse = response as? HTTPURLResponse,
+                serverResponse.statusCode == 200 else {return}
+            
+            guard let receivedData = data else {return}
+            
+            let decoder = JSONDecoder()
+            
+            do {
+                let decodedData = try decoder.decode(UserInfo.self, from: receivedData)
+                let decodedInfo = decodedData.person
+                
+                print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")
+                
+            } catch let error {
+                print("Errors in fetchUserInfo: \(error.localizedDescription)")
+            }
+            
+        }
+        task.resume()
+    }
+    
 }
