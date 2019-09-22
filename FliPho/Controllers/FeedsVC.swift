@@ -27,6 +27,7 @@ extension FeedsVC {
     
     // MARK: - Networking
     
+    
     func fetchImageDetails(from url: URL) {
         
         let session = URLSession.shared
@@ -65,6 +66,7 @@ extension FeedsVC {
                     
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
+                        print("You've got: \(self.photoRecords.count)")
                     
                     }
                 
@@ -90,6 +92,7 @@ extension FeedsVC {
 
 extension FeedsVC {
     // MARK: - Operations Management
+    
     
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
@@ -157,6 +160,7 @@ extension FeedsVC {
     
     // MARK: - Loading images on Visible Cells
     
+    
     func loadImagesOnVisibleRows() {
         
         // getting a reference of all visible rows
@@ -204,6 +208,7 @@ extension FeedsVC {
 extension FeedsVC {
     
     // MARK: - Table view data source
+    
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
@@ -254,6 +259,7 @@ extension FeedsVC {
     
     // MARK: - Table view delegate methods
     
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
@@ -261,6 +267,7 @@ extension FeedsVC {
     }
     
     // MARK: - ScrollView delegate methods
+    
     
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
 

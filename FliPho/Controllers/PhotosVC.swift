@@ -44,6 +44,8 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 //extension PhotosVC {
     
     // MARK: - Networking
+    
+    
 
     func fetchPhotoURLs(from url: URL) {
         
@@ -91,6 +93,8 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 extension PhotosVC {
 
     // MARK: - Operations Management Protocol stubs
+    
+    
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         print("Operations started for indexPAth: \(indexPath.item)")
@@ -157,6 +161,8 @@ extension PhotosVC {
     
     // MARK: - Loading images on Visible Cells
     
+    
+    
     func loadImagesOnVisibleItems() {
     
         // getting a reference of all visible rows
@@ -203,6 +209,8 @@ extension PhotosVC {
 extension PhotosVC {
     
     // MARK: UICollectionViewDataSource
+    
+    
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -267,6 +275,8 @@ extension PhotosVC: UICollectionViewDelegateFlowLayout {
 extension PhotosVC {
 
     // MARK: CollectionView delegate methods
+    
+    
 
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         suspendOperations()
@@ -291,6 +301,8 @@ extension PhotosVC {
 
 extension PhotosVC {
     // MARK: - Navigation
+    
+    
     
     /*
      

@@ -13,7 +13,12 @@ import CoreLocation
 
 class MapVC: UIViewController {
 
+    
+    
     // MARK: - Variables & constants
+    
+    
+    
     fileprivate var locationManager = CLLocationManager()
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
@@ -49,6 +54,9 @@ class MapVC: UIViewController {
     
     
     // MARK: - Error handling
+    
+    
+    
     enum ErrorMessages: Error {
         
         case locationDisabled
@@ -104,6 +112,8 @@ class MapVC: UIViewController {
     
     // MARK: - Location Services
     
+    
+    
     func confirmLocationServicesAreON() {
         
         if CLLocationManager.locationServicesEnabled() {
@@ -130,6 +140,9 @@ class MapVC: UIViewController {
 }
 
 // MARK: - MapView Delegate methods
+
+
+
 extension MapVC: MKMapViewDelegate {
     
     func centerMapOnUserLocation() {
@@ -225,6 +238,8 @@ extension MapVC: CLLocationManagerDelegate {
 
 // MARK: - Networking
 
+
+
 extension MapVC {
     
     /*
@@ -234,9 +249,10 @@ extension MapVC {
      2. using geographic coordinates to construct a Flickr URL
      3. using the URL to call Flickr endpoint Api, which returns an encoded json with the urls of images taken around the user location
      The span area containing pictures accounts for 5000 meters.
-     4. iterating over each image url, to get the final image
+     4. iterating over each image url, to get the image ID
      5. using each image ID, to call another Flickr endPpoint, which returns the geographic coordinates for that particular imageID
      6. using the returned geoGraphic coordinates, to establish the exact location where the image has been taken.
+     7. iterating over each image url, to get the final image
      
      */
     
@@ -352,6 +368,8 @@ extension MapVC {
     
     // MARK: - Showing Pins
     
+    
+    
     func dropPin(for photoRecord: PhotoRecord) {
         print("dropPin(for record:) called")
         
@@ -364,17 +382,19 @@ extension MapVC {
     }
 }
 
-extension MapVC {
 
-    /*
+
+    
      // MARK: - Navigation
-     
+    
+    
+extension MapVC {
      // In a storyboard-based application, you will often want to do a little preparation before navigation
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
      // Get the new view controller using segue.destination.
      // Pass the selected object to the new view controller.
      }
-     */
+     
     
 }
 
