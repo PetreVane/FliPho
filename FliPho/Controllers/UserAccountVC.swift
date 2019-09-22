@@ -31,7 +31,7 @@ class UserAccountVC: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-//        fetchUserInfo()
+        fetchUserInfo()
         showUserDetails()
 
     }
@@ -68,6 +68,7 @@ class UserAccountVC: UIViewController {
         performSegue(withIdentifier: "logout", sender: nil)
     }
 
+    
     func fetchUserInfo() {
         guard let id = userDefaults.value(forKey: "user_nsid") as? String else { print("No user with this id"); return }
         guard let url = FlickrURLs.fetchUserInfo(userID: id) else { return }
@@ -88,15 +89,20 @@ class UserAccountVC: UIViewController {
                 let decodedData = try decoder.decode(UserInfo.self, from: receivedData)
                 let decodedInfo = decodedData.person
                 
-                print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")
+//                print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")
                 guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
                 
-                guard let imageData = try? Data(contentsOf: profilePictUrl) else { return }
-                let image = UIImage(data: imageData)
+                let privateQueue = DispatchQueue.global(qos: .utility)
                 
-                DispatchQueue.main.async {
-                    self.imageView.image = image
+                privateQueue.async {
+                    guard let imageData = try? Data(contentsOf: profilePictUrl) else { return }
+                    let image = UIImage(data: imageData)
+                    
+                    DispatchQueue.main.async {
+                        self.imageView.image = image
+                    }
                 }
+                
                 
             } catch let error {
                 print("Errors in fetchUserInfo: \(error.localizedDescription)")
