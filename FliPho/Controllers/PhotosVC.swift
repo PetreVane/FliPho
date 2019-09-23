@@ -95,7 +95,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 extension PhotosVC {
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        print("Operations started for indexPAth: \(indexPath.item)")
+       
         switch photoRecord.state {
             
         case .new:
@@ -123,9 +123,7 @@ extension PhotosVC {
     }
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
-        print("started downloading image at indexPath: \(indexPath.item)")
-        
+                
         guard pendingOperations.downloadInProgress[indexPath] == nil else { print("download already in progress for indexPath: \(indexPath.item)")
             return
         }
@@ -147,12 +145,12 @@ extension PhotosVC {
     }
     
     func suspendOperations() {
-        print("operation suspended")
+
         pendingOperations.downloadQueue.isSuspended = true
     }
     
     func resumeOperations() {
-        print("operation resumed")
+
         pendingOperations.downloadQueue.isSuspended = false
     }
     
@@ -216,7 +214,6 @@ extension PhotosVC {
         
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as? CustomCollectionViewCell else { return UICollectionViewCell() }
         
-//        cell.imageView.image = nil
         let currentRecord = userPhotoRecords[indexPath.item]
         
         switch (currentRecord.state) {
@@ -233,8 +230,8 @@ extension PhotosVC {
             }
             
         case .failed:
+            
             print("Image failed; showing default image")
-
         }
         
         cell.imageView.image = currentRecord.image

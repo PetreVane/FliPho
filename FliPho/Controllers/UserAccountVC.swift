@@ -8,10 +8,16 @@
 
 import UIKit
 
+// MARK: - Variables & outlets
+
+
 class UserAccountVC: UIViewController {
 
     fileprivate let userDefaults = UserDefaults.standard
     fileprivate let userDefaultsKeys = ["oauth_token", "oauth_token_secret", "fullname", "user_nsid", "username"]
+    fileprivate let networkManager = NetworkManager()
+    fileprivate var photoRecords: [PhotoRecord] = []
+    fileprivate let pendingOperations = PendingOperations()
     
     
     @IBOutlet weak var imageContainer: UIView!
@@ -24,7 +30,9 @@ class UserAccountVC: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var realNameLabel: UILabel!
+
     
+    // MARK: - ViewDidLoad
     
     
     override func viewDidLoad() {
@@ -33,6 +41,7 @@ class UserAccountVC: UIViewController {
         // Do any additional setup after loading the view.
         fetchUserInfo()
         showUserDetails()
+        // consider adding errorHandling
 
     }
     
@@ -41,15 +50,22 @@ class UserAccountVC: UIViewController {
     }
     
     
+     // MARK: - Show User Details
+    
+    
     func showUserDetails() {
         
         guard let name = userDefaults.object(forKey: "fullname") as? String else { print("No name in User Defults"); return }
         guard let userName = userDefaults.object(forKey: "username") as? String else { print("No userName in User Defaults"); return }
+        
         DispatchQueue.main.async {
             self.realNameLabel.text = "Hello \(name)!"
             self.userNameLabel.text = "You are logged in as: \(userName)"
         }
     }
+    
+    
+    // MARK: - Logging Out
     
     
     @IBAction func logOutButtonPressed(_ sender: UIButton) {
@@ -68,52 +84,51 @@ class UserAccountVC: UIViewController {
         performSegue(withIdentifier: "logout", sender: nil)
     }
 
+    // MARK: - Networking
+    
     
     func fetchUserInfo() {
         guard let id = userDefaults.value(forKey: "user_nsid") as? String else { print("No user with this id"); return }
         guard let url = FlickrURLs.fetchUserInfo(userID: id) else { return }
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: url) { (data, response, error) in
-            
+        networkManager.fetchData(from: url) { (data, error) in
+            // optional data & error
             guard error == nil else { return }
-            
-            guard let serverResponse = response as? HTTPURLResponse,
-                serverResponse.statusCode == 200 else { return }
-            
             guard let receivedData = data else { return }
-            
-            let decoder = JSONDecoder()
-            
-            do {
-                let decodedData = try decoder.decode(JSON.EncodedUserInfo.self, from: receivedData)
-                let decodedInfo = decodedData.person
-                
-//                print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")
-                guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
-                
-                let privateQueue = DispatchQueue.global(qos: .utility)
-                
-                privateQueue.async {
-                    guard let imageData = try? Data(contentsOf: profilePictUrl) else { return }
-                    let image = UIImage(data: imageData)
-                    
-                    DispatchQueue.main.async {
-                        self.imageView.image = image
-                    }
-                }
-                
-                
-            } catch let error {
-                print("Errors in fetchUserInfo: \(error.localizedDescription)")
-            }
-            
+            self.decodeUserInfo(from: receivedData)
         }
-        task.resume()
+    }
+    
+    func decodeUserInfo(from data: Data) {
+        
+        let decoder = JSONDecoder()
+        
+        guard let decodedData = try? decoder.decode(JSON.EncodedUserInfo.self, from: data) else { return }
+        let decodedInfo = decodedData.person
+        guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
+        let photoRecord = PhotoRecord(name: decodedInfo.nsid, imageUrl: profilePictUrl)
+        fetchUserImage(record: photoRecord)
+        
+    }
+    
+    func fetchUserImage(record: PhotoRecord) {
+        
+        let imageFetcher = ImageFetcher(photo: record)
+        pendingOperations.downloadQueue.addOperation(imageFetcher)
+        
+        imageFetcher.completionBlock = {
+            print("User Image: \(record.name) has been fetched")
+            self.photoRecords.append(record)
+            
+            DispatchQueue.main.async {
+                self.imageView.image = record.image
+            }
+        }
     }
     
     
-    
-    
-    
 }
+        
+
+    
+

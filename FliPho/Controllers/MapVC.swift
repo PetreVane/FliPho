@@ -18,7 +18,6 @@ class MapVC: UIViewController {
     fileprivate var locationManager = CLLocationManager()
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
-    fileprivate var url: URL?
     fileprivate var photoAlbum: [String : PhotoRecord] = [:]
     fileprivate let pendingOperations = PendingOperations()
     fileprivate var pinAnnotations: [FlickrAnnotation] = []
@@ -242,7 +241,6 @@ extension MapVC: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     
         print("Auth status changed to: \(status.rawValue)")
-//        getLocationCoordinates()
         centerMapOnUserLocation()
     }
 }
@@ -319,57 +317,6 @@ extension MapVC {
         }
     }
 
-    
-    
-    
-//    func fetchImageURLs(from url: URL) {
-//
-//        print("fetchImageURLs called with url: \(url.absoluteString)")
-//
-//        let jsonDecoder = JSONDecoder()
-//
-//        let session = URLSession.shared
-//        let task = session.dataTask(with: url) { (data, response, error) in
-//
-//            guard error == nil else { print("Errors while requesting images for MapVC")
-//                return }
-//
-//            guard let serverResponse = response as? HTTPURLResponse,
-//                serverResponse.statusCode == 200 else { print("Server responded with unexpected status code")
-//                    return
-//            }
-//
-//            guard let receivedData = data else { return }
-//
-//            do {
-//                let decodedData = try jsonDecoder.decode(JSON.EncodedPhotos.self, from: receivedData)
-//                let decodedPhotos = decodedData.photos.photo
-//
-//                for photo in decodedPhotos {
-//
-//                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
-//
-//                        self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
-//
-//                            if let photoUrl = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-//
-//                                let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoUrl)
-//                                photoRecord.latitude = latitude
-//                                photoRecord.longitude = longitude
-//                                self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-//                                self.fetchImage(record: photoRecord)
-//                            }
-//                        }
-//                    }
-//                }
-//
-//            } catch {
-//                print("Errors while parsing Image json: \(error.localizedDescription)")
-//            }
-//        }
-//        task.resume()
-//    }
-
     func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
         
         networkManager.fetchData(from: url) { (data, error) in
@@ -387,36 +334,6 @@ extension MapVC {
             }
         }
     }
-        
-////        print("fetchImageCoordinates called with url: \(url.absoluteString)")
-//
-//        let session = URLSession.shared
-//        let task = session.dataTask(with: url) { (data, response, error) in
-//
-////            let decoder = JSONDecoder()
-//
-//            guard error == nil else { print("Errors while requesting image coordinates for MapVC")
-//                return }
-//
-//            guard let serverResponse = response as? HTTPURLResponse,
-//                serverResponse.statusCode == 200 else { print("Server responded with unexpected status code")
-//                    return
-//            }
-//
-////            guard let receivedData = data else { return }
-//
-////            do {
-////
-////                let geoData = try decoder.decode(JSON.EncodedGeoData.self, from: receivedData)
-////                if let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) {
-//////                    coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
-////
-////                } else { print("Failed passing parsed geoData to completionHandler") }
-////
-////                } catch { print("Errors while parsing GeoData: \(error.localizedDescription)") }
-//        }
-//        task.resume()
-//
     
     func decodeImageGeoData(from data: Data, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) throws {
                 

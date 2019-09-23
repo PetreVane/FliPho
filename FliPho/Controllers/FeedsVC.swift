@@ -23,7 +23,6 @@ class FeedsVC: UITableViewController, OperationsManagement {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        fetchImageDetails(from: url!)
         fetchImageURLs(from: flickrURL)
     }
 }
@@ -112,16 +111,10 @@ extension FeedsVC {
                 print("Image at \(indexPath.row) is already in cache")
             }
             
-//            DispatchQueue.main.async {
-//                self.tableView.reloadRows(at: [indexPath], with: .fade)
-//            }
-
         case .failed:
             print("Image failed")
             // show a default image
-
         }
-
     }
 
      func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
