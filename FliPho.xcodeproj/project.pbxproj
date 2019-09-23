@@ -24,6 +24,7 @@
 		0BB45ACF23192EA100066791 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0BB45ACE23192EA100066791 /* Assets.xcassets */; };
 		0BB45AD223192EA100066791 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0BB45AD023192EA100066791 /* LaunchScreen.storyboard */; };
 		0BD84512231EF1F00033097F /* CustomCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BD84511231EF1F00033097F /* CustomCollectionViewCell.swift */; };
+		0BE13BA32337E1A70026BFF2 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE13BA22337E1A70026BFF2 /* NetworkManager.swift */; };
 		0BE641BD2319320900D7DB44 /* FeedsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641BC2319320900D7DB44 /* FeedsVC.swift */; };
 		0BE641C0231932E000D7DB44 /* PhotosVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641BF231932E000D7DB44 /* PhotosVC.swift */; };
 		0BE641C22319331F00D7DB44 /* MapVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE641C12319331F00D7DB44 /* MapVC.swift */; };
@@ -54,6 +55,7 @@
 		0BB45AD123192EA100066791 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0BB45AD323192EA100066791 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0BD84511231EF1F00033097F /* CustomCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCollectionViewCell.swift; sourceTree = "<group>"; };
+		0BE13BA22337E1A70026BFF2 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		0BE641BC2319320900D7DB44 /* FeedsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedsVC.swift; sourceTree = "<group>"; };
 		0BE641BF231932E000D7DB44 /* PhotosVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotosVC.swift; sourceTree = "<group>"; };
 		0BE641C12319331F00D7DB44 /* MapVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapVC.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */,
 				0BB36E6F231D11EE003151F2 /* PendingOperations.swift */,
 				0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */,
+				0BE13BA22337E1A70026BFF2 /* NetworkManager.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -301,6 +304,7 @@
 				0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */,
 				0BE641BD2319320900D7DB44 /* FeedsVC.swift in Sources */,
 				0BD84512231EF1F00033097F /* CustomCollectionViewCell.swift in Sources */,
+				0BE13BA32337E1A70026BFF2 /* NetworkManager.swift in Sources */,
 				0BE641C4231933D100D7DB44 /* UserAccountVC.swift in Sources */,
 				0BA60BAC231FA64F00154E7C /* CustomTableViewCell.swift in Sources */,
 				0BE641C8231934AB00D7DB44 /* PhotoDetailsVC.swift in Sources */,

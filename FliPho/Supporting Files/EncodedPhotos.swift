@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct EncodedPhotos: Codable {
+struct EncodedPhotos: Codable{
     
     let photos: Photos
     

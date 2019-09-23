@@ -13,71 +13,68 @@ class FeedsVC: UITableViewController, OperationsManagement {
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     fileprivate let cache = Cache()
+    let networkManager = NetworkManager()
     
-    let url = FlickrURLs.fetchInterestingPhotos()
+    let flickrURL = FlickrURLs.fetchInterestingPhotos()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        fetchImageDetails(from: url!)
+//        fetchImageDetails(from: url!)
+        fetchImageURLs(from: flickrURL)
     }
 }
 
+ // MARK: - Networking
+
+
 extension FeedsVC {
     
-    // MARK: - Networking
-    
-    
-    func fetchImageDetails(from url: URL) {
+    func fetchImageURLs(from url: URL?) {
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: url) { [weak self] (data, response, error) in
+        guard let flickrUrl = url else { return }
+        
+        networkManager.fetchData(from: flickrUrl) { (data, error) in
             
-            // weak capturing of self
-            guard let self = self else { return }
-            
-            guard error == nil else { self.showAlert(with: "Errors while connecting to Flickr")
-                print("Errors != nil")
-                return
-            }
-            
-            guard let serverResponse = response as? HTTPURLResponse,
-                serverResponse.statusCode == 200 else { print("FeedsVC -> DownloadImages: Server responded with unexpected status code")
-                    self.showAlert(with: "Flickr servers not reachable")
-                    return
-            }
+            guard error == nil else { DispatchQueue.main.async { self.showAlert(with: error!.localizedDescription) }; return }
             
             guard let receivedData = data else { return }
-            
-            let decoder = JSONDecoder()
-            
-            do {
-                
-                let decodedData = try decoder.decode(EncodedPhotos.self, from: receivedData)
-                let decodedPhotos = decodedData.photos.photo
-                
-                for photo in decodedPhotos {
-                    
-                    if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                        let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                        self.photoRecords.append(photoRecord)
-                    }
-                }
-                    
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                        print("You've got: \(self.photoRecords.count)")
-                    
-                    }
-                
-            } catch {
-                
-                print("Errors while decoding JSON: \(error.localizedDescription)")
-                // present an alert here
-            }
+            self.parseData(from: receivedData)
+
         }
-        task.resume()
     }
+    
+    
+    // MARK: - Parsing JSON
+    
+    
+    func parseData(from data: Data) {
+        
+        let decoder = JSONDecoder()
+        
+        do {
+            let decodedData = try decoder.decode(EncodedPhotos.self, from: data)
+            let decodedPhotos = decodedData.photos.photo
+                           
+               for photo in decodedPhotos {
+                   
+                   if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                       let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                       self.photoRecords.append(photoRecord)
+                   }
+               }
+                   
+               DispatchQueue.main.async {
+                   self.tableView.reloadData()
+                   print("You've got: \(self.photoRecords.count)")
+               }
+            
+        } catch {
+            print("Errors while parsing data: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Alert
 
     func showAlert(with errorMessage: String) {
         
@@ -90,8 +87,10 @@ extension FeedsVC {
 }
 
 
+// MARK: - Operations Management
+
 extension FeedsVC {
-    // MARK: - Operations Management
+    
     
     
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
@@ -204,12 +203,10 @@ extension FeedsVC {
 }
 
 
+ // MARK: - Table view data source
 
 extension FeedsVC {
     
-    // MARK: - Table view data source
-    
-
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         
@@ -255,10 +252,9 @@ extension FeedsVC {
     
 }
 
+// MARK: - Table view delegate methods
+
 extension FeedsVC {
-    
-    // MARK: - Table view delegate methods
-    
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
@@ -292,11 +288,12 @@ extension FeedsVC {
     }
 }
 
+// MARK: - Navigation
+
 extension FeedsVC {
     
     /*
-     // MARK: - Navigation
-     
+    
      // In a storyboard-based application, you will often want to do a little preparation before navigation
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
      // Get the new view controller using segue.destination.
