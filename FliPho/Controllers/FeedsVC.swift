@@ -8,6 +8,9 @@
 
 import UIKit
 
+ // MARK: - Variables
+
+
 class FeedsVC: UITableViewController, OperationsManagement {
 
     fileprivate var photoRecords: [PhotoRecord] = []
@@ -53,7 +56,7 @@ extension FeedsVC {
         let decoder = JSONDecoder()
         
         do {
-            let decodedData = try decoder.decode(EncodedPhotos.self, from: data)
+            let decodedData = try decoder.decode(JSON.EncodedPhotos.self, from: data)
             let decodedPhotos = decodedData.photos.photo
                            
                for photo in decodedPhotos {
@@ -89,10 +92,9 @@ extension FeedsVC {
 
 // MARK: - Operations Management
 
+
 extension FeedsVC {
-    
-    
-    
+
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
         switch (photoRecord.state) {
@@ -196,7 +198,6 @@ extension FeedsVC {
             for indexPath in operationsToBeStarted {
                 let imageToBeFetched = photoRecords[indexPath.row]
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
-                
             }
         }
     }
@@ -204,6 +205,7 @@ extension FeedsVC {
 
 
  // MARK: - Table view data source
+
 
 extension FeedsVC {
     
@@ -234,7 +236,6 @@ extension FeedsVC {
                 if !tableView.isDragging && !tableView.isDecelerating {
                     cell.tableImageView.image = imageFromCache as? UIImage
                     print("Success showing image from cache for indexPath: \(indexPath.row)")
-
                 }
             }
 
@@ -247,12 +248,10 @@ extension FeedsVC {
       
         return cell
     }
- 
-
-    
 }
 
 // MARK: - Table view delegate methods
+
 
 extension FeedsVC {
     
@@ -289,6 +288,7 @@ extension FeedsVC {
 }
 
 // MARK: - Navigation
+
 
 extension FeedsVC {
     

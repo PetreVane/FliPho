@@ -9,29 +9,12 @@
 import Foundation
 
 
-
-
-//struct EncodedGeoData: Codable {
-//    let id: String
-//    let location: Location
-//}
-//
-//// MARK: - Location
-//struct Location: Codable {
-//    let latitude, longitude, accuracy: String
-//}
-//
-
-
-
 struct Json: Codable {
 
-struct EncodedGeoData: Codable {
-    
-    let photo: Photo
-    let stat: String
-
-}
+    struct EncodedGeoData: Codable {
+        
+        let photo: Photo
+    }
 
     struct Photo: Codable {
         

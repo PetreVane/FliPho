@@ -86,7 +86,7 @@ class UserAccountVC: UIViewController {
             let decoder = JSONDecoder()
             
             do {
-                let decodedData = try decoder.decode(UserInfo.self, from: receivedData)
+                let decodedData = try decoder.decode(JSON.EncodedUserInfo.self, from: receivedData)
                 let decodedInfo = decodedData.person
                 
 //                print("Icon farm: \(decodedInfo.iconfarm), icon server: \(decodedInfo.iconserver), nsid: \(decodedInfo.nsid)")

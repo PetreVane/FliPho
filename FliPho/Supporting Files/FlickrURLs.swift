@@ -63,7 +63,7 @@ struct FlickrURLs {
         return url
     }
     
-    static func fetchPhotoCoordinates(apiKey: String = consumerKey, photoID: String) -> URL? {
+    static func fetchPhotoCoordinates(photoID: String) -> URL? {
         
         // flickr.photos.geo.getLocation
         

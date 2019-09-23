@@ -10,6 +10,10 @@ import UIKit
 import OAuthSwift
 
 
+
+//MARK: - Variables
+
+
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
      fileprivate let savedData = UserDefaults()
@@ -28,7 +32,6 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
         guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print ("No user ID"); return }
         let url = FlickrURLs.fetchUserPhotos(userID: savedID)
         fetchPhotoURLs(from: url!)
@@ -39,12 +42,8 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
         
     }
 
-
-
-//extension PhotosVC {
     
     // MARK: - Networking
-    
     
 
     func fetchPhotoURLs(from url: URL) {
@@ -62,7 +61,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 
                 do {
                     
-                    let decodedData = try jsonDecoder.decode(EncodedPhotos.self, from: response.data)
+                    let decodedData = try jsonDecoder.decode(JSON.EncodedPhotos.self, from: response.data)
                     let decodedPhotos = decodedData.photos.photo
             
                     for photo in decodedPhotos {
@@ -90,11 +89,10 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
     }
 }
 
-extension PhotosVC {
+// MARK: - Operations Management
 
-    // MARK: - Operations Management Protocol stubs
     
-    
+extension PhotosVC {
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         print("Operations started for indexPAth: \(indexPath.item)")
@@ -159,8 +157,7 @@ extension PhotosVC {
     }
     
     
-    // MARK: - Loading images on Visible Cells
-    
+    // MARK: - Loading images
     
     
     func loadImagesOnVisibleItems() {
@@ -205,12 +202,10 @@ extension PhotosVC {
     }
 
 
+// MARK: Data Source
+
 
 extension PhotosVC {
-    
-    // MARK: UICollectionViewDataSource
-    
-    
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of items
@@ -272,11 +267,11 @@ extension PhotosVC: UICollectionViewDelegateFlowLayout {
 
 }
 
-extension PhotosVC {
 
-    // MARK: CollectionView delegate methods
-    
-    
+// MARK:- Delegate methods
+
+
+extension PhotosVC {
 
     override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         suspendOperations()
@@ -298,11 +293,10 @@ extension PhotosVC {
     }
 }
 
+ // MARK: - Navigation
+
 
 extension PhotosVC {
-    // MARK: - Navigation
-    
-    
     
     /*
      

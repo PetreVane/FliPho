@@ -10,6 +10,9 @@ import UIKit
 import Foundation
 import OAuthSwift
 
+ // MARK: - Variables
+
+
 class LoginVC: UIViewController {
     
     fileprivate let userDefaults = UserDefaults.standard
@@ -39,8 +42,9 @@ class LoginVC: UIViewController {
         }
     }
     
-    
+   // MARK: - Networking
 
+    
     func askForAuthorization() {
         
        let authObject = OAuth1Swift( consumerKey: consumerKey, consumerSecret: consumerSecret,
@@ -88,12 +92,13 @@ class LoginVC: UIViewController {
                 DispatchQueue.main.async {
                     self.showAlert(with: "Authentication: something went wrong")
                 }
-                
             }
-            
         }
     }
 
+     // MARK: - Alert
+    
+    
     func showAlert(with errorMessage: String) {
         
         let alert = UIAlertController(title: "Couldn't sign you in", message: errorMessage, preferredStyle: .alert)
