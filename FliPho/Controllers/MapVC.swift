@@ -288,6 +288,7 @@ extension MapVC {
             guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
             self.parseImageData(from: decodedData)
         }
+        
     }
     
     func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
@@ -306,6 +307,8 @@ extension MapVC {
 
             guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
             self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
+                
+//                guard self != nil else { return }
 
                 guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
                 let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
@@ -319,14 +322,16 @@ extension MapVC {
 
     func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
         
-        networkManager.fetchData(from: url) { (data, error) in
+        networkManager.fetchData(from: url) {[weak self] (data, error) in
 
+            guard self != nil else { return }
             guard error == nil else { return }
             guard let imageData = data else { return }
             
             do {
-                try self.decodeImageGeoData(from: imageData) { (latitude, longitude) in
-                        
+                try self?.decodeImageGeoData(from: imageData) {[weak self] (latitude, longitude) in
+                    
+                    guard self != nil else { return }
                         coordinates(latitude, longitude)
                       }
             } catch {
@@ -354,7 +359,7 @@ extension MapVC {
         imageFetcher.completionBlock = {
             DispatchQueue.main.async {
 //                print("Image named: \(record.name) has been successfully fetched")
-                self.dropPin(for: record)
+//                self.dropPin(for: record)
             }
         }
     }

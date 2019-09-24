@@ -81,7 +81,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
                     
 //                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
                 }
-            case .failure(let failure):
+            case .failure( _):
                 
                 print("Authobject error")
             }
@@ -124,7 +124,7 @@ extension PhotosVC {
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
                 
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { print("download already in progress for indexPath")
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { //print("download already in progress for indexPath")
             return
         }
         
