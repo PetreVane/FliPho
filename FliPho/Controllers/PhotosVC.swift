@@ -79,11 +79,11 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
                     
                 } catch {
                     
-                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
+//                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
                 }
             case .failure(let failure):
                 
-                print("Authobject error: \(failure)")
+                print("Authobject error")
             }
         }
     }
@@ -104,11 +104,11 @@ extension PhotosVC {
         case .downloaded:
             if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
                 
-                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
+//                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
                 cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
                 
             } else {
-                print("Image at \(indexPath.item) cached already")
+//                print("Image at \(indexPath.item) cached already")
             }
             
             DispatchQueue.main.async {
@@ -124,7 +124,7 @@ extension PhotosVC {
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
                 
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { print("download already in progress for indexPath: \(indexPath.item)")
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { print("download already in progress for indexPath")
             return
         }
         
@@ -225,7 +225,7 @@ extension PhotosVC {
             if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
                 if !collectionView.isDragging && !collectionView.isDecelerating {
                     cell.imageView.image = imageFromCache as? UIImage
-                    print("Succces showing image from cache at indexPath \(indexPath.item)")
+//                    print("Succces showing image from cache at indexPath \(indexPath.item)")
                 }
             }
             

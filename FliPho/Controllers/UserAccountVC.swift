@@ -78,7 +78,7 @@ class UserAccountVC: UIViewController {
         
         for key in userDefaultsKeys {
             userDefaults.removeObject(forKey: key)
-            print("Value for key \(key) removed from User Defaults")
+//            print("Value for key \(key) removed from User Defaults")
         }
         
         performSegue(withIdentifier: "logout", sender: nil)
@@ -117,7 +117,7 @@ class UserAccountVC: UIViewController {
         pendingOperations.downloadQueue.addOperation(imageFetcher)
         
         imageFetcher.completionBlock = {
-            print("User Image: \(record.name) has been fetched")
+//            print("User Image: \(record.name) has been fetched")
             self.photoRecords.append(record)
             
             DispatchQueue.main.async {

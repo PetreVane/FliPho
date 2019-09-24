@@ -67,7 +67,7 @@ class LoginVC: UIViewController {
                 }
                 self.authenticate(with: authObject)
             case .failure(let error):
-                print("Authentication process ended with error: \(error.description)")
+//                print("Authentication process ended with error: \(error.description)")
                 self.showAlert(with: "Make sure you're connected to internet")
             }
         }
@@ -85,10 +85,10 @@ class LoginVC: UIViewController {
                 case .success:
                 DispatchQueue.main.async {
                     self.performSegue(withIdentifier: "mainMenu", sender: nil)
-                    print("Authentication successful")
+//                    print("Authentication successful")
                 }
             case .failure(let error):
-                print(error.localizedDescription)
+//                print(error.localizedDescription)
                 DispatchQueue.main.async {
                     self.showAlert(with: "Authentication: something went wrong")
                 }

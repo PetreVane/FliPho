@@ -8,11 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0B368CCE23201000003D93F7 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B368CCD23201000003D93F7 /* Cache.swift */; };
-		0B5A71E223365E1200C89B18 /* EncodedUserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */; };
 		0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B891803232FD546008950D0 /* FlickrAnnotation.swift */; };
 		0B8AF2F22321352D003D2750 /* FlickrURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AF2F12321352D003D2750 /* FlickrURLs.swift */; };
-		0B8AF2F423218830003D2750 /* EncodedGeoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AF2F323218830003D2750 /* EncodedGeoData.swift */; };
-		0B9686EA232189D4008873F9 /* EncodedPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B9686E9232189D4008873F9 /* EncodedPhotos.swift */; };
 		0B9C4F712327FFD1003BE1FE /* Second.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B9C4F702327FFD1003BE1FE /* Second.storyboard */; };
 		0BA60BAC231FA64F00154E7C /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA60BAB231FA64F00154E7C /* CustomTableViewCell.swift */; };
 		0BB0EEA023193B300000A0C2 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */; };
@@ -38,11 +35,8 @@
 
 /* Begin PBXFileReference section */
 		0B368CCD23201000003D93F7 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
-		0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedUserInfo.swift; sourceTree = "<group>"; };
 		0B891803232FD546008950D0 /* FlickrAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrAnnotation.swift; sourceTree = "<group>"; };
 		0B8AF2F12321352D003D2750 /* FlickrURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrURLs.swift; sourceTree = "<group>"; };
-		0B8AF2F323218830003D2750 /* EncodedGeoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedGeoData.swift; sourceTree = "<group>"; };
-		0B9686E9232189D4008873F9 /* EncodedPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedPhotos.swift; sourceTree = "<group>"; };
 		0B9C4F702327FFD1003BE1FE /* Second.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Second.storyboard; sourceTree = "<group>"; };
 		0BA60BAB231FA64F00154E7C /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
 		0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
@@ -87,9 +81,6 @@
 			children = (
 				0BB0EE9F23193B300000A0C2 /* FlickrConstants.swift */,
 				0B8AF2F12321352D003D2750 /* FlickrURLs.swift */,
-				0B8AF2F323218830003D2750 /* EncodedGeoData.swift */,
-				0B9686E9232189D4008873F9 /* EncodedPhotos.swift */,
-				0B5A71E123365E1200C89B18 /* EncodedUserInfo.swift */,
 				0BF56B162338F1EF0078256C /* JSON.swift */,
 			);
 			path = "Supporting Files";
@@ -315,17 +306,14 @@
 				0BE641C62319340700D7DB44 /* LoginVC.swift in Sources */,
 				0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */,
 				0BE641C22319331F00D7DB44 /* MapVC.swift in Sources */,
-				0B5A71E223365E1200C89B18 /* EncodedUserInfo.swift in Sources */,
 				0B368CCE23201000003D93F7 /* Cache.swift in Sources */,
 				0BE641C0231932E000D7DB44 /* PhotosVC.swift in Sources */,
 				0BEE9E58232664F000FAEB80 /* OperationsManagement.swift in Sources */,
 				0BB36E6C231CF003003151F2 /* PhotoRecord.swift in Sources */,
 				0BB45AC823192E9F00066791 /* AppDelegate.swift in Sources */,
-				0B8AF2F423218830003D2750 /* EncodedGeoData.swift in Sources */,
 				0BB36E6E231D0D22003151F2 /* ImageFetcher.swift in Sources */,
 				0B8AF2F22321352D003D2750 /* FlickrURLs.swift in Sources */,
 				0BB36E70231D11EE003151F2 /* PendingOperations.swift in Sources */,
-				0B9686EA232189D4008873F9 /* EncodedPhotos.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,7 +373,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

@@ -68,11 +68,11 @@ extension FeedsVC {
                    
                DispatchQueue.main.async {
                    self.tableView.reloadData()
-                   print("You've got: \(self.photoRecords.count)")
+//                   print("You've got: \(self.photoRecords.count)")
                }
             
         } catch {
-            print("Errors while parsing data: \(error.localizedDescription)")
+//            print("Errors while parsing data: \(error.localizedDescription)")
         }
     }
     
@@ -104,11 +104,11 @@ extension FeedsVC {
         case .downloaded:
             if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
                 
-                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
+//                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
                 cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
 
             } else {
-                print("Image at \(indexPath.row) is already in cache")
+//                print("Image at \(indexPath.row) is already in cache")
             }
             
         case .failed:
@@ -228,12 +228,12 @@ extension FeedsVC {
                 
                 if !tableView.isDragging && !tableView.isDecelerating {
                     cell.tableImageView.image = imageFromCache as? UIImage
-                    print("Success showing image from cache for indexPath: \(indexPath.row)")
+//                    print("Success showing image from cache for indexPath: \(indexPath.row)")
                 }
             }
 
         case .failed:
-            print("Image failed to load at indexPath: \(indexPath.row)")
+            print("Image failed to load at indexPath")
             // remember to add a default picture
         }
         

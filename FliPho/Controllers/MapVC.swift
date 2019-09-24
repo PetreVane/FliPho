@@ -144,7 +144,7 @@ class MapVC: UIViewController {
             centerMapOnUserLocation()
         default:
             requestAuthorizationForLocationServices()
-            print("request auth for location services called")
+//            print("request auth for location services called")
         }
     }
 }
@@ -206,7 +206,7 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-        print("Button pressed: trigger segue here")
+//        print("Button pressed: trigger segue here")
     }
     
     func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
@@ -240,7 +240,7 @@ extension MapVC: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     
-        print("Auth status changed to: \(status.rawValue)")
+//        print("Auth status changed to: \(status.rawValue)")
         centerMapOnUserLocation()
     }
 }
@@ -330,7 +330,7 @@ extension MapVC {
                         coordinates(latitude, longitude)
                       }
             } catch {
-                print("Errors: \(error.localizedDescription)")
+//                print("Errors: \(error.localizedDescription)")
             }
         }
     }
@@ -353,7 +353,7 @@ extension MapVC {
         
         imageFetcher.completionBlock = {
             DispatchQueue.main.async {
-                print("Image named: \(record.name) has been successfully fetched")
+//                print("Image named: \(record.name) has been successfully fetched")
                 self.dropPin(for: record)
             }
         }
@@ -363,7 +363,7 @@ extension MapVC {
     
         
     func dropPin(for photoRecord: PhotoRecord) {
-        print("dropPin(for record:) called")
+//        print("dropPin(for record:) called")
         
         guard let latitude = photoRecord.latitude,
             let longitude = photoRecord.longitude else {return}
