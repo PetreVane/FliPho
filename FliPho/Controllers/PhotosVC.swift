@@ -102,14 +102,7 @@ extension PhotosVC {
         
         case .downloaded:
             print("image fetched")
-//            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
-                
-//                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
-//                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
-                
-//            } else {
-//                print("Image at \(indexPath.item) cached already")
-//            }
+
             
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
@@ -118,6 +111,8 @@ extension PhotosVC {
         case .failed:
             print("Image failed; consider showing a default image")
             
+        case .cached:
+            print("CollectionView Image cached")
         }
             
     }
@@ -231,8 +226,10 @@ extension PhotosVC {
 //            }
             
         case .failed:
-            
             print("Image failed; showing default image")
+            
+        case .cached:
+            print("Collection view image cached")
         }
         
         cell.imageView.image = currentRecord.image

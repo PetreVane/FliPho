@@ -15,6 +15,7 @@ enum PhotoRecordState {
     
     case new
     case downloaded
+    case cached
     case failed
 }
 
