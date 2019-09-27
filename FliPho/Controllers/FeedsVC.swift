@@ -15,7 +15,6 @@ class FeedsVC: UITableViewController, OperationsManagement {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-    fileprivate let cache = Cache()
     let networkManager = NetworkManager()
     
     let flickrURL = FlickrURLs.fetchInterestingPhotos()
@@ -103,7 +102,7 @@ extension FeedsVC {
             
         case .downloaded:
             guard photoRecords[indexPath.row].image != nil else { return }
-            cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//            cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
             print("Image at indexPath \(indexPath.row) is being saved in cache")
             
         case .failed:
@@ -142,12 +141,11 @@ extension FeedsVC {
         guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
         guard photoRecords[indexPath.row].image != nil else { return }
         
-        let caching = Cache()
         
         
         pendingOperations.cachingQueue.addOperation {
             
-        caching.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//        caching.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
 
         }
         
@@ -238,12 +236,12 @@ extension FeedsVC {
                 startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
-            guard let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) else { print("Failed fetching image from cache at indexPath: \(indexPath.row)"); return UITableViewCell()}
+//            guard let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) else { print("Failed fetching image from cache at indexPath: \(indexPath.row)"); return UITableViewCell()}
             
 //            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {}
                 
             if !tableView.isDragging && !tableView.isDecelerating {
-                    cell.tableImageView.image = imageFromCache as? UIImage
+//                    cell.tableImageView.image = imageFromCache as? UIImage
 //                    print("Success showing image from cache for indexPath: \(indexPath.row)")
             }
             

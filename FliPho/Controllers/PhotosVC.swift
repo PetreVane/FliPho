@@ -17,7 +17,6 @@ import OAuthSwift
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
      fileprivate let savedData = UserDefaults()
-     fileprivate let cache = Cache()
      fileprivate var userPhotoRecords: [PhotoRecord] = []
      fileprivate let pendingOperations = PendingOperations()
     
@@ -102,14 +101,15 @@ extension PhotosVC {
             startDownload(for: photoRecord, indexPath: indexPath)
         
         case .downloaded:
-            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+            print("image fetched")
+//            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
                 
 //                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
-                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
                 
-            } else {
+//            } else {
 //                print("Image at \(indexPath.item) cached already")
-            }
+//            }
             
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
@@ -222,12 +222,13 @@ extension PhotosVC {
             startOperations(for: currentRecord, indexPath: indexPath)
         
         case .downloaded:
-            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-                if !collectionView.isDragging && !collectionView.isDecelerating {
-                    cell.imageView.image = imageFromCache as? UIImage
-//                    print("Succces showing image from cache at indexPath \(indexPath.item)")
-                }
-            }
+            print("image downloaded")
+//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+////                if !collectionView.isDragging && !collectionView.isDecelerating {
+////                    cell.imageView.image = imageFromCache as? UIImage
+//////                    print("Succces showing image from cache at indexPath \(indexPath.item)")
+////                }
+//            }
             
         case .failed:
             
