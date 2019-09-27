@@ -16,7 +16,7 @@ class FeedsVC: UITableViewController, OperationsManagement {
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     let networkManager = NetworkManager()
-    
+    let cache = ImageCacher()
     let flickrURL = FlickrURLs.fetchInterestingPhotos()
     
     override func viewDidLoad() {
@@ -67,7 +67,6 @@ extension FeedsVC {
                    
                DispatchQueue.main.async {
                    self.tableView.reloadData()
-//                   print("You've got: \(self.photoRecords.count)")
                }
             
         } catch {
@@ -104,7 +103,8 @@ extension FeedsVC {
             startCaching(for: photoRecord, indexPath: indexPath)
             
         case .cached:
-            print("Cached. Start removing at indexPath: \(indexPath.row)")
+            print("Cached. Released image from memory at indexPath: \(indexPath.row)")
+//            photoRecords[indexPath.row].image = nil
             
         case .failed:
             print("Image failed")
@@ -141,7 +141,8 @@ extension FeedsVC {
         
         guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
         
-        let imageCaching = ImageCacher(photoRecord: photoRecord)
+        let imageCaching = ImageCacher()
+        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString)
         
         pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
         
@@ -244,8 +245,14 @@ extension FeedsVC {
             }
             
         case .cached:
-            print("Showing image from cache at indexPath: \(indexPath.row)")
-            
+            if !tableView.isDragging && !tableView.isDecelerating {
+                if let imageFromCache = cache.retrieveImageFromCache(imageURL: currentRecord.imageUrl.absoluteString) {
+                    cell.tableImageView.image = nil
+                    cell.tableImageView.image = imageFromCache
+                    print("Showing image from cache at indexPath: \(indexPath.row)")
+                }
+            }
+
         case .failed:
             NSLog(String("Image Failed"))
             // remember to add a default picture

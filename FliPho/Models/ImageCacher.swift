@@ -12,12 +12,16 @@ import UIKit
 
 class ImageCacher: Operation {
     
-    let photoRecord: PhotoRecord
+//    let photoRecord: PhotoRecord
     private let cache = NSCache<NSString, UIImage>()
     
-    init(photoRecord: PhotoRecord) {
-        self.photoRecord = photoRecord
-    }
+//    init(photoRecord: PhotoRecord) {
+//        self.photoRecord = photoRecord
+//    }
+    
+//    convenience override init() {
+//        self.init()
+//    }
     
     
     override func main () {
@@ -26,15 +30,15 @@ class ImageCacher: Operation {
             return
         }
         
-        guard let imageForCache = photoRecord.image else { return }
-        saveImageToCache(image: imageForCache, imageURL: photoRecord.imageUrl.absoluteString)
+
         
     }
     
-    func saveImageToCache(image: UIImage, imageURL: String) {
+    func saveImageToCache(record: PhotoRecord, imageURL: String) {
         
-        cache.setObject(image, forKey: imageURL as NSString)
-        photoRecord.state = .cached
+        guard let image = record.image else { return }
+        cache.setObject(image, forKey: record.imageUrl.absoluteString as NSString)
+        record.state = .cached
     }
     
     func retrieveImageFromCache(imageURL: String) -> UIImage? {
