@@ -102,14 +102,9 @@ extension FeedsVC {
             startDownload(for: photoRecord, indexPath: indexPath)
             
         case .downloaded:
-            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
-                
-//                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
-                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
-
-            } else {
-//                print("Image at \(indexPath.row) is already in cache")
-            }
+            guard photoRecords[indexPath.row].image != nil else { return }
+            cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+            print("Image at indexPath \(indexPath.row) is being saved in cache")
             
         case .failed:
             print("Image failed")
@@ -139,6 +134,24 @@ extension FeedsVC {
             }
             self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
+        
+    }
+    
+    func startCaching(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+        
+        guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
+        guard photoRecords[indexPath.row].image != nil else { return }
+        
+        let caching = Cache()
+        
+        
+        pendingOperations.cachingQueue.addOperation {
+            
+        caching.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+
+        }
+        
+        
         
     }
     
@@ -185,6 +198,7 @@ extension FeedsVC {
                     pendingDownload.cancel()
                 }
                 pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+//                self.photoRecords[operationIndexPath.row].image = nil
             }
             
             // looping through the list of operations to be started and starting them
@@ -224,13 +238,15 @@ extension FeedsVC {
                 startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
-            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+            guard let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) else { print("Failed fetching image from cache at indexPath: \(indexPath.row)"); return UITableViewCell()}
+            
+//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {}
                 
-                if !tableView.isDragging && !tableView.isDecelerating {
+            if !tableView.isDragging && !tableView.isDecelerating {
                     cell.tableImageView.image = imageFromCache as? UIImage
 //                    print("Success showing image from cache for indexPath: \(indexPath.row)")
-                }
             }
+            
 
         case .failed:
             print("Image failed to load at indexPath")
@@ -252,6 +268,11 @@ extension FeedsVC {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+    }
+    
+    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        print("Cell at indexPath: \(indexPath.row) is no longer visible")
+//        photoRecords[indexPath.row].image = nil
     }
     
     // MARK: - ScrollView delegate methods

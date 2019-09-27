@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Cache {
+class ImageCaching: Operation {
     
     let storage = NSCache<NSString, AnyObject>()
     

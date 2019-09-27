@@ -10,6 +10,7 @@ import Foundation
 
 class PendingOperations {
     
+    // Downloading
     lazy var downloadInProgress: [IndexPath: Operation] = [:]
     
     lazy var downloadQueue: OperationQueue = {
@@ -20,5 +21,15 @@ class PendingOperations {
         return queue
     }()
     
+    // Caching
+    lazy var cachingInProgress: [IndexPath: Operation] = [:]
+    
+    lazy var cachingQueue: OperationQueue = {
+        
+        var queue = OperationQueue()
+        queue.name = "Caching Queue"
+        
+        return queue
+    }()
     
 }
