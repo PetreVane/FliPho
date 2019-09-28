@@ -8,12 +8,13 @@
 
 import Foundation
 
+// Flickr Endpoints URLs
 
 struct FlickrURLs {
     
     static func fetchUserInfo(userID: String) -> URL? {
     
-        // flickr.people.getInfo
+        // Endpoint method: flickr.people.getInfo
         
         guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.people.getInfo&api_key=71d96734d24db3adf3fbc0560a24f1cf&user_id=\(userID)&format=json&nojsoncallback=1")
             else { return URL(string: "No user info url ")}

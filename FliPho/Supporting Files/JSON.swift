@@ -12,7 +12,7 @@ import Foundation
 struct JSON: Codable {
     
     
-   // MARK: - Decoding User info
+   // MARK: - Decoding Model for User info
     
     struct EncodedUserInfo: Codable {
         
@@ -37,7 +37,7 @@ struct JSON: Codable {
         }
     }
     
-    // MARK: - Decoding Geographic Coordinates of Pictures
+    // MARK: - Decoding Model for Geographic Coordinates of Pictures
     
     struct EncodedGeoData: Codable {
 
@@ -56,7 +56,7 @@ struct JSON: Codable {
         }
     }
 
-    // MARK: - Decoding Image URLs
+    // MARK: - Decoding model for Image URLs
     
     struct EncodedPhotos: Codable {
         

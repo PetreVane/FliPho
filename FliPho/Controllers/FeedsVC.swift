@@ -16,17 +16,36 @@ class FeedsVC: UITableViewController, OperationsManagement {
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     let networkManager = NetworkManager()
-    let cache = ImageCacher()
+//    let cache = ImageCacher()
     let flickrURL = FlickrURLs.fetchInterestingPhotos()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         fetchImageURLs(from: flickrURL)
+        getLocationOfFiles()
+       
+        
     }
 }
 
  // MARK: - Networking
+
+func getLocationOfFiles() {
+    
+    let fileManager = FileManager.default
+
+    guard let cacheURL = try? fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {print("Failed fetching cache url"); return }
+     print("Cache url: \(cacheURL)")
+    
+    let temporaryDir = fileManager.temporaryDirectory
+    print("User temporary directory: \(temporaryDir)")
+    
+    let documentDir = fileManager.urls(for: .allLibrariesDirectory, in: .userDomainMask)[0]
+    print("Document dir: \(documentDir)")
+    
+}
+
 
 
 extension FeedsVC {
@@ -141,18 +160,18 @@ extension FeedsVC {
         
         guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
         
-        let imageCaching = ImageCacher()
-        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString)
-        
-        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
-        
-        pendingOperations.cachingQueue.addOperation(imageCaching)
-        
-        imageCaching.completionBlock = {
-            
-            self.pendingOperations.cachingInProgress.removeValue(forKey: indexPath)
-            
-        }
+//        let imageCaching = ImageCacher()
+//        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString)
+//        
+//        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
+//        
+//        pendingOperations.cachingQueue.addOperation(imageCaching)
+//        
+//        imageCaching.completionBlock = {
+//            
+//            self.pendingOperations.cachingInProgress.removeValue(forKey: indexPath)
+//            
+//        }
         
         
     }
@@ -200,7 +219,6 @@ extension FeedsVC {
                     pendingDownload.cancel()
                 }
                 pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
-//                self.photoRecords[operationIndexPath.row].image = nil
             }
             
             // looping through the list of operations to be started and starting them
@@ -246,11 +264,12 @@ extension FeedsVC {
             
         case .cached:
             if !tableView.isDragging && !tableView.isDecelerating {
-                if let imageFromCache = cache.retrieveImageFromCache(imageURL: currentRecord.imageUrl.absoluteString) {
-                    cell.tableImageView.image = nil
-                    cell.tableImageView.image = imageFromCache
-                    print("Showing image from cache at indexPath: \(indexPath.row)")
-                }
+                print("Showing image from cache at indexPath: \(indexPath.row)")
+
+//                if let imageFromCache = cache.retrieveImageFromCache(imageURL: currentRecord.imageUrl.absoluteString) {
+//                    cell.tableImageView.image = nil
+//                    cell.tableImageView.image = imageFromCache
+//                }
             }
 
         case .failed:

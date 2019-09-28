@@ -16,7 +16,9 @@ enum NetworkManagerError: Error {
     case unknownError
     
     var localizedDescription: String {
+        
         switch self {
+            
         case .failedRequest:
             return "Server unreachable. Connect to internet and try again"
         case .unexpectedResponse:

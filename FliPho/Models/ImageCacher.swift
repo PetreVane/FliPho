@@ -12,17 +12,40 @@ import UIKit
 
 class ImageCacher: Operation {
     
-//    let photoRecord: PhotoRecord
-    private let cache = NSCache<NSString, UIImage>()
     
-//    init(photoRecord: PhotoRecord) {
-//        self.photoRecord = photoRecord
-//    }
+    enum SavingLocation {
+        
+        case temporaryDirectory
+        case documentsDirectory
+    }
     
-//    convenience override init() {
-//        self.init()
-//    }
+    enum CachingError: Error {
+        
+        case missingPNGData
+        case failedSavingData
+    }
     
+    func saveImage(record: PhotoRecord, at location: SavingLocation) throws {
+
+        guard let imageData = record.image?.pngData() else { throw CachingError.missingPNGData }
+        
+        let fileManager = FileManager.default
+        
+        switch location {
+            
+        case .documentsDirectory:
+            let directoryURL = FileManager.documentsDirectoryURL.appendingPathComponent("FlickrImages", isDirectory: true)
+            try? fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
+            try imageData.write(to: directoryURL, options: .atomic)
+            
+        case .temporaryDirectory:
+            let tempDirURL = FileManager.default.temporaryDirectory
+            try? fileManager.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
+            try imageData.write(to: tempDirURL, options: .atomic)
+        }
+        
+    
+    }
     
     override func main () {
         
@@ -30,23 +53,25 @@ class ImageCacher: Operation {
             return
         }
         
-
+//        try saveImage(record: <#T##PhotoRecord#>, at: <#T##ImageCacher.SavingLocation#>)
         
     }
+    
+//    func saveImage(record: PhotoRecord) {
+//
+//        guard let imageData = record.image?.pngData() else { return }
+//
+////        try imageData.write(to: location, options: <#T##Data.WritingOptions#>)
+//
+//    }
     
     func saveImageToCache(record: PhotoRecord, imageURL: String) {
         
         guard let image = record.image else { return }
-        cache.setObject(image, forKey: record.imageUrl.absoluteString as NSString)
+//        cache.setObject(image, forKey: record.imageUrl.absoluteString as NSString)
         record.state = .cached
     }
-    
-    func retrieveImageFromCache(imageURL: String) -> UIImage? {
-        
-        guard let imageFromCache = cache.object(forKey: imageURL as NSString) else { return nil }
-        
-        return imageFromCache
-    }
+
     
 }
 
