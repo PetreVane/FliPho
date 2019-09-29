@@ -16,37 +16,58 @@ class FeedsVC: UITableViewController, OperationsManagement {
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     let networkManager = NetworkManager()
-//    let cache = ImageCacher()
+    let cacheReference = ImageCacher()
     let flickrURL = FlickrURLs.fetchInterestingPhotos()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         fetchImageURLs(from: flickrURL)
-        getLocationOfFiles()
-       
+        fetchItems()
+
         
     }
 }
 
- // MARK: - Networking
+//MARK: - FileSystem methods
 
-func getLocationOfFiles() {
+extension FeedsVC {
     
-    let fileManager = FileManager.default
+    func getLocationOfFiles() {
+        
+        let fileManager = FileManager.default
 
-    guard let cacheURL = try? fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {print("Failed fetching cache url"); return }
-     print("Cache url: \(cacheURL)")
-    
-    let temporaryDir = fileManager.temporaryDirectory
-    print("User temporary directory: \(temporaryDir)")
-    
-    let documentDir = fileManager.urls(for: .allLibrariesDirectory, in: .userDomainMask)[0]
-    print("Document dir: \(documentDir)")
+        guard let cacheURL = try? fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {print("Failed fetching cache url"); return }
+         print("Cache url: \(cacheURL)")
+        
+        let temporaryDir = fileManager.temporaryDirectory
+        print("User temporary directory: \(temporaryDir)")
+        
+        let documentDir = fileManager.urls(for: .allLibrariesDirectory, in: .userDomainMask)[0]
+        print("Document dir: \(documentDir)")
+        
+        }
+
+    func removeFromDir() {
+        let cacheReference = ImageCacher()
+        
+            do {
+                try cacheReference.removeItems(from: .temporaryDirectory)
+                
+            } catch {
+                print("Errors while deleting items: \(error.localizedDescription)")
+            }
+        }
+
+    func fetchItems() {
+        
+        let cacheReference = ImageCacher()
+        cacheReference.fetchItems(from: .temporaryDirectory)
+    }
     
 }
 
-
+ // MARK: - Networking
 
 extension FeedsVC {
     
@@ -160,19 +181,25 @@ extension FeedsVC {
         
         guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
         
-//        let imageCaching = ImageCacher()
-//        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString)
-//        
-//        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
-//        
-//        pendingOperations.cachingQueue.addOperation(imageCaching)
-//        
-//        imageCaching.completionBlock = {
-//            
-//            self.pendingOperations.cachingInProgress.removeValue(forKey: indexPath)
-//            
-//        }
+        let imageCaching = ImageCacher()
         
+        do {
+            try imageCaching.saveImage(record: photoRecord, at: .temporaryDirectory)
+
+        } catch {
+            print("Errors caching: \(error.localizedDescription)")
+        }
+//        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString as String)
+        
+        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
+        
+        pendingOperations.cachingQueue.addOperation(imageCaching)
+        
+        imageCaching.completionBlock = {
+            
+            self.pendingOperations.cachingInProgress.removeValue(forKey: indexPath)
+//            print("Image \(photoRecord.name) at indexPath: \(indexPath.row) has been cached")
+        }
         
     }
     

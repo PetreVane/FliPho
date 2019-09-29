@@ -12,6 +12,10 @@ import UIKit
 
 class ImageCacher: Operation {
     
+    let fileManager = FileManager.default
+    let temporaryDirectoryURL = FileManager.default.temporaryDirectory
+    let documentsDirectoryURL = FileManager.documentsDirectoryURL
+    
     
     enum SavingLocation {
         
@@ -21,30 +25,31 @@ class ImageCacher: Operation {
     
     enum CachingError: Error {
         
-        case missingPNGData
+        case missingData
         case failedSavingData
+        case failedRemovingData
+        case failedFetchingData
     }
     
     func saveImage(record: PhotoRecord, at location: SavingLocation) throws {
-
-        guard let imageData = record.image?.pngData() else { throw CachingError.missingPNGData }
         
-        let fileManager = FileManager.default
+        guard let imageData = record.image?.pngData() else { throw CachingError.missingData }
         
         switch location {
             
         case .documentsDirectory:
-            let directoryURL = FileManager.documentsDirectoryURL.appendingPathComponent("FlickrImages", isDirectory: true)
-            try? fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
-            try imageData.write(to: directoryURL, options: .atomic)
+            let savedDirectoryPath = documentsDirectoryURL.appendingPathComponent("SavedFlickrImages", isDirectory: true)
+            try? fileManager.createDirectory(at: savedDirectoryPath, withIntermediateDirectories: true, attributes: nil)
+            try imageData.write(to: savedDirectoryPath.appendingPathComponent(record.name).appendingPathExtension("png"), options: .atomic)
+            
             
         case .temporaryDirectory:
-            let tempDirURL = FileManager.default.temporaryDirectory
-            try? fileManager.createDirectory(at: tempDirURL, withIntermediateDirectories: true, attributes: nil)
-            try imageData.write(to: tempDirURL, options: .atomic)
+            let cachedDirectoryPath = temporaryDirectoryURL.appendingPathComponent("CachedFlickrImages", isDirectory: true)
+            try? fileManager.createDirectory(at: cachedDirectoryPath, withIntermediateDirectories: true, attributes: nil)
+            try imageData.write(to: cachedDirectoryPath.appendingPathComponent(record.name).appendingPathExtension("png"), options: .atomic)
         }
         
-    
+        
     }
     
     override func main () {
@@ -52,8 +57,40 @@ class ImageCacher: Operation {
         if isCancelled {
             return
         }
+                
+    }
+    
+    func removeItems(from location: SavingLocation) throws {
         
-//        try saveImage(record: <#T##PhotoRecord#>, at: <#T##ImageCacher.SavingLocation#>)
+        if temporaryDirectoryURL.hasDirectoryPath {
+            try fileManager.removeItem(at: temporaryDirectoryURL)
+            print("Deleted content of temp directory: \(temporaryDirectoryURL.absoluteString)")
+
+        }
+    }
+    
+    func fetchItems(from location: SavingLocation) {
+        
+        if temporaryDirectoryURL.hasDirectoryPath {
+            if #available(iOS 13.0, *) {
+                do {
+                    let items = try FileManager.default.contentsOfDirectory(at: temporaryDirectoryURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+                    
+                    for item in items.enumerated() {
+//                        print(item.element.absoluteString)
+                        let image = try Data(contentsOf: item.element)
+                        print(image.description)
+                    }
+
+                    
+                } catch {
+                    print("Errors while reading from temporaryDirectory: \(error.localizedDescription)")
+                }
+                
+            } else {
+                // Fallback on earlier versions
+            }
+        }
         
     }
     
@@ -65,12 +102,12 @@ class ImageCacher: Operation {
 //
 //    }
     
-    func saveImageToCache(record: PhotoRecord, imageURL: String) {
-        
-        guard let image = record.image else { return }
+//    func saveImageToCache(record: PhotoRecord, imageURL: String) {
+//
+//        guard let image = record.image else { return }
 //        cache.setObject(image, forKey: record.imageUrl.absoluteString as NSString)
-        record.state = .cached
-    }
+//        record.state = .cached
+//    }
 
     
 }
