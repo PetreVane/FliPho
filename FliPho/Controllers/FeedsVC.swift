@@ -13,19 +13,16 @@ import UIKit
 
 class FeedsVC: UITableViewController, OperationsManagement {
 
+    fileprivate var cachedImages: [UIImage] = []
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     let networkManager = NetworkManager()
-    let cacheReference = ImageCacher()
     let flickrURL = FlickrURLs.fetchInterestingPhotos()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         fetchImageURLs(from: flickrURL)
-        fetchItems()
-
-        
     }
 }
 
@@ -33,37 +30,37 @@ class FeedsVC: UITableViewController, OperationsManagement {
 
 extension FeedsVC {
     
-    func getLocationOfFiles() {
-        
-        let fileManager = FileManager.default
+//    func getLocationOfFiles() {
+//
+//        let fileManager = FileManager.default
+//
+//        guard let cacheURL = try? fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {print("Failed fetching cache url"); return }
+//         print("Cache url: \(cacheURL)")
+//
+//        let temporaryDir = fileManager.temporaryDirectory
+//        print("User temporary directory: \(temporaryDir)")
+//
+//        let documentDir = fileManager.urls(for: .allLibrariesDirectory, in: .userDomainMask)[0]
+//        print("Document dir: \(documentDir)")
+//
+//        }
 
-        guard let cacheURL = try? fileManager.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {print("Failed fetching cache url"); return }
-         print("Cache url: \(cacheURL)")
-        
-        let temporaryDir = fileManager.temporaryDirectory
-        print("User temporary directory: \(temporaryDir)")
-        
-        let documentDir = fileManager.urls(for: .allLibrariesDirectory, in: .userDomainMask)[0]
-        print("Document dir: \(documentDir)")
-        
-        }
+//    func removeFromDir() {
+//        let cacheReference = ImageCacher()
+//
+//            do {
+//                try cacheReference.removeItems(from: .temporaryDirectory)
+//
+//            } catch {
+//                print("Errors while deleting items: \(error.localizedDescription)")
+//            }
+//        }
 
-    func removeFromDir() {
-        let cacheReference = ImageCacher()
-        
-            do {
-                try cacheReference.removeItems(from: .temporaryDirectory)
-                
-            } catch {
-                print("Errors while deleting items: \(error.localizedDescription)")
-            }
-        }
-
-    func fetchItems() {
-        
-        let cacheReference = ImageCacher()
-        cacheReference.fetchItems(from: .temporaryDirectory)
-    }
+//    func fetchItems() {
+//
+//        let cacheReference = ImageCacher()
+//        cacheReference.fetchItems(from: .temporaryDirectory)
+//    }
     
 }
 
@@ -100,8 +97,9 @@ extension FeedsVC {
                for photo in decodedPhotos {
                    
                    if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                       let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                       self.photoRecords.append(photoRecord)
+                        let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                        self.photoRecords.append(photoRecord)
+//                        self.photoURLs.append(photoURL)
                    }
                }
                    
@@ -133,23 +131,31 @@ extension FeedsVC {
 extension FeedsVC {
 
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-
-        switch (photoRecord.state) {
-            
-        case .new:
+        
+        if photoRecord.state == .new {
             startDownload(for: photoRecord, indexPath: indexPath)
-            
-        case .downloaded:
-            startCaching(for: photoRecord, indexPath: indexPath)
-            
-        case .cached:
-            print("Cached. Released image from memory at indexPath: \(indexPath.row)")
-//            photoRecords[indexPath.row].image = nil
-            
-        case .failed:
-            print("Image failed")
-            // show a default image
         }
+//        if photoRecord.state == .downloaded {
+//            startCaching(record: photoRecord, at: indexPath)
+//        }
+
+//        switch (photoRecord.state) {
+//
+//        case .new:
+//            startDownload(for: photoRecord, indexPath: indexPath)
+//
+//        case .downloaded:
+////            startCaching(record: photoRecord, at: indexPath)
+//            print("Should have started caching at indexPath: \(indexPath.row)")
+//
+//        case .cached:
+//            print("Could release image from memory at indexPath: \(indexPath.row)")
+////            photoRecords[indexPath.row].image = nil
+//
+//        case .failed:
+//            print("Image failed")
+//            // show a default image
+//        }
     }
 
      func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
@@ -163,46 +169,29 @@ extension FeedsVC {
         
         
         imageFetching.completionBlock = {
-            
-            if imageFetching.isCancelled {
-                return
-            }
-            
+                        
             DispatchQueue.main.async {
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
                 
             }
-            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
-        
     }
     
-    func startCaching(for photoRecord: PhotoRecord, indexPath: IndexPath) {
+//    func startCaching(record: PhotoRecord, at indexPath: IndexPath) {
+//
+//        guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
+//        let imageCaching = ImageCacher(photoRecord: record)
+//        imageCaching.saveImageToCache(record: record, key: record.imageUrl.absoluteString)
+//        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
+//        pendingOperations.cachingQueue.addOperation(imageCaching)
+//
+//        imageCaching.completionBlock = {
+//            print("Cached image \(record.name) at indexPath: \(indexPath.row)")
+//            record.state = .cached
+//        }
+//
+//    }
         
-        guard pendingOperations.cachingInProgress[indexPath] == nil else { return }
-        
-        let imageCaching = ImageCacher()
-        
-        do {
-            try imageCaching.saveImage(record: photoRecord, at: .temporaryDirectory)
-
-        } catch {
-            print("Errors caching: \(error.localizedDescription)")
-        }
-//        imageCaching.saveImageToCache(record: photoRecord, imageURL: photoRecord.imageUrl.absoluteString as String)
-        
-        pendingOperations.cachingInProgress.updateValue(imageCaching, forKey: indexPath)
-        
-        pendingOperations.cachingQueue.addOperation(imageCaching)
-        
-        imageCaching.completionBlock = {
-            
-            self.pendingOperations.cachingInProgress.removeValue(forKey: indexPath)
-//            print("Image \(photoRecord.name) at indexPath: \(indexPath.row) has been cached")
-        }
-        
-    }
-    
      func suspendOperations() {
         
         pendingOperations.downloadQueue.isSuspended = true
@@ -255,6 +244,28 @@ extension FeedsVC {
             }
         }
     }
+    
+    func fetchImageFromCache(record: PhotoRecord, at indexPath: IndexPath) -> UIImage? {
+        guard record.state == .cached else { return nil }
+        var imageFromCache: UIImage?
+        let imageFetching = ImageCacher(photoRecord: record)
+        DispatchQueue.main.async {
+            
+            if let image = imageFetching.retrieveFromCache(key: record.imageUrl.absoluteString) {
+                imageFromCache = image
+                print("Failed fetching Cache image at indexPath: \(indexPath.row) ")
+                self.tableView.reloadRows(at: [indexPath], with: .fade)
+                
+            } else {
+                print("Failed gettinf image from cache at indexPath: \(indexPath)")
+            }
+//            imageFromCache = image
+//            self.cachedImages.append(imageFromCache!)
+//            print("You've got \(self.cachedImages.count) images")
+        }
+        
+        return imageFromCache
+    }
 }
 
 
@@ -291,12 +302,13 @@ extension FeedsVC {
             
         case .cached:
             if !tableView.isDragging && !tableView.isDecelerating {
-                print("Showing image from cache at indexPath: \(indexPath.row)")
+                
+//                guard let imageFromCache = fetchImageFromCache(record: currentRecord, at: indexPath) else { return UITableViewCell() }
+//                cell.tableImageView.image = imageFromCache
+//                print("Showing image from cache at indexPath: \(indexPath.row)")
+                
 
-//                if let imageFromCache = cache.retrieveImageFromCache(imageURL: currentRecord.imageUrl.absoluteString) {
-//                    cell.tableImageView.image = nil
-//                    cell.tableImageView.image = imageFromCache
-//                }
+
             }
 
         case .failed:
@@ -322,6 +334,9 @@ extension FeedsVC {
     }
     
     override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        photoRecords[indexPath.row].image = nil
+        photoRecords[indexPath.row].state = .new
         
     }
     

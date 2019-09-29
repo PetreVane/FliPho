@@ -11,7 +11,7 @@ import UIKit
 
 
 class ImageFetcher: Operation {
-    
+
     var photo: PhotoRecord
     
     init(photo: PhotoRecord) {
@@ -23,21 +23,21 @@ class ImageFetcher: Operation {
         if isCancelled {
             return
         }
-        
+       
         guard let imageData = try? Data(contentsOf: photo.imageUrl) else { return }
-        
+                   
         if !imageData.isEmpty {
-            
-            photo.image = UIImage(data: imageData)
-            photo.state = .downloaded
-            
+           
+           photo.image = UIImage(data: imageData)
+           photo.state = .downloaded
+           
         } else {
-            
-            photo.image = UIImage(named: "Could not fetch image")
-            photo.state = .failed
-            print("Failed fetching image")
+           
+           photo.image = UIImage(named: "Could not fetch image")
+           photo.state = .failed
+           print("Failed fetching image")
         }
+        
     }
-    
 }
 
