@@ -95,30 +95,34 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 extension PhotosVC {
     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-       
-        switch photoRecord.state {
-            
-        case .new:
-            startDownload(for: photoRecord, indexPath: indexPath)
         
-        case .downloaded:
-            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
-                
-//                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
-                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
-                
-            } else {
-//                print("Image at \(indexPath.item) cached already")
-            }
-            
-            DispatchQueue.main.async {
-                self.collectionView.reloadItems(at: [indexPath])
-            }
-            
-        case .failed:
-            print("Image failed; consider showing a default image")
-            
+        if photoRecord.state == .new {
+            startDownload(for: photoRecord, indexPath: indexPath)
         }
+       
+//        switch photoRecord.state {
+//
+//        case .new:
+//            startDownload(for: photoRecord, indexPath: indexPath)
+//
+//        case .downloaded:
+//            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+//
+////                print("Downloaded image at index \(indexPath.item) not cached yet. Caching now ...")
+//                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//
+//            } else {
+////                print("Image at \(indexPath.item) cached already")
+//            }
+//
+//            DispatchQueue.main.async {
+//                self.collectionView.reloadItems(at: [indexPath])
+//            }
+//
+//        case .failed:
+//            print("Image failed; consider showing a default image")
+//
+//        }
             
     }
     
@@ -140,7 +144,7 @@ extension PhotosVC {
                 self.collectionView.reloadItems(at: [indexPath])
             }
             
-            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+//            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
     }
     
@@ -286,7 +290,11 @@ extension PhotosVC {
 
         loadImagesOnVisibleItems()
         resumeOperations()
-        
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        userPhotoRecords[indexPath.item].image = nil
+        userPhotoRecords[indexPath.item].state = .new
     }
 }
 

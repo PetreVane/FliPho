@@ -96,25 +96,28 @@ extension FeedsVC {
 
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 
-        switch (photoRecord.state) {
-            
-        case .new:
+        if photoRecord.state == .new {
             startDownload(for: photoRecord, indexPath: indexPath)
-            
-        case .downloaded:
-            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
-                
-//                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
-                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
-
-            } else {
-//                print("Image at \(indexPath.row) is already in cache")
-            }
-            
-        case .failed:
-            print("Image failed")
-            // show a default image
         }
+//        switch (photoRecord.state) {
+//
+//        case .new:
+//            startDownload(for: photoRecord, indexPath: indexPath)
+//
+//        case .downloaded:
+//            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
+//
+////                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
+//                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//
+//            } else {
+////                print("Image at \(indexPath.row) is already in cache")
+//            }
+//
+//        case .failed:
+//            print("Image failed")
+//            // show a default image
+//        }
     }
 
      func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
@@ -137,7 +140,7 @@ extension FeedsVC {
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
                 
             }
-            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+//            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
         
     }
@@ -252,6 +255,11 @@ extension FeedsVC {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+    }
+    
+    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        photoRecords[indexPath.row].image = nil
+        photoRecords[indexPath.row].state = .new
     }
     
     // MARK: - ScrollView delegate methods

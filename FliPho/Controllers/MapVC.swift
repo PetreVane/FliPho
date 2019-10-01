@@ -38,13 +38,13 @@ class MapVC: UIViewController {
         locationManager.delegate = self
     
         confirmLocationServicesAreON()
-        getLocationCoordinates()
+//        getLocationCoordinates()
     }
     
     @IBAction func locationButtonPressed(_ sender: UIButton) {
         
         centerMapOnUserLocation()
-        getLocationCoordinates()
+//        getLocationCoordinates()
     }
     
     
@@ -210,6 +210,8 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
+        getLocationCoordinates()
+        
         DispatchQueue.main.async {
             self.mapView.addAnnotations(self.pinAnnotations)
         }
@@ -335,7 +337,7 @@ extension MapVC {
                         coordinates(latitude, longitude)
                       }
             } catch {
-//                print("Errors: \(error.localizedDescription)")
+                print("Errors: \(error.localizedDescription)")
             }
         }
     }
@@ -359,7 +361,7 @@ extension MapVC {
         imageFetcher.completionBlock = {
             DispatchQueue.main.async {
 //                print("Image named: \(record.name) has been successfully fetched")
-//                self.dropPin(for: record)
+                self.dropPin(for: record)
             }
         }
     }
