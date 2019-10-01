@@ -19,9 +19,9 @@ class MapVC: UIViewController {
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
     fileprivate var photoAlbum: [String : PhotoRecord] = [:]
-//    fileprivate let pendingOperations = PendingOperations()
-//    fileprivate var pinAnnotations: [FlickrAnnotation] = []
-//    fileprivate let networkManager = NetworkManager()
+    fileprivate let pendingOperations = PendingOperations()
+    fileprivate var pinAnnotations: [FlickrAnnotation] = []
+    fileprivate let networkManager = NetworkManager()
     
     
     
@@ -160,7 +160,7 @@ extension MapVC: MKMapViewDelegate {
         let region = MKCoordinateRegion.init(center: coordinates, latitudinalMeters: areaInMeters, longitudinalMeters: areaInMeters)
        
         mapView.setRegion(region, animated: true)
-        mapView.showsUserLocation = true
+//        mapView.showsUserLocation = true
         
     }
     
@@ -263,117 +263,117 @@ extension MapVC {
      
      */
     
-//    func getLocationCoordinates() {
-//        
-//        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
-//            showAlert(message: .allowLocationServices)
-//            return
-//        }
-//        
-//        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-//            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
-//            return
-//        }
-//       
-////        fetchImageURLs(from: urlWithLocationCoordinates)
-////        fetchImageURLsWhithNetworkManager(from: urlWithLocationCoordinates)
-//    }
+    func getLocationCoordinates() {
+        
+        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
+            showAlert(message: .allowLocationServices)
+            return
+        }
+        
+        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
+            return
+        }
+       
+//        fetchImageURLs(from: urlWithLocationCoordinates)
+        fetchImageURLsWhithNetworkManager(from: urlWithLocationCoordinates)
+    }
     
-//    func fetchImageURLsWhithNetworkManager(from url: URL) {
+    func fetchImageURLsWhithNetworkManager(from url: URL) {
         
-//        networkManager.fetchData(from: url) { (data, error) in
-//            guard error == nil else { return }
-//            guard let receivedData = data else { return }
-//            guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
-//            self.parseImageData(from: decodedData)
-//        }
+        networkManager.fetchData(from: url) { (data, error) in
+            guard error == nil else { return }
+            guard let receivedData = data else { return }
+            guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
+            self.parseImageData(from: decodedData)
+        }
         
-//    }
+    }
     
-//    func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
-//
-//        let decoder = JSONDecoder()
-//        guard let decodedData = try? decoder.decode(contained.EncodedPhotos.self, from: data) else { print("Parsing JSON returned errors"); return nil }
-//
-//        return decodedData
-//    }
-        
-//    func parseImageData(from data: JSON.EncodedPhotos) {
-//
-//        let decodedPhotos = data.photos.photo
-//
-//        for photo in decodedPhotos {
-//
-////            guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
-//            guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
-//            let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
-//            self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-//
-////            self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
-////
-////                photoRecord.latitude = latitude
-////                photoRecord.longitude = longitude
-////            }
-//        }
-//    }
+    func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
 
-//    func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
+        let decoder = JSONDecoder()
+        guard let decodedData = try? decoder.decode(contained.EncodedPhotos.self, from: data) else { print("Parsing JSON returned errors"); return nil }
+
+        return decodedData
+    }
         
-//        networkManager.fetchData(from: url) {[weak self] (data, error) in
-//
-//            guard self != nil else { return }
-//            guard error == nil else { return }
-//            guard let imageData = data else { return }
-//
-//            do {
-//                try self?.decodeImageGeoData(from: imageData) {[weak self] (latitude, longitude) in
-//
-//                    guard self != nil else { return }
-//                        coordinates(latitude, longitude)
-//                      }
-//            } catch {
-////                print("Errors: \(error.localizedDescription)")
-//            }
-//        }
-//    }
+    func parseImageData(from data: JSON.EncodedPhotos) {
+
+        let decodedPhotos = data.photos.photo
+
+        for photo in decodedPhotos {
+
+            guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
+            guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
+            let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
+            self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
+
+            self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
+
+                photoRecord.latitude = latitude
+                photoRecord.longitude = longitude
+            }
+        }
+    }
+
+    func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
+        
+        networkManager.fetchData(from: url) {[weak self] (data, error) in
+
+            guard self != nil else { return }
+            guard error == nil else { return }
+            guard let imageData = data else { return }
+
+            do {
+                try self?.decodeImageGeoData(from: imageData) {[weak self] (latitude, longitude) in
+
+                    guard self != nil else { return }
+                        coordinates(latitude, longitude)
+                      }
+            } catch {
+//                print("Errors: \(error.localizedDescription)")
+            }
+        }
+    }
     
-//    func decodeImageGeoData(from data: Data, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) throws {
-//
-//        let decoder = JSONDecoder()
-//
-//        guard let geoData = try? decoder.decode(JSON.EncodedGeoData.self, from: data) else { throw ErrorMessages.errorParsingJSON }
-//        guard let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) else { throw ErrorMessages.failedCastingType }
-//        coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
-//    }
+    func decodeImageGeoData(from data: Data, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) throws {
+
+        let decoder = JSONDecoder()
+
+        guard let geoData = try? decoder.decode(JSON.EncodedGeoData.self, from: data) else { throw ErrorMessages.errorParsingJSON }
+        guard let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) else { throw ErrorMessages.failedCastingType }
+        coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
+    }
     
     
-//    func fetchImage(record: PhotoRecord) {
-//
-////        print("fetchImage(recod:) called")
-//        let imageFetcher = ImageFetcher(photo: record)
-////        pendingOperations.downloadQueue.addOperation(imageFetcher)
-//
-//        imageFetcher.completionBlock = {
-//            DispatchQueue.main.async {
-////                print("Image named: \(record.name) has been successfully fetched")
-////                self.dropPin(for: record)
-//            }
-//        }
-//    }
+    func fetchImage(record: PhotoRecord) {
+
+//        print("fetchImage(recod:) called")
+        let imageFetcher = ImageFetcher(photo: record)
+        pendingOperations.downloadQueue.addOperation(imageFetcher)
+
+        imageFetcher.completionBlock = {
+            DispatchQueue.main.async {
+//                print("Image named: \(record.name) has been successfully fetched")
+                self.dropPin(for: record)
+            }
+        }
+    }
     
     // MARK: - Showing Pins
     
         
-//    func dropPin(for photoRecord: PhotoRecord) {
-////        print("dropPin(for record:) called")
-//
-//        guard let latitude = photoRecord.latitude,
-//            let longitude = photoRecord.longitude else {return}
-//
-//        let pointAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: latitude, longitude: longitude))
-//        pointAnnotation.title = photoRecord.name
-////        pinAnnotations.append(pointAnnotation)
-//    }
+    func dropPin(for photoRecord: PhotoRecord) {
+//        print("dropPin(for record:) called")
+
+        guard let latitude = photoRecord.latitude,
+            let longitude = photoRecord.longitude else {return}
+
+        let pointAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: latitude, longitude: longitude))
+        pointAnnotation.title = photoRecord.name
+        pinAnnotations.append(pointAnnotation)
+    }
 }
 
 

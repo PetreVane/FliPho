@@ -78,7 +78,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
                     
                 } catch {
                     
-//                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
+                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
                 }
             case .failure( _):
                 
@@ -284,6 +284,12 @@ extension PhotosVC {
 
         loadImagesOnVisibleItems()
         resumeOperations()
+        
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        userPhotoRecords[indexPath.item].image = nil
+        userPhotoRecords[indexPath.item].state = .new
         
     }
 }
