@@ -16,6 +16,7 @@ enum NetworkManagerError: Error {
     case unknownError
     
     var localizedDescription: String {
+        
         switch self {
         case .failedRequest:
             return "Server unreachable. Connect to internet and try again"
@@ -33,29 +34,28 @@ class NetworkManager {
     
 
     typealias completion = (Data?, NetworkManagerError?) -> Void
+    typealias result = (Result<Data, NetworkManagerError>) -> Void
         
-    func fetchData(from url: URL, completionHandler: @escaping completion) {
+    func fetchData(from url: URL, completionHandler: @escaping result) {
                 
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             
-            guard error == nil else { completionHandler(nil, NetworkManagerError.failedRequest)
+            guard error == nil else { completionHandler(.failure(.failedRequest))
                 return
             }
             
             guard let serverResponse = response as? HTTPURLResponse,
-                serverResponse.statusCode == 200 else { completionHandler(nil, NetworkManagerError.unexpectedResponse)
+                serverResponse.statusCode == 200 else { completionHandler(.failure(.unexpectedResponse))
                     return
             }
             
-            guard let receivedData = data else { completionHandler(nil, NetworkManagerError.missingData)
+            guard let receivedData = data else { completionHandler(.failure(.missingData))
                 return
             }
-            completionHandler(receivedData, nil)
+            completionHandler(.success(receivedData))
 
-            
-            } .resume()
+        } .resume()
     }
-    
 }
 
 
