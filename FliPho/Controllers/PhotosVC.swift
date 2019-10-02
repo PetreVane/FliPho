@@ -87,6 +87,25 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
             }
         }
     }
+    
+    // example of using generics and result type
+//    func parseData<Type>(from data: Data, parse: Type) -> Result<[JSON.Photos.Photo], Error> {
+//
+//        let decoder = JSONDecoder()
+//        let decodingModel: JSON.EncodedPhotos.Type = parse as! JSON.EncodedPhotos.Type
+////        var result: Result<, <#Failure: Error#>>?
+//
+//
+//        do {
+//            let decodedData = try decoder.decode(decodingModel, from: data)
+//            let decodedMedia = decodedData.photos.photo
+//
+//
+//        } catch {
+//            print("errors from generic method")
+//        }
+//
+//    }
 }
 
 // MARK: - Operations Management
