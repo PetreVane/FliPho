@@ -33,26 +33,26 @@ enum NetworkManagerError: Error {
 class NetworkManager {
     
 
-    typealias completion = (Data?, NetworkManagerError?) -> Void
+//    typealias completion = (Data?, NetworkManagerError?) -> Void
     typealias result = (Result<Data, NetworkManagerError>) -> Void
         
-    func fetchData(from url: URL, completionHandler: @escaping result) {
+    func fetchData(from url: URL, completionWith: @escaping result) {
                 
         URLSession.shared.dataTask(with: url) { (data, response, error) in
             
-            guard error == nil else { completionHandler(.failure(.failedRequest))
+            guard error == nil else { completionWith(.failure(.failedRequest))
                 return
             }
             
             guard let serverResponse = response as? HTTPURLResponse,
-                serverResponse.statusCode == 200 else { completionHandler(.failure(.unexpectedResponse))
+                serverResponse.statusCode == 200 else { completionWith(.failure(.unexpectedResponse))
                     return
             }
             
-            guard let receivedData = data else { completionHandler(.failure(.missingData))
+            guard let receivedData = data else { completionWith(.failure(.missingData))
                 return
             }
-            completionHandler(.success(receivedData))
+            completionWith(.success(receivedData))
 
         } .resume()
     }

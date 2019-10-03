@@ -8,95 +8,100 @@
 
 import Foundation
 
+//MARK: - Protocol declaration
 
-struct JSON: Codable {
+protocol JSONDecoding {
     
-    
-   // MARK: - Decoding User info
-    
-    struct EncodedUserInfo: Codable {
+    func decodeJSON<T: Decodable>(model: T.Type, from data: Data) -> Result<T, Error>
+}
+
         
-        let person: Person
-
-        struct Person: Codable {
-            
-            let id, nsid: String
-            let ispro, canBuyPro: Int
-            let iconserver: String
-            let iconfarm: Int
-            let hasStats: String
-
-            
-            enum CodingKeys: String, CodingKey {
-                
-                case id, nsid, ispro
-                case canBuyPro = "can_buy_pro"
-                case iconserver, iconfarm
-                case hasStats = "has_stats"
-            }
-        }
-    }
+   // MARK: -  Decoding Model for User info
     
-    // MARK: - Decoding Geographic Coordinates of Pictures
-    
-    struct EncodedGeoData: Codable {
+struct DecodedUserInfo: Codable {
 
-        let photo: Photo
-        
-        struct Photo: Codable {
-            
-            let id: String
-            let location: Location
-        }
+    let person: Person
 
-        struct Location: Codable {
-            
-            let latitude: String
-            let longitude: String
-        }
-    }
+    struct Person: Codable {
+        
+        let id, nsid: String
+        let ispro, canBuyPro: Int
+        let iconserver: String
+        let iconfarm: Int
+        let hasStats: String
 
-    // MARK: - Decoding Image URLs
-    
-    struct EncodedPhotos: Codable {
         
-        let photos: Photos
-        
-    }
-    struct Photos: Codable {
-        
-        let photo: [Photo]
-
         enum CodingKeys: String, CodingKey {
             
-            case photo
+            case id, nsid, ispro
+            case canBuyPro = "can_buy_pro"
+            case iconserver, iconfarm
+            case hasStats = "has_stats"
         }
+    }
+}
+    
+    // MARK: - Decoding Model for Geographic Coordinates of Pictures
+    
+struct DecodedGeoData: Codable {
+
+    let photo: Photo
     
     struct Photo: Codable {
         
         let id: String
-        let owner: String
-        let secret: String
-        let server: String
-        let farm: Int
-        let title: String
-        let isPublic: Int
-        let isFriend: Int
-        let isFamily: Int
+        let location: Location
+    }
+
+    struct Location: Codable {
         
-        enum CodingKeys: String, CodingKey {
-            
-            case id
-            case owner
-            case secret
-            case server
-            case farm
-            case title
-            case isPublic = "ispublic"
-            case isFriend = "isfriend"
-            case isFamily = "isfamily"
-            
-            }
+        let latitude: String
+        let longitude: String
+    }
+}
+
+    // MARK: - Decoding Model for Image URLs
+    
+struct DecodedPhotos: Codable {
+    
+    let photos: Photos
+    
+}
+
+struct Photos: Codable {
+    
+    let photo: [Photo]
+
+    enum CodingKeys: String, CodingKey {
+        
+        case photo
+    }
+
+struct Photo: Codable {
+    
+    let id: String
+    let owner: String
+    let secret: String
+    let server: String
+    let farm: Int
+    let title: String
+    let isPublic: Int
+    let isFriend: Int
+    let isFamily: Int
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case id
+        case owner
+        case secret
+        case server
+        case farm
+        case title
+        case isPublic = "ispublic"
+        case isFriend = "isfriend"
+        case isFamily = "isfamily"
+        
         }
     }
 }
+

@@ -11,7 +11,7 @@ import UIKit
  // MARK: - Variables
 
 
-class FeedsVC: UITableViewController, OperationsManagement {
+class FeedsVC: UITableViewController {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
@@ -25,54 +25,68 @@ class FeedsVC: UITableViewController, OperationsManagement {
         
         fetchImageURLs(from: flickrURL)
     }
+
 }
 
  // MARK: - Networking
 
 
-extension FeedsVC {
-    
+extension FeedsVC: JSONDecoding {
+        
     func fetchImageURLs(from url: URL?) {
         
         guard let flickrUrl = url else { return }
         
-        networkManager.fetchData(from: flickrUrl) { (data, error) in
+        networkManager.fetchData(from: flickrUrl) { result in
             
-            guard error == nil else { DispatchQueue.main.async { self.showAlert(with: error!.localizedDescription) }; return }
-            
-            guard let receivedData = data else { return }
-            self.parseData(from: receivedData)
-
+            switch result {
+                
+            case .success(let receivedData):
+                let decodedData = self.decodeJSON(model: DecodedPhotos.self, from: receivedData)
+                self.parseResults(from: decodedData)
+                
+            case .failure(let error):
+                self.showAlert(with: error.localizedDescription)
+            }
         }
     }
     
     
     // MARK: - Parsing JSON
     
-    
-    func parseData(from data: Data) {
+    func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
         
         let decoder = JSONDecoder()
         
         do {
-            let decodedData = try decoder.decode(JSON.EncodedPhotos.self, from: data)
-            let decodedPhotos = decodedData.photos.photo
-                           
-               for photo in decodedPhotos {
-                   
-                   if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                       let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                       self.photoRecords.append(photoRecord)
-                   }
-               }
-                   
-               DispatchQueue.main.async {
-                   self.tableView.reloadData()
-//                   print("You've got: \(self.photoRecords.count)")
-               }
+            let decodedData = try decoder.decode(model.self, from: data)
+            return .success(decodedData)
             
-        } catch {
-//            print("Errors while parsing data: \(error.localizedDescription)")
+        } catch let error {
+            return .failure(error)
+        }
+    }
+    
+    func parseResults<T>(from decodedData:  Result<T, Error>) {
+
+        switch decodedData {
+
+        case .success(let photos as DecodedPhotos):
+            let album = photos.photos.photo
+            _ = album.compactMap { photo in
+                
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                    photoRecords.append(photoRecord)
+                }
+            }
+            
+        case .failure(let error):
+//            print("Errors while decoding: \(error.localizedDescription)")
+            showAlert(with: error.localizedDescription)
+            
+        case .success(_):
+            print("success")
         }
     }
     
@@ -92,7 +106,7 @@ extension FeedsVC {
 // MARK: - Operations Management
 
 
-extension FeedsVC {
+extension FeedsVC: OperationsManagement {
 
      func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath) {
 

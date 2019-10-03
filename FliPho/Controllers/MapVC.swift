@@ -210,7 +210,7 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
-        getLocationCoordinates()
+//        getLocationCoordinates()
         
         DispatchQueue.main.async {
             self.mapView.addAnnotations(self.pinAnnotations)
@@ -266,78 +266,87 @@ extension MapVC {
      
      */
     
-    func getLocationCoordinates() {
-        
-        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
-            showAlert(message: .allowLocationServices)
-            return
-        }
-        
-        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
-            return
-        }
-       
-//        fetchImageURLs(from: urlWithLocationCoordinates)
-        fetchImageURLsWhithNetworkManager(from: urlWithLocationCoordinates)
-    }
+//    func getLocationCoordinates() {
+//
+//        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
+//            showAlert(message: .allowLocationServices)
+//            return
+//        }
+//
+//        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
+//            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
+//            return
+//        }
+//
+////        fetchImageURLs(from: urlWithLocationCoordinates)
+//        fetchImageURLsWhithNetworkManager(from: urlWithLocationCoordinates)
+//    }
     
-    func fetchImageURLsWhithNetworkManager(from url: URL) {
-        
-        networkManager.fetchData(from: url) { (data, error) in
-            guard error == nil else { return }
-            guard let receivedData = data else { return }
-            guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
-            self.parseImageData(from: decodedData)
-        }
-        
-    }
+//    func fetchImageURLsWhithNetworkManager(from url: URL) {
+//
+//        networkManager.fetchData(from: url) { result in
+//
+//            switch result {
+//            case .failure(let error):
+//                print("Network request completed with error: \(error.localizedDescription)")
+//
+//            case .success(let receivedData):
+//                guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
+//                self.parseImageData(from: decodedData)
+//            }
+//        }
+//    }
     
-    func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
-
-        let decoder = JSONDecoder()
-        guard let decodedData = try? decoder.decode(contained.EncodedPhotos.self, from: data) else { print("Parsing JSON returned errors"); return nil }
+//    func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
+//
+//        let decoder = JSONDecoder()
+//        guard let decodedData = try? decoder.decode(contained.EncodedPhotos.self, from: data) else { print("Parsing JSON returned errors"); return nil }
+//
+//        return decodedData
+//    }
         
-        return decodedData
-    }
-        
-    func parseImageData(from data: JSON.EncodedPhotos) {
-        
-        let decodedPhotos = data.photos.photo
-        
-        for photo in decodedPhotos {
-
-            guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
-            self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
-                
-//                guard self != nil else { return }
-
-                guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
-                let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
-                photoRecord.latitude = latitude
-                photoRecord.longitude = longitude
-                self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-                self.fetchImage(record: photoRecord)
-            }
-        }
-    }
+//    func parseImageData(from data: EncodedPhotos) {
+//
+//        let decodedPhotos = data.photos.photo
+//
+//        for photo in decodedPhotos {
+//
+//            guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
+//            self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
+//
+////                guard self != nil else { return }
+//
+//                guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
+//                let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
+//                photoRecord.latitude = latitude
+//                photoRecord.longitude = longitude
+//                self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
+//                self.fetchImage(record: photoRecord)
+//            }
+//        }
+//    }
 
     func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
         
-        networkManager.fetchData(from: url) {[weak self] (data, error) in
+        networkManager.fetchData(from: url) { [weak self] result in
 
             guard self != nil else { return }
-            guard error == nil else { return }
-            guard let imageData = data else { return }
             
-            do {
-                try self?.decodeImageGeoData(from: imageData) {[weak self] (latitude, longitude) in
-                    
-                    guard self != nil else { return }
-                        coordinates(latitude, longitude)
-                      }
-            } catch {
-                print("Errors: \(error.localizedDescription)")
+            switch result {
+            case .failure(let error):
+                print("FetchImageCoordinates completed with error: \(error.localizedDescription)")
+                
+            case .success(let imageData):
+                
+                do {
+                      try self?.decodeImageGeoData(from: imageData) { [weak self] (latitude, longitude) in
+                          
+                          guard self != nil else { return }
+                              coordinates(latitude, longitude)
+                            }
+                  } catch {
+                      print("Errors: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -346,7 +355,8 @@ extension MapVC {
                 
         let decoder = JSONDecoder()
        
-        guard let geoData = try? decoder.decode(JSON.EncodedGeoData.self, from: data) else { throw ErrorMessages.errorParsingJSON }
+        guard let geoData = try? decoder.decode(DecodedGeoData.self, from: data) else { throw ErrorMessages.errorParsingJSON }
+//        let photoCoordinates = try (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude))
         guard let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) else { throw ErrorMessages.failedCastingType }
         coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
     }

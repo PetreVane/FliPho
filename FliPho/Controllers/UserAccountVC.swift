@@ -91,11 +91,16 @@ class UserAccountVC: UIViewController {
         guard let id = userDefaults.value(forKey: "user_nsid") as? String else { print("No user with this id"); return }
         guard let url = FlickrURLs.fetchUserInfo(userID: id) else { return }
         
-        networkManager.fetchData(from: url) { (data, error) in
-            // optional data & error
-            guard error == nil else { return }
-            guard let receivedData = data else { return }
-            self.decodeUserInfo(from: receivedData)
+        networkManager.fetchData(from: url) { result in
+            
+            switch result {
+                
+            case .failure(let error):
+                print("FetchUserInfo completed with error: \(error.localizedDescription)")
+                
+            case .success(let userData):
+                self.decodeUserInfo(from: userData)
+            }
         }
     }
     
@@ -103,7 +108,7 @@ class UserAccountVC: UIViewController {
         
         let decoder = JSONDecoder()
         
-        guard let decodedData = try? decoder.decode(JSON.EncodedUserInfo.self, from: data) else { return }
+        guard let decodedData = try? decoder.decode(DecodedUserInfo.self, from: data) else { return }
         let decodedInfo = decodedData.person
         guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
         let photoRecord = PhotoRecord(name: decodedInfo.nsid, imageUrl: profilePictUrl)

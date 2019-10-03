@@ -53,7 +53,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
         
         let authObject = OAuthSwiftClient(consumerKey: consumerKey, consumerSecret: consumerSecret, oauthToken: savedData.value(forKey: "oauth_token") as! String, oauthTokenSecret: savedData.value(forKey: "oauth_token_secret") as! String, version: .oauth1)
         
-        authObject.get(url) { (result) in
+        authObject.get(url) { result in
             
             switch result {
                 
@@ -61,7 +61,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
 
                 do {
                     
-                    let decodedData = try jsonDecoder.decode(JSON.EncodedPhotos.self, from: response.data)
+                    let decodedData = try jsonDecoder.decode(DecodedPhotos.self, from: response.data)
                     let decodedPhotos = decodedData.photos.photo
             
                     for photo in decodedPhotos {
@@ -89,26 +89,26 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
     }
     
     // example of using generics and result type
-    func parseData<Type>(from data: Data, parse: Type) -> Result<[JSON.Photos.Photo], Error> {
-
-        let decoder = JSONDecoder()
-        let decodingModel: JSON.EncodedPhotos.Type = parse as! JSON.EncodedPhotos.Type
-        var listOfPhotos: [JSON.Photos.Photo] = []
-
-
-        do {
-            let decodedData = try decoder.decode(decodingModel, from: data)
-            let decodedMedia = decodedData.photos.photo
-            listOfPhotos = decodedMedia
-
-        } catch {
-            
-             print("Errors while parsing Json: \(error.localizedDescription)") 
-        }
-        
-        return .success(listOfPhotos)
-
-    }
+//    func decodeJSON<Type>(from data: Data, decodingModel: Type) -> Result<[JSON.Photos.Photo], Error> {
+//
+//        let decoder = JSONDecoder()
+//        let jsonModel: JSON.EncodedPhotos.Type = decodingModel as! JSON.EncodedPhotos.Type
+//        var listOfPhotos: [JSON.Photos.Photo] = []
+//
+//
+//        do {
+//            let decodedData = try decoder.decode(jsonModel, from: data)
+//            let decodedMedia = decodedData.photos.photo
+//            listOfPhotos = decodedMedia
+//
+//        } catch {
+//
+//             print("Errors while parsing Json: \(error.localizedDescription)")
+//        }
+//
+//        return .success(listOfPhotos)
+//
+//    }
 }
 
 // MARK: - Operations Management
