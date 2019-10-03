@@ -11,7 +11,8 @@ import Foundation
 //MARK: - Protocol declaration
 
 protocol JSONDecoding {
-    
+    // the generic parameter (model: T) eases the process of calling this method with different JSON decoding models, which are declared below
+    // the Result type also contains a generic parameter, because each decoding model returns an object of a diferent type
     func decodeJSON<T: Decodable>(model: T.Type, from data: Data) -> Result<T, Error>
 }
 

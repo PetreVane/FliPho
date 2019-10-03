@@ -11,6 +11,9 @@ import Foundation
 
 protocol OperationsManagement {
     
+    // these protocol methods help with the process of starting / stopping image fetching, when the user scrolls / stopped scrolling the tableView / collectionView
+    // please see the implementation in each ViewController file
+     
     func startOperations(for photoRecord: PhotoRecord, indexPath: IndexPath)
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath)

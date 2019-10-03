@@ -18,11 +18,12 @@ class FeedsVC: UITableViewController {
     fileprivate let cache = Cache()
     let networkManager = NetworkManager()
     
-    let flickrURL = FlickrURLs.fetchInterestingPhotos()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let flickrURL = FlickrURLs.fetchInterestingPhotos()
         fetchImageURLs(from: flickrURL)
     }
 
@@ -46,7 +47,9 @@ extension FeedsVC: JSONDecoding {
                 self.parseResults(from: decodedData)
                 
             case .failure(let error):
-                self.showAlert(with: error.localizedDescription)
+                DispatchQueue.main.async {
+                    self.showAlert(with: error.localizedDescription)
+                }
             }
         }
     }
@@ -77,16 +80,19 @@ extension FeedsVC: JSONDecoding {
                 
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                    photoRecords.append(photoRecord)
+                    self.photoRecords.append(photoRecord)
                 }
             }
             
         case .failure(let error):
-//            print("Errors while decoding: \(error.localizedDescription)")
             showAlert(with: error.localizedDescription)
             
         case .success(_):
             print("success")
+        }
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
         }
     }
     
@@ -121,11 +127,11 @@ extension FeedsVC: OperationsManagement {
 //        case .downloaded:
 //            if cache.retrieveFromCache(with: photoRecord.imageUrl.absoluteString as NSString) == nil {
 //
-////                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
-//                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
+//                print("Fetched at indexPath: \(indexPath.row);  Caching now ...")
+////                cache.saveToCache(with: photoRecord.imageUrl.absoluteString as NSString, value: photoRecord.image!)
 //
 //            } else {
-////                print("Image at \(indexPath.row) is already in cache")
+//                print("Image at \(indexPath.row) is already in cache")
 //            }
 //
 //        case .failed:
@@ -156,7 +162,6 @@ extension FeedsVC: OperationsManagement {
             }
 //            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
-        
     }
     
      func suspendOperations() {
@@ -221,7 +226,7 @@ extension FeedsVC {
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        
+
         return photoRecords.count
     }
 
@@ -234,20 +239,21 @@ extension FeedsVC {
 
         let currentRecord = photoRecords[indexPath.row]
         
-        switch (currentRecord.state) {
+        switch currentRecord.state {
 
         case .new:
             if !tableView.isDragging && !tableView.isDecelerating {
                 startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
-            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-                
-                if !tableView.isDragging && !tableView.isDecelerating {
-                    cell.tableImageView.image = imageFromCache as? UIImage
+            print("Image at indexPath: \(indexPath.row) has been downloaded")
+//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+//
+//                if !tableView.isDragging && !tableView.isDecelerating {
+//                    cell.tableImageView.image = imageFromCache as? UIImage
 //                    print("Success showing image from cache for indexPath: \(indexPath.row)")
-                }
-            }
+//                }
+//            }
 
         case .failed:
             print("Image failed to load at indexPath")
