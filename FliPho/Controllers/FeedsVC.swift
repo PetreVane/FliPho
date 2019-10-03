@@ -88,7 +88,7 @@ extension FeedsVC: JSONDecoding {
             showAlert(with: error.localizedDescription)
             
         case .success(_):
-            print("success")
+            print(" --> xcode bug <-- ")
         }
         
         DispatchQueue.main.async {

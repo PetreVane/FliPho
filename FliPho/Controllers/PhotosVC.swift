@@ -16,10 +16,11 @@ import OAuthSwift
 
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
-     fileprivate let savedData = UserDefaults()
-     fileprivate let cache = Cache()
-     fileprivate var userPhotoRecords: [PhotoRecord] = []
-     fileprivate let pendingOperations = PendingOperations()
+    fileprivate let userDefaults = UserDefaults()
+    fileprivate let cache = Cache()
+    fileprivate var userPhotoRecords: [PhotoRecord] = []
+    fileprivate let pendingOperations = PendingOperations()
+    fileprivate let networkManager = NetworkManager()
     
     
     // Cell custoamizations
@@ -32,83 +33,96 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let savedID = savedData.object(forKey: "user_nsid") as? String else { print ("No user ID"); return }
-        let url = FlickrURLs.fetchUserPhotos(userID: savedID)
-        fetchPhotoURLs(from: url!)
+        let userPhotosURL = retrieveUserID(from: userDefaults)
+        fetchPhotoURLs(from: userPhotosURL)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
     }
+}
+
 
     
     // MARK: - Networking
     
+extension PhotosVC: JSONDecoding {
+        
+    func retrieveUserID(from userDefaults: UserDefaults) -> URL? {
+                
+        guard let savedID = userDefaults.object(forKey: "user_nsid") as? String else { print ("No user ID"); return nil}
+        guard let url = FlickrURLs.fetchUserPhotos(userID: savedID) else { return nil }
+        
+        return url
+    }
+    
+    func fetchPhotoURLs(from url: URL?) {
+        
+        guard let userPhotosURL = url else { return }
 
-    func fetchPhotoURLs(from url: URL) {
-        
-        let jsonDecoder = JSONDecoder()
-        
-        
-        let authObject = OAuthSwiftClient(consumerKey: consumerKey, consumerSecret: consumerSecret, oauthToken: savedData.value(forKey: "oauth_token") as! String, oauthTokenSecret: savedData.value(forKey: "oauth_token_secret") as! String, version: .oauth1)
-        
-        authObject.get(url) { result in
+        networkManager.fetchData(from: userPhotosURL) { result in
             
             switch result {
                 
-            case .success(let response):
-
-                do {
-                    
-                    let decodedData = try jsonDecoder.decode(DecodedPhotos.self, from: response.data)
-                    let decodedPhotos = decodedData.photos.photo
-            
-                    for photo in decodedPhotos {
-                        
-                        if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                            
-                            let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                            self.userPhotoRecords.append(photoRecord)
-                        }
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-                    
-                } catch {
-                    
-//                    print("Error parsing JSON in PhotosVC: \(error.localizedDescription)")
-                }
-            case .failure( _):
+            case .failure(let error):
+                self.showAlert(with: error.localizedDescription)
                 
-                print("Authobject error")
+            case .success(let data):
+                print(data.description)
+                let decodedData = self.decodeJSON(model: DecodedPhotos.self, from: data)
+                self.parseData(from: decodedData)
             }
         }
     }
     
-    // example of using generics and result type
-//    func decodeJSON<Type>(from data: Data, decodingModel: Type) -> Result<[JSON.Photos.Photo], Error> {
-//
-//        let decoder = JSONDecoder()
-//        let jsonModel: JSON.EncodedPhotos.Type = decodingModel as! JSON.EncodedPhotos.Type
-//        var listOfPhotos: [JSON.Photos.Photo] = []
-//
-//
-//        do {
-//            let decodedData = try decoder.decode(jsonModel, from: data)
-//            let decodedMedia = decodedData.photos.photo
-//            listOfPhotos = decodedMedia
-//
-//        } catch {
-//
-//             print("Errors while parsing Json: \(error.localizedDescription)")
-//        }
-//
-//        return .success(listOfPhotos)
-//
-//    }
+  //MARK: - Json decoding & Parsing
+    
+    func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
+        
+        let decoder = JSONDecoder()
+        
+        do {
+            let decodedData = try decoder.decode(model, from: data)
+            return .success(decodedData)
+            
+        } catch let error {
+            return .failure(error)
+        }
+    }
+    
+    func parseData<T>(from data: Result<T, Error> ) {
+        
+        switch data {
+        case .failure(let error):
+            print("errors enountered while decoding: \(error.localizedDescription)")
+            
+        case .success(let photos as DecodedPhotos):
+            print("something")
+            let userAlbum = photos.photos.photo
+            _ = userAlbum.compactMap { photo in
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                    self.userPhotoRecords.append(photoRecord)
+                }
+            }
+        case .success(_):
+            print(" --> xcode bug <--")
+        }
+        DispatchQueue.main.async {
+            self.collectionView.reloadData()
+        }
+    }
+    
+ // MARK: - Alert
+    
+    func showAlert(with message: String) {
+        
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alertController.addAction(action)
+        present(self, animated: true, completion: nil)
+    }
 }
 
 // MARK: - Operations Management
@@ -150,9 +164,7 @@ extension PhotosVC {
     
     func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
                 
-        guard pendingOperations.downloadInProgress[indexPath] == nil else { //print("download already in progress for indexPath")
-            return
-        }
+        guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
         
         let imageFetching = ImageFetcher(photo: photoRecord)
         
@@ -165,8 +177,6 @@ extension PhotosVC {
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
             }
-            
-//            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
     }
     
@@ -226,7 +236,7 @@ extension PhotosVC {
     }
 
 
-// MARK: Data Source
+// MARK: - Data Source
 
 
 extension PhotosVC {
@@ -248,12 +258,13 @@ extension PhotosVC {
             startOperations(for: currentRecord, indexPath: indexPath)
         
         case .downloaded:
-            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-                if !collectionView.isDragging && !collectionView.isDecelerating {
-                    cell.imageView.image = imageFromCache as? UIImage
-//                    print("Succces showing image from cache at indexPath \(indexPath.item)")
-                }
-            }
+            print("Image downloaded at indexPath: \(indexPath.item)")
+//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
+//                if !collectionView.isDragging && !collectionView.isDecelerating {
+//                    cell.imageView.image = imageFromCache as? UIImage
+////                    print("Succces showing image from cache at indexPath \(indexPath.item)")
+//                }
+//            }
             
         case .failed:
             
