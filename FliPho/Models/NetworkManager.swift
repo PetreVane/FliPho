@@ -15,7 +15,7 @@ enum NetworkManagerError: Error {
     case missingData
     case unknownError
     
-    var localizedDescription: String {
+   var localizedDescription: String {
         
         switch self {
         case .failedRequest:
