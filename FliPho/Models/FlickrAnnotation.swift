@@ -14,9 +14,11 @@ class FlickrAnnotation: NSObject, MKAnnotation {
     
     var coordinate: CLLocationCoordinate2D
     var title: String?
+    var image: UIImage?
     
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
+        
     }
     
 }

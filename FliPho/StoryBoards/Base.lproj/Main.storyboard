@@ -176,7 +176,7 @@
                                 </constraints>
                                 <state key="normal" image="locationbutton"/>
                                 <connections>
-                                    <action selector="locationButtonPressed:" destination="vYg-ji-Hbc" eventType="touchUpInside" id="7st-6I-TK2"/>
+                                    <action selector="locationButtonPressed:" destination="vYg-ji-Hbc" eventType="touchUpInside" id="ZoX-vW-3kW"/>
                                 </connections>
                             </button>
                         </subviews>

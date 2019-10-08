@@ -12,7 +12,7 @@ import UIKit
 
 class ImageFetcher: Operation {
     
-    var photo: PhotoRecord
+  unowned var photo: PhotoRecord
     
     init(photo: PhotoRecord) {
         self.photo = photo

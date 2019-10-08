@@ -16,7 +16,7 @@ class FeedsVC: UITableViewController {
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
     fileprivate let cache = Cache()
-    let networkManager = NetworkManager()
+    fileprivate let networkManager = NetworkManager()
     
     
     
@@ -38,17 +38,19 @@ extension FeedsVC: JSONDecoding {
         
         guard let flickrUrl = url else { return }
         
-        networkManager.fetchData(from: flickrUrl) { result in
+        networkManager.fetchData(from: flickrUrl) { [weak self] (result) in
             
             switch result {
                 
             case .success(let receivedData):
-                let decodedData = self.decodeJSON(model: DecodedPhotos.self, from: receivedData)
-                self.parseResults(from: decodedData)
+                if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: receivedData) {
+                    self?.parseResults(from: decodedData)
+                }
+                
                 
             case .failure(let error):
                 DispatchQueue.main.async {
-                    self.showAlert(with: error.localizedDescription)
+                    self?.showAlert(with: error.localizedDescription)
                 }
             }
         }
@@ -246,9 +248,11 @@ extension FeedsVC {
                 startOperations(for: currentRecord, indexPath: indexPath)
             }
         case .downloaded:
-            print("Image at indexPath: \(indexPath.row) has been downloaded")
+            if !tableView.isDragging && !tableView.isDecelerating {
+                
+                 }
 //            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-//
+//                print(" ")
 //                if !tableView.isDragging && !tableView.isDecelerating {
 //                    cell.tableImageView.image = imageFromCache as? UIImage
 //                    print("Success showing image from cache for indexPath: \(indexPath.row)")

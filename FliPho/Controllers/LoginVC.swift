@@ -62,7 +62,7 @@ class LoginVC: UIViewController {
                     if let valueAsString = parameters[key] as? String {
 //                        print("Value as string: \(valueAsString.removingPercentEncoding)")
                         self.userDefaults.set(valueAsString.removingPercentEncoding, forKey: key)
-                        self.userDefaults.set(true, forKey: "loggedIn")
+//                        self.userDefaults.set(true, forKey: "loggedIn")
                     }
                 }
                 self.authenticate(with: authObject)

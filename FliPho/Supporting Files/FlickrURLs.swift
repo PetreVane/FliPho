@@ -49,7 +49,7 @@ struct FlickrURLs {
         
         guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.people.getPhotos&api_key=\(consumerKey)&user_id=\(userID)&per_page=250&page=&format=json&nojsoncallback=1")
             else { return URL(string: "no valid url for flickr.people.getPhoto ") }
-        print("FetchUserPhotos: \(url.absoluteString)")
+//        print("FetchUserPhotos: \(url.absoluteString)")
         return url
     }
     

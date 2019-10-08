@@ -20,10 +20,8 @@ class MapVC: UIViewController {
     fileprivate let areaInMeters: Double = 5000
     fileprivate var photoAlbum: [String : PhotoRecord] = [:]
     fileprivate let pendingOperations = PendingOperations()
-    fileprivate var pinAnnotations: [FlickrAnnotation] = []
+    fileprivate var annotationsList: [MKAnnotationView] = []
     fileprivate let networkManager = NetworkManager()
-    
-    
     
     
     @IBOutlet weak var mapView: MKMapView!
@@ -38,12 +36,12 @@ class MapVC: UIViewController {
         location.delegate = self
     
         confirmLocationServicesAreON()
+//        print("Auth status is: \(authorizationStatus.rawValue)")
     }
     
     @IBAction func locationButtonPressed(_ sender: UIButton) {
         
         centerMapOnUser(location)
-//        getLocationCoordinates()
     }
     
     
@@ -58,6 +56,7 @@ class MapVC: UIViewController {
         case restrictedLocationServices
         case failedCastingType
         case errorParsingJSON
+        case failedAcquiringUserLocation
         
         var description: String {
             
@@ -72,6 +71,8 @@ class MapVC: UIViewController {
                 return "Errors while casting String as Double"
             case .errorParsingJSON:
                 return "Errors while trying to decode JSON data"
+            case .failedAcquiringUserLocation:
+                return "The app cannot establish your location. Please try again later"
             }
         }
     }
@@ -87,6 +88,7 @@ class MapVC: UIViewController {
         switch message {
             
         case .allowLocationServices:
+            
             alert = UIAlertController(title: "Allow Location Access", message: message.description, preferredStyle: .alert)
             let openSettingsAction = UIAlertAction(title: "Allow", style: .default) { (action) in
                 guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
@@ -112,11 +114,18 @@ class MapVC: UIViewController {
             alert.addAction(dismissAction)
             present(alert, animated: true, completion: nil)
             
+        case .failedAcquiringUserLocation:
+             alert = UIAlertController(title: "Error", message: message.description, preferredStyle: .alert)
+             let dismissAction = UIAlertAction(title: "Ok, I'll try later", style: .cancel, handler: nil)
+             alert.addAction(dismissAction)
+             present(alert, animated: true, completion: nil)
+            
         case .failedCastingType:
             print("Error casting String to Double in DecodeImageGeoData method")
             
         case .errorParsingJSON:
             print("Errors Parsing JSON in DecodeImageGeoData method")
+            
         }
     }
     
@@ -146,7 +155,6 @@ class MapVC: UIViewController {
             
         default:
             requestAuthorizationForLocationServices()
-//            print("request auth for location services called")
         }
     }
 }
@@ -163,68 +171,90 @@ extension MapVC: MKMapViewDelegate {
     
     func centerMapOnUser(_ location: CLLocationManager) {
         
-        guard let coordinates = location.location?.coordinate else { return }
-        
-        let region = MKCoordinateRegion.init(center: coordinates, latitudinalMeters: areaInMeters, longitudinalMeters: areaInMeters)
-       
-        mapView.setRegion(region, animated: true)
-        mapView.showsUserLocation = true
-        
+//        guard let coordinates = location.location?.coordinate else { return }
+        if let coordinates = location.location?.coordinate {
+            
+             let region = MKCoordinateRegion.init(center: coordinates, latitudinalMeters: areaInMeters, longitudinalMeters: areaInMeters)
+            
+             mapView.setRegion(region, animated: true)
+             mapView.showsUserLocation = true
+        } else {
+            
+            showAlert(message: .failedAcquiringUserLocation)
+        }
+
     }
     
     /// Shows objects on map
     /// - Parameter mapView: Reference to an embeddable map interface, similar to the one provided by the Maps application.
     /// - Parameter annotation: Reference to an interface for associating your content with a specific map location.
     
-//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-//
-//        guard !annotation.isKind(of: MKUserLocation.self) else {
-//            return nil
-//        }
-//
-//        let reuseIdentifier = "flickrAnnotation"
-//        var view: MKMarkerAnnotationView
-//
-//        if let dequedView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
-//            dequedView.annotation = annotation
-//            view = dequedView
-//            view.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
-//        } else {
-//            view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
-//            view.canShowCallout = true
-//            view.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-//            view.clusteringIdentifier = reuseIdentifier
-//
-//        }
-//
-////         here annotation refers to annotationPoint declared in dropPin method
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+
+        guard !annotation.isKind(of: MKUserLocation.self) else {
+            return nil
+        }
+
+        let reuseIdentifier = "flickrAnnotation"
+        var markerAnnotation: MKMarkerAnnotationView
+
+        if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
+            dequedAnnotation.annotation = annotation
+            markerAnnotation = dequedAnnotation
+            markerAnnotation.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
+            
+        } else {
+            markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        
+//            markerAnnotation.canShowCallout = true
+            markerAnnotation.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+            markerAnnotation.clusteringIdentifier = reuseIdentifier
+
+        }
+
+    //         here annotation refers to annotationPoint declared in dropPin method
 //            guard let annotationTitle = annotation.title as? String else { print(" Failed casting annotation title as string")
 //                return nil
 //            }
-//         let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
-//
 //            if let record = photoAlbum[annotationTitle] {
 //
 //                DispatchQueue.main.async {
 //                    annotationImageView.image = record.image
 //                }
 //            }
-//
-//        view.leftCalloutAccessoryView = annotationImageView
-//        view.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
-//
-//        return view
-//    }
+        
+//        let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
+
+//        markerAnnotation.leftCalloutAccessoryView = annotationImageView
+//        markerAnnotation.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+
+        return markerAnnotation
+    }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
 //        print("Button pressed: trigger segue here")
     }
     
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+//        print("Annotation has been selected")
+        
+        
+//        if let customAnnotation = view as? MKAnnotation {
+//            let imageTitle = customAnnotation.title
+//            print("Image title: \(String(describing: imageTitle))")
+//        } else {
+//            print("This annotation cannot be downgraded")
+//        }
+    }
+    
+//    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+//        <#code#>
+//    }
+    
     func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
-//        getLocationCoordinates()
         
         DispatchQueue.main.async {
-            self.mapView.addAnnotations(self.pinAnnotations)
+            self.mapView.addAnnotations(self.annotationsList as! [MKAnnotation])
         }
     }
 }
@@ -271,37 +301,45 @@ extension MapVC: JSONDecoding {
      Steps performed in Networking extension:
      
      1. getting the user geographic coordinates
-     2. using geographic coordinates to construct a Flickr URL
-     3. using the URL to call Flickr endpoint Api, which returns an encoded json with the urls of images taken around the user location
+     2. using geographic coordinates to construct a Flickr URL, which is used to fetch images urls, relevant for user location
+     3. using the URL from step 2 to call the Flickr endpoint Api(flickr.photos.search api method), which returns an encoded json with the urls of images taken around the user location
      The span area containing pictures accounts for 5000 meters.
-     4. decoding the JSON object returned by the network request
-     5. parsing the decoded data & iterating over each image url, to get the image ID
-     6. using each image ID, to call another Flickr endPpoint, which returns the geographic coordinates for that particular imageID
-     7. using the returned geoGraphic coordinates, to establish the exact location where the image has been taken.
-     8. iterating over each image url, to get the final image
+     3.1. decoding the JSON object returned by the network request
+     3.2. parsing the decoded data & iterating over each image url, to get the imageID
+     4. then each imageID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
+     5. using the flickr.photos.geo.getLocation url for another network request, which returns a json object containing the geographic coordinates for imageID
+     5.1  decoding json object returned by flickr.photos.geo.getLocation api method
+     5.2. parsing the json object; this method returns a tuple containing location coordinates casted as Double type
+     6. using the returned geoGraphic coordinates, to establish the exact location where the image has been taken.
+     7. iterating over each image url, to get the final image
      
      */
     
    // step 1: getting the user geographic coordinates
-    func getUserCoordinatesFrom(_ location: CLLocationManager){
+    func getUserCoordinatesFrom(_ location: CLLocationManager) {
         
-        guard let userLocation = location.location?.coordinate else { checkLocation(authorizationStatus); return }
-        makeURL(with: userLocation)
+        if let userLocation = location.location?.coordinate {
+            // see implementation in step 2
+            makeURL(with: userLocation)
+        } else {
+            showAlert(message: .failedAcquiringUserLocation)
+        }
+        
     }
     
-    // step 2: using geographic coordinates to construct a Flickr URL
+    // step 2: passes user geographic coordinates as arguments to Flickr URL constructor
     func makeURL(with userCoordinates: CLLocationCoordinate2D?) {
         
         guard let userLocation = userCoordinates else { return }
         guard let urlWithCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: userLocation.latitude, longitude: userLocation.longitude) else { return }
-        
+        // see implementation in step 3
         fetchImageURLs(from: urlWithCoordinates)
     }
     
     // step 3: using the URL to call Flickr endpoint Api, which returns an encoded json with the urls of images taken around the user location
     func fetchImageURLs(from url: URL) {
                 
-        networkManager.fetchData(from: url) { result in
+        networkManager.fetchData(from: url) { [weak self] (result) in
             
             switch result {
                 
@@ -309,15 +347,16 @@ extension MapVC: JSONDecoding {
                 print("You've got some errors: \(error.localizedDescription)")
                 
             case .success(let data):
-                // see implementation in step 4
-                let decodedData = self.decodeJSON(model: DecodedPhotos.self, from: data)
-                // see implementation in step 5
-                self.parseImageData(from: decodedData)
+                // see implementation in step 3.1
+                if  let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: data) {
+                    // see implementation in step 3.2
+                    self?.parseImageData(from: decodedData)
+                }
             }
         }
     }
     
-    // step 4:  decoding the JSON object returned by the network request
+    // step 3.1:  decoding the JSON object returned by the network request
     func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
         
         let decoder = JSONDecoder()
@@ -331,142 +370,86 @@ extension MapVC: JSONDecoding {
         }
     }
     
-  // step 5:  parsing the decoded data & iterating over each image url, to get the image ID
+  // step 3.2: parsing the decoded data & iterating over each image url, to get the image ID
     func parseImageData<T>(from data: Result<T, Error>) {
         
         switch data {
             
         case .failure(let error):
-            print("Decoding returned with errors: \(error.localizedDescription)")
+            print("Decoding ImageURLs in MapVC returned with errors: \(error.localizedDescription)")
             
         case .success(let decodedPhotos as DecodedPhotos):
-            //print("Here are your photos: \(de.photos.photo)")
+            
             let album = decodedPhotos.photos.photo
-            _ = album.compactMap { photo in
-                
-                if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
-                    guard let coordinates = try? Data(contentsOf: photoCoordinatesURL) else { print("Failed getting coordinates for id: \(photo.id)"); return }
+            
+            _ = album.compactMap { [weak self] photo in
+                                
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                     
+                    // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
+                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
+                        
+                        // step 5: using the url for flickr.photos.geo.getLocation api method, for another network request which returns a json object containing the geographic coordinates for that particular imageID; see method declaration at line 387
+                        fetchImageCoordinates(from: photoCoordinatesURL) { [weak self] (latitude, longitude) in
+                            photoRecord.latitude = latitude
+                            photoRecord.longitude = longitude
+                            self?.fetchImage(for: photoRecord)
+                        }
+                    }
+                    self?.photoAlbum.updateValue(photoRecord, forKey: photo.title)
                 }
-                
-//                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-//                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-//                    photoAlbum[photo.id] = photoRecord
-//                }
             }
-            //print("You've got \(photoAlbum.count) photorecords")
+            print("You've got \(photoAlbum.count) photorecords")
         default:
             print("Default case reached")
         }
     }
     
-//    func getLocationCoordinates() {
-//
-//        guard let currentLocation = locationManager.location?.coordinate else { print ("Coordinates could not be established")
-//            showAlert(message: .allowLocationServices)
-//            return
-//        }
-//
-//        guard let urlWithLocationCoordinates = FlickrURLs.fetchPhotosFromCoordinates(latitude: currentLocation.latitude, longitude: currentLocation.longitude)
-//            else { print ("Could not construct URL for FlickrURLs.fetchPhotosFromCoordinates method")
-//            return
-//        }
-//
-////        fetchImageURLs(from: urlWithLocationCoordinates)
-//        fetchImageURLsWhithNetworkManager(from: urlWithLocationCoordinates)
-//    }
-    
-//    func fetchImageURLsWhithNetworkManager(from url: URL) {
-//
-//        networkManager.fetchData(from: url) { result in
-//
-//            switch result {
-//            case .failure(let error):
-//                print("Network request completed with error: \(error.localizedDescription)")
-//
-//            case .success(let receivedData):
-//                guard let decodedData = self.decodeImageData(from: receivedData, as: JSON.self) else { return }
-//                self.parseImageData(from: decodedData)
-//            }
-//        }
-//    }
-    
-//    func decodeImageData(from data: Data, as contained: JSON.Type) -> JSON.EncodedPhotos? {
-//
-//        let decoder = JSONDecoder()
-//        guard let decodedData = try? decoder.decode(contained.EncodedPhotos.self, from: data) else { print("Parsing JSON returned errors"); return nil }
-//
-//        return decodedData
-//    }
+    func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double?, _ longitude: Double?) -> Void) {
         
-//    func parseImageData(from data: EncodedPhotos) {
-//
-//        let decodedPhotos = data.photos.photo
-//
-//        for photo in decodedPhotos {
-//
-//            guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { print("Failed constructing photoCoordinates URL"); return }
-//            self.fetchImageCoordinates(from: photoCoordinatesURL) { (latitude, longitude) in
-//
-////                guard self != nil else { return }
-//
-//                guard let photoRecordURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") else { return }
-//                let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoRecordURL)
-//                photoRecord.latitude = latitude
-//                photoRecord.longitude = longitude
-//                self.photoAlbum.updateValue(photoRecord, forKey: photo.title)
-//                self.fetchImage(record: photoRecord)
-//            }
-//        }
-//    }
+        networkManager.fetchData(from: url) {[weak self] (result) in
+            
+            switch result {
+                
+            case .failure(let error):
+                print("Decoding ImageGeoData in MapVC returned with error: \(error.localizedDescription)")
+            
+            case .success(let data):
+                // step 5.1: decoding json object;
+                if let decodedData = self?.decodeJSON(model: DecodedGeoData.self, from: data) {
+                    // step 5.2: parsing the json and passing the coordinates to completion handler; see implementation below, at line 408
+                    self?.parseImageCoordinates(from: decodedData) { (latitude, longitude) in
+                        coordinates(latitude, longitude)
+                    }
+                }
+            }
+        }
+    }
+    
+    func parseImageCoordinates(from data: Result<DecodedGeoData, Error>, completion: @escaping (_ latitude: Double?, _ longitude: Double?) -> Void) {
+        
+        switch data {
+            
+        case .failure(let error):
+            print("Error parsing GeoData of images: \(error.localizedDescription)")
+            
+        case .success(let data):
+            let imageLocation = data.photo.location
+            let coordinates = (latitude: Double(imageLocation.latitude), longitude: Double(imageLocation.longitude))
+            completion(coordinates.latitude, coordinates.longitude)
+        }
+    }
 
-//    func fetchImageCoordinates(from url: URL, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) {
-//
-//        networkManager.fetchData(from: url) { [weak self] result in
-//
-//            guard self != nil else { return }
-//
-//            switch result {
-//            case .failure(let error):
-//                print("FetchImageCoordinates completed with error: \(error.localizedDescription)")
-//
-//            case .success(let imageData):
-//
-//                do {
-//                      try self?.decodeImageGeoData(from: imageData) { [weak self] (latitude, longitude) in
-//
-//                          guard self != nil else { return }
-//                              coordinates(latitude, longitude)
-//                            }
-//                  } catch {
-//                      print("Errors: \(error.localizedDescription)")
-//                }
-//            }
-//        }
-//    }
     
-//    func decodeImageGeoData(from data: Data, coordinates: @escaping (_ latitude: Double, _ longitude: Double) -> Void) throws {
-//
-//        let decoder = JSONDecoder()
-//
-//        guard let geoData = try? decoder.decode(DecodedGeoData.self, from: data) else { throw ErrorMessages.errorParsingJSON }
-////        let photoCoordinates = try (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude))
-//        guard let photoCoordinates = try? (latitude: Double(geoData.photo.location.latitude), longitude: Double(geoData.photo.location.longitude)) else { throw ErrorMessages.failedCastingType }
-//        coordinates(photoCoordinates.latitude!, photoCoordinates.longitude!)
-//    }
-    
-    
-    func fetchImage(record: PhotoRecord) {
+    func fetchImage(for photoRecord: PhotoRecord) {
         
-//        print("fetchImage(recod:) called")
-        let imageFetcher = ImageFetcher(photo: record)
+        let imageFetcher = ImageFetcher(photo: photoRecord)
         pendingOperations.downloadQueue.addOperation(imageFetcher)
         
         imageFetcher.completionBlock = {
-            DispatchQueue.main.async {
-//                print("Image named: \(record.name) has been successfully fetched")
-                self.dropPin(for: record)
-            }
+            
+            self.dropPin(for: photoRecord)
         }
     }
     
@@ -474,14 +457,25 @@ extension MapVC: JSONDecoding {
     
         
     func dropPin(for photoRecord: PhotoRecord) {
-//        print("dropPin(for record:) called")
         
         guard let photoLatitude = photoRecord.latitude,
             let photoLongitude = photoRecord.longitude else {return}
         
-        let pointAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
+//        let flickrAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
+//        flickrAnnotation.title = photoRecord.name
+//        flickrAnnotation.image = photoRecord.image
+        
+        let pointAnnotation = MKPointAnnotation()
+        pointAnnotation.coordinate.latitude = photoLatitude
+        pointAnnotation.coordinate.longitude = photoLongitude
         pointAnnotation.title = photoRecord.name
-        pinAnnotations.append(pointAnnotation)        
+       
+        DispatchQueue.main.async {
+            let annotationView = MKAnnotationView()
+            annotationView.annotation = pointAnnotation
+            annotationView.image = photoRecord.image
+            self.annotationsList.append(annotationView)
+        }
     }
 }
 

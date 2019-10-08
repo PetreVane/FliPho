@@ -37,10 +37,7 @@ class PhotosVC: UICollectionViewController, OperationsManagement {
         fetchPhotoURLs(from: userPhotosURL)
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(true)
-        
-    }
+
 }
 
 
@@ -61,17 +58,18 @@ extension PhotosVC: JSONDecoding {
         
         guard let userPhotosURL = url else { return }
 
-        networkManager.fetchData(from: userPhotosURL) { result in
+        networkManager.fetchData(from: userPhotosURL) { [weak self] (result) in
             
             switch result {
                 
             case .failure(let error):
-                self.showAlert(with: error.localizedDescription)
+                self?.showAlert(with: error.localizedDescription)
                 
             case .success(let data):
-                print(data.description)
-                let decodedData = self.decodeJSON(model: DecodedPhotos.self, from: data)
-                self.parseData(from: decodedData)
+                if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: data) {
+                    self?.parseData(from: decodedData)
+                }
+                
             }
         }
     }
@@ -98,7 +96,7 @@ extension PhotosVC: JSONDecoding {
             print("errors enountered while decoding: \(error.localizedDescription)")
             
         case .success(let photos as DecodedPhotos):
-            print("something")
+            
             let userAlbum = photos.photos.photo
             _ = userAlbum.compactMap { photo in
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
@@ -256,10 +254,16 @@ extension PhotosVC {
         switch (currentRecord.state) {
             
         case .new:
-            startOperations(for: currentRecord, indexPath: indexPath)
+            if !collectionView.isDragging && !collectionView.isDecelerating {
+                startOperations(for: currentRecord, indexPath: indexPath)
+            }
+            
         
         case .downloaded:
-            print("Image downloaded at indexPath: \(indexPath.item)")
+            if !collectionView.isDragging && !collectionView.isDecelerating {
+                
+             }
+//            print("Image downloaded at indexPath: \(indexPath.item)")
 //            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
 //                if !collectionView.isDragging && !collectionView.isDecelerating {
 //                    cell.imageView.image = imageFromCache as? UIImage
