@@ -29,10 +29,13 @@ class PhotoRecord {
     
     
     init(name: String, imageUrl: URL) {
+        
         self.name = name
         self.imageUrl = imageUrl
-        
     }
     
 }
+
+
+
 

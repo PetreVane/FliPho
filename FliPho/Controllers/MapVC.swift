@@ -15,12 +15,12 @@ import CoreLocation
 
 class MapVC: UIViewController {
     
-    fileprivate var location = CLLocationManager()
+    fileprivate let location = CLLocationManager()
     fileprivate let authorizationStatus = CLLocationManager.authorizationStatus()
     fileprivate let areaInMeters: Double = 5000
     fileprivate var photoAlbum: [String : PhotoRecord] = [:]
     fileprivate let pendingOperations = PendingOperations()
-    fileprivate var annotationsList: [MKAnnotationView] = []
+    fileprivate var annotationsList: [MKAnnotation] = []
     fileprivate let networkManager = NetworkManager()
     
     
@@ -36,7 +36,8 @@ class MapVC: UIViewController {
         location.delegate = self
     
         confirmLocationServicesAreON()
-//        print("Auth status is: \(authorizationStatus.rawValue)")
+        getUserCoordinatesFrom(location)
+
     }
     
     @IBAction func locationButtonPressed(_ sender: UIButton) {
@@ -150,7 +151,6 @@ class MapVC: UIViewController {
         switch authorizationStatus {
             
         case .authorizedAlways, .authorizedWhenInUse:
-            getUserCoordinatesFrom(location)
             centerMapOnUser(location)
             
         default:
@@ -164,7 +164,6 @@ class MapVC: UIViewController {
 
 extension MapVC: MKMapViewDelegate {
     
-
     
     /// Centers the map on user location
     /// - Parameter location: Reference to location object that you use to start and stop the delivery of location-related events.
@@ -185,7 +184,7 @@ extension MapVC: MKMapViewDelegate {
 
     }
     
-    /// Shows objects on map
+    /// Sets annotations on map
     /// - Parameter mapView: Reference to an embeddable map interface, similar to the one provided by the Maps application.
     /// - Parameter annotation: Reference to an interface for associating your content with a specific map location.
     
@@ -195,38 +194,24 @@ extension MapVC: MKMapViewDelegate {
             return nil
         }
 
-        let reuseIdentifier = "flickrAnnotation"
+        let reuseIdentifier = "FlickrAnnotation"
         var markerAnnotation: MKMarkerAnnotationView
-
+        
         if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
             dequedAnnotation.annotation = annotation
             markerAnnotation = dequedAnnotation
-            markerAnnotation.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
-            
+
         } else {
+            
             markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        
-//            markerAnnotation.canShowCallout = true
             markerAnnotation.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
             markerAnnotation.clusteringIdentifier = reuseIdentifier
-
+            markerAnnotation.canShowCallout = true
+    
         }
 
-    //         here annotation refers to annotationPoint declared in dropPin method
-//            guard let annotationTitle = annotation.title as? String else { print(" Failed casting annotation title as string")
-//                return nil
-//            }
-//            if let record = photoAlbum[annotationTitle] {
-//
-//                DispatchQueue.main.async {
-//                    annotationImageView.image = record.image
-//                }
-//            }
+        markerAnnotation.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
         
-//        let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
-
-//        markerAnnotation.leftCalloutAccessoryView = annotationImageView
-//        markerAnnotation.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
 
         return markerAnnotation
     }
@@ -236,27 +221,32 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-//        print("Annotation has been selected")
         
+        guard let customAnnotation = view.annotation as? FlickrAnnotation else { print("Failed casting view as Flickr Annotation (line 225)"); return }
         
-//        if let customAnnotation = view as? MKAnnotation {
-//            let imageTitle = customAnnotation.title
-//            print("Image title: \(String(describing: imageTitle))")
-//        } else {
-//            print("This annotation cannot be downgraded")
-//        }
-    }
-    
-//    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
-//        <#code#>
-//    }
-    
-    func mapViewDidFinishLoadingMap(_ mapView: MKMapView) {
+        view.canShowCallout = true
+
+        guard let recordIdentifier = customAnnotation.identifier else { print("Failed getting annotation id for record"); return }
+        guard let photoRecord = photoAlbum[recordIdentifier] else { print("Failed getting photoRecord from dictionary"); return }
         
-        DispatchQueue.main.async {
-            self.mapView.addAnnotations(self.annotationsList as! [MKAnnotation])
+        fetchImage(for: photoRecord) { (image) in
+
+            DispatchQueue.main.async {
+                let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
+                annotationImageView.image = image
+                view.leftCalloutAccessoryView = annotationImageView
+            }
         }
     }
+    
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+
+        view.leftCalloutAccessoryView = nil
+        view.tintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
+        
+    }
+    
+    
 }
 
 // MARK: - Location Delegate methods
@@ -394,10 +384,9 @@ extension MapVC: JSONDecoding {
                         fetchImageCoordinates(from: photoCoordinatesURL) { [weak self] (latitude, longitude) in
                             photoRecord.latitude = latitude
                             photoRecord.longitude = longitude
-                            self?.fetchImage(for: photoRecord)
+                            self?.addMapAnnotation(for: photoRecord)
                         }
                     }
-                    self?.photoAlbum.updateValue(photoRecord, forKey: photo.title)
                 }
             }
             print("You've got \(photoAlbum.count) photorecords")
@@ -442,40 +431,42 @@ extension MapVC: JSONDecoding {
     }
 
     
-    func fetchImage(for photoRecord: PhotoRecord) {
+    func fetchImage(for photoRecord: PhotoRecord, completion: @escaping (_ image: UIImage?) -> Void) {
+        
+        var recordImage: UIImage?
         
         let imageFetcher = ImageFetcher(photo: photoRecord)
         pendingOperations.downloadQueue.addOperation(imageFetcher)
         
         imageFetcher.completionBlock = {
             
-            self.dropPin(for: photoRecord)
+            DispatchQueue.main.async {
+                recordImage = photoRecord.image
+                completion(recordImage)
+            }
         }
     }
     
     // MARK: - Showing Pins
     
         
-    func dropPin(for photoRecord: PhotoRecord) {
+    func addMapAnnotation(for photoRecord: PhotoRecord) {
         
+        // annotation coordinates
         guard let photoLatitude = photoRecord.latitude,
             let photoLongitude = photoRecord.longitude else {return}
-        
-//        let flickrAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
-//        flickrAnnotation.title = photoRecord.name
-//        flickrAnnotation.image = photoRecord.image
-        
-        let pointAnnotation = MKPointAnnotation()
-        pointAnnotation.coordinate.latitude = photoLatitude
-        pointAnnotation.coordinate.longitude = photoLongitude
-        pointAnnotation.title = photoRecord.name
-       
+                
+        let customAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
+        customAnnotation.title = photoRecord.name
+        customAnnotation.identifier = photoRecord.imageUrl.absoluteString
+        photoAlbum.updateValue(photoRecord, forKey: customAnnotation.identifier ?? "randomID")
+    // showing annotation
         DispatchQueue.main.async {
-            let annotationView = MKAnnotationView()
-            annotationView.annotation = pointAnnotation
-            annotationView.image = photoRecord.image
-            self.annotationsList.append(annotationView)
+            self.mapView.addAnnotation(customAnnotation)
         }
+        
+        
+
     }
 }
 
