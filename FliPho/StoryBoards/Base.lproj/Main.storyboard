@@ -41,7 +41,7 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="tableImageView" destination="gzw-gp-7FP" id="gM2-sN-dAq"/>
-                                    <segue destination="JSR-GW-CV6" kind="showDetail" identifier="feedPhotoDetails" id="gj7-Bj-pzg"/>
+                                    <segue destination="IFf-Eh-tJS" kind="show" identifier="feedPhotoDetails" id="LTg-4c-bw8"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -144,7 +144,7 @@
                                 <size key="customSize" width="250" height="250"/>
                                 <connections>
                                     <outlet property="imageView" destination="kee-5D-uGx" id="CKa-RU-kqb"/>
-                                    <segue destination="JSR-GW-CV6" kind="showDetail" identifier="userPhotoDetails" id="dcZ-qh-hH0"/>
+                                    <segue destination="IFf-Eh-tJS" kind="show" identifier="userPhotoDetails" id="ufc-6L-dsy"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
@@ -321,25 +321,6 @@
             </objects>
             <point key="canvasLocation" x="-1310.144927536232" y="-167.41071428571428"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="LQH-W7-ffC">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="nVV-cX-CC2" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationItem key="navigationItem" id="lQT-3U-dBp"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="7lv-tP-Azp">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="JSR-GW-CV6" kind="relationship" relationship="rootViewController" id="cq6-NT-E0e"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="ejX-Dj-04V" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-2917" y="1511"/>
-        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="n8Q-PG-GdL">
             <objects>
@@ -362,15 +343,70 @@
             </objects>
             <point key="canvasLocation" x="-2917" y="-167"/>
         </scene>
-        <!--Second-->
-        <scene sceneID="F1M-OZ-tfE">
+        <!--Photo DetailsVC-->
+        <scene sceneID="V5D-65-qcx">
             <objects>
-                <viewControllerPlaceholder storyboardName="Second" id="JSR-GW-CV6" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="gtc-df-TRH"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tYP-MZ-2MO" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <viewController id="IFf-Eh-tJS" customClass="PhotoDetailsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Bm8-3L-PJq">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QnV-FJ-TSc">
+                                <rect key="frame" x="0.0" y="44" width="414" height="808"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="I2r-Ll-EB5">
+                                        <rect key="frame" x="0.0" y="49" width="414" height="429"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="I2r-Ll-EB5" secondAttribute="trailing" id="5Gh-o3-g9y"/>
+                                    <constraint firstAttribute="bottom" secondItem="I2r-Ll-EB5" secondAttribute="bottom" constant="286" id="9o8-2G-2x8"/>
+                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="leading" secondItem="7bh-wp-VSw" secondAttribute="leading" id="Fyj-MJ-1Df"/>
+                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="centerX" secondItem="QnV-FJ-TSc" secondAttribute="centerX" id="T3G-Qw-f5n"/>
+                                    <constraint firstItem="7bh-wp-VSw" firstAttribute="bottom" secondItem="I2r-Ll-EB5" secondAttribute="bottom" constant="286" id="dVl-76-YaK"/>
+                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="top" secondItem="7bh-wp-VSw" secondAttribute="top" constant="93" id="rhc-fQ-eCm"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="RNf-Ms-tQL"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="7bh-wp-VSw"/>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="QnV-FJ-TSc" firstAttribute="centerY" secondItem="Bm8-3L-PJq" secondAttribute="centerY" id="B4U-FH-5eU"/>
+                            <constraint firstItem="QnV-FJ-TSc" firstAttribute="top" secondItem="Bm8-3L-PJq" secondAttribute="topMargin" constant="-44" id="Cgt-bJ-bJR"/>
+                            <constraint firstItem="QnV-FJ-TSc" firstAttribute="centerX" secondItem="Bm8-3L-PJq" secondAttribute="centerX" id="hpe-Vb-QKG"/>
+                            <constraint firstItem="QnV-FJ-TSc" firstAttribute="leading" secondItem="8mI-IA-T4F" secondAttribute="leading" id="kpO-9D-9vy"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="8mI-IA-T4F"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="4eR-3s-zQc"/>
+                    <connections>
+                        <outlet property="imageView" destination="I2r-Ll-EB5" id="Jyt-u8-dsg"/>
+                        <outlet property="scrollView" destination="QnV-FJ-TSc" id="FSt-6C-LdK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="YVg-PH-eRV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1529" y="1512"/>
+            <point key="canvasLocation" x="-1671" y="1632"/>
+        </scene>
+        <!--Navigation-->
+        <scene sceneID="yGq-GP-Clh">
+            <objects>
+                <navigationController wantsFullScreenLayout="YES" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="fullScreen" id="5Yt-zV-qta" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" title="Navigation" id="HAo-JZ-bgq"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Sz4-tE-lNg">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="IFf-Eh-tJS" kind="relationship" relationship="rootViewController" id="ze5-dC-xD2"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fbA-81-KRm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2917" y="1632"/>
         </scene>
     </scenes>
     <resources>
@@ -381,6 +417,6 @@
         <image name="locationbutton" width="67" height="67"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="dcZ-qh-hH0"/>
+        <segue reference="ze5-dC-xD2"/>
     </inferredMetricsTieBreakers>
 </document>

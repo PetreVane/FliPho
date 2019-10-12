@@ -324,6 +324,7 @@ extension FeedsVC {
         let rowImage = photoRecords[indexPath.row].image
         
         if segue.identifier == feedImageDetails {
+       
             destinationVC.selectedImage = rowImage
         }
     }

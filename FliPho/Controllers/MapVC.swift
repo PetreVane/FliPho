@@ -194,7 +194,7 @@ extension MapVC: MKMapViewDelegate {
             return nil
         }
 
-        let reuseIdentifier = "FlickrAnnotation"
+        let reuseIdentifier = "flickrAnnotation"
         var markerAnnotation: MKMarkerAnnotationView
         
         if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
