@@ -26,31 +26,17 @@ class ImageFetcher: Operation {
         
         
         if let imageData = try? Data(contentsOf: photo.imageUrl) {
-            
-            photo.image = UIImage(data: imageData)
-            photo.state = .downloaded
-            
-        } else {
-            
-            photo.image = nil
-            photo.state = .failed
-            print("Failed fetching image")
+
+            if !imageData.isEmpty {
+                photo.image = UIImage(data: imageData)
+                photo.state = .downloaded
+
+            } else {
+                photo.image = nil
+                photo.state = .failed
+                print("Failed fetching image")
+            }
         }
-      
-//        guard let imageData = try? Data(contentsOf: photo.imageUrl) else { return }
-//        
-//        if !imageData.isEmpty {
-//            
-//            photo.image = UIImage(data: imageData)
-//            photo.state = .downloaded
-//            
-//        } else {
-//            
-//            photo.image = UIImage(named: "Could not fetch image")
-//            photo.state = .failed
-//            print("Failed fetching image")
-//        }
     }
-    
 }
 

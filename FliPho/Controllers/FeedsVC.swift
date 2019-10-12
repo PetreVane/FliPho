@@ -27,19 +27,6 @@ class FeedsVC: UITableViewController {
         fetchImageURLs(from: flickrURL)
     }
     
-    // MARK: - Navigation
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        if segue.identifier == toPhotoDetails {
-            
-            guard let indexPath = tableView.indexPathForSelectedRow else { return }
-            guard let destinationVC = segue.destination as? PhotoDetailsVC else {print("No destination for segue"); return }
-            let rowImage = photoRecords[indexPath.row].image
-            destinationVC.selectedImage = rowImage
-        }
-    }
-    
 }
 
  // MARK: - Networking
@@ -223,8 +210,8 @@ extension FeedsVC: OperationsManagement {
                 }
                 pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
                 // unloads from memory images that are no longer visible
-//                photoRecords[indexPath.row].image = nil
-//                photoRecords[indexPath.row].state = .new
+                photoRecords[indexPath.row].image = nil
+                photoRecords[indexPath.row].state = .new
             }
             
             // looping through the list of operations to be started and starting them
@@ -295,14 +282,9 @@ extension FeedsVC {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        performSegue(withIdentifier: toPhotoDetails, sender: nil)
         
     }
-    
-    override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        photoRecords[indexPath.row].image = nil
-//        photoRecords[indexPath.row].state = .new
-    }
+
     
     // MARK: - ScrollView delegate methods
     
@@ -325,8 +307,24 @@ extension FeedsVC {
         
         loadImagesOnVisibleRows()
         resumeOperations()
-        
 
     }
 }
 
+
+    
+    // MARK: - Navigation
+       
+extension FeedsVC {
+    
+       override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        guard let indexPath = tableView.indexPathForSelectedRow else { return }
+        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
+        let rowImage = photoRecords[indexPath.row].image
+        
+        if segue.identifier == feedImageDetails {
+            destinationVC.selectedImage = rowImage
+        }
+    }
+}

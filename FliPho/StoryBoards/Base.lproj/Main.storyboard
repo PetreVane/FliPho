@@ -41,6 +41,7 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="tableImageView" destination="gzw-gp-7FP" id="gM2-sN-dAq"/>
+                                    <segue destination="JSR-GW-CV6" kind="showDetail" identifier="feedPhotoDetails" id="gj7-Bj-pzg"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -50,13 +51,10 @@
                         </connections>
                     </tableView>
                     <tabBarItem key="tabBarItem" title="My Feeds" image="Feed" id="YTh-Ku-Ifd"/>
-                    <connections>
-                        <segue destination="nVV-cX-CC2" kind="presentation" identifier="toPhotoDetails" id="ets-6u-5eu"/>
-                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d4h-dN-3WE" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2884" y="676"/>
+            <point key="canvasLocation" x="-2917" y="676"/>
         </scene>
         <!--LoginVC-->
         <scene sceneID="Xc7-Qo-l9V">
@@ -146,6 +144,7 @@
                                 <size key="customSize" width="250" height="250"/>
                                 <connections>
                                     <outlet property="imageView" destination="kee-5D-uGx" id="CKa-RU-kqb"/>
+                                    <segue destination="JSR-GW-CV6" kind="showDetail" identifier="userPhotoDetails" id="dcZ-qh-hH0"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
@@ -158,7 +157,7 @@
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sDx-Ug-1ek" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2017" y="676"/>
+            <point key="canvasLocation" x="-1671" y="676"/>
         </scene>
         <!--Around Me-->
         <scene sceneID="cy0-U5-Adc">
@@ -201,7 +200,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z5p-ZJ-Wjp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1006" y="676"/>
+            <point key="canvasLocation" x="-649" y="676"/>
         </scene>
         <!--My Account-->
         <scene sceneID="nl3-1d-b7S">
@@ -329,7 +328,7 @@
                     <toolbarItems/>
                     <navigationItem key="navigationItem" id="lQT-3U-dBp"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="7lv-tP-Azp">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="56"/>
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -339,7 +338,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ejX-Dj-04V" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2884" y="1501"/>
+            <point key="canvasLocation" x="-2917" y="1511"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="n8Q-PG-GdL">
@@ -381,4 +380,7 @@
         <image name="ic_add_location_24px" width="25" height="25"/>
         <image name="locationbutton" width="67" height="67"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="dcZ-qh-hH0"/>
+    </inferredMetricsTieBreakers>
 </document>

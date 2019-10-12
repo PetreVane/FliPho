@@ -216,12 +216,14 @@ extension PhotosVC {
             operationsToBeStarted.subtract(allPendingOperations)
             
             // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
-            for operationIndexPath in operationsToBeCancelled {
+            for indexPath in operationsToBeCancelled {
                 
-                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
+                if let pendingDownload = pendingOperations.downloadInProgress[indexPath] {
                     pendingDownload.cancel()
                 }
-                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+                pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+                userPhotoRecords[indexPath.row].image = nil
+                userPhotoRecords[indexPath.row].state = .new
             }
             
             // looping through the list of operations to be started and starting them
@@ -330,10 +332,6 @@ extension PhotosVC {
         resumeOperations()
     }
     
-    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        userPhotoRecords[indexPath.item].image = nil
-        userPhotoRecords[indexPath.item].state = .new
-    }
 }
 
  // MARK: - Navigation
@@ -341,14 +339,19 @@ extension PhotosVC {
 
 extension PhotosVC {
     
-    /*
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using [segue destinationViewController].
-     // Pass the selected object to the new view controller.
-     }
-     */
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            
+        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
+        guard let indexPath = indexPaths.first else { return }
+        let cellImage = userPhotoRecords[indexPath.item].image
+        
+        if segue.identifier == userImageDetails {
+            destinationVC.selectedImage = cellImage
+            
+        }
+    }
 }
 
 

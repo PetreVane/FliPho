@@ -374,7 +374,7 @@ extension MapVC: JSONDecoding {
             
             _ = album.compactMap { [weak self] photo in
                                 
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                     
                     // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
@@ -389,7 +389,6 @@ extension MapVC: JSONDecoding {
                     }
                 }
             }
-            print("You've got \(photoAlbum.count) photorecords")
         default:
             print("Default case reached")
         }
