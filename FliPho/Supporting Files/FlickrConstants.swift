@@ -12,6 +12,7 @@ import Foundation
 // segue identifiers
 let mainMenu = "mainMenu"
 let logout = "logout"
+let toPhotoDetails = "toPhotoDetails"
 
 // MARK: Constants
 

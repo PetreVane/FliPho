@@ -26,7 +26,20 @@ class FeedsVC: UITableViewController {
         let flickrURL = FlickrURLs.fetchInterestingPhotos()
         fetchImageURLs(from: flickrURL)
     }
-
+    
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == toPhotoDetails {
+            
+            guard let indexPath = tableView.indexPathForSelectedRow else { return }
+            guard let destinationVC = segue.destination as? PhotoDetailsVC else {print("No destination for segue"); return }
+            let rowImage = photoRecords[indexPath.row].image
+            destinationVC.selectedImage = rowImage
+        }
+    }
+    
 }
 
  // MARK: - Networking
@@ -80,7 +93,7 @@ extension FeedsVC: JSONDecoding {
             let album = photos.photos.photo
             _ = album.compactMap { photo in
                 
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_z.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                     self.photoRecords.append(photoRecord)
                 }
@@ -145,7 +158,7 @@ extension FeedsVC: OperationsManagement {
      func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
         
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
-        
+//        print("Image url: \(photoRecord.imageUrl.absoluteString)")
         let imageFetching = ImageFetcher(photo: photoRecord)
         
         pendingOperations.downloadInProgress.updateValue(imageFetching, forKey: indexPath)
@@ -162,8 +175,8 @@ extension FeedsVC: OperationsManagement {
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
                 
             }
-//            self.pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
         }
+//        print("Your pendingOperation dict has: \(pendingOperations.downloadInProgress.count) downloads in progress")
     }
     
      func suspendOperations() {
@@ -203,12 +216,15 @@ extension FeedsVC: OperationsManagement {
             operationsToBeStarted.subtract(allPendingOperations)
             
             // looping through the list of operations to be cancelled, cancelling them and removing their reference from downloadInProgress
-            for operationIndexPath in operationsToBeCancelled {
+            for indexPath in operationsToBeCancelled {
                 
-                if let pendingDownload = pendingOperations.downloadInProgress[operationIndexPath] {
+                if let pendingDownload = pendingOperations.downloadInProgress[indexPath] {
                     pendingDownload.cancel()
                 }
-                pendingOperations.downloadInProgress.removeValue(forKey: operationIndexPath)
+                pendingOperations.downloadInProgress.removeValue(forKey: indexPath)
+                // unloads from memory images that are no longer visible
+//                photoRecords[indexPath.row].image = nil
+//                photoRecords[indexPath.row].state = .new
             }
             
             // looping through the list of operations to be started and starting them
@@ -279,11 +295,13 @@ extension FeedsVC {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+        performSegue(withIdentifier: toPhotoDetails, sender: nil)
+        
     }
     
     override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        photoRecords[indexPath.row].image = nil
-        photoRecords[indexPath.row].state = .new
+//        photoRecords[indexPath.row].image = nil
+//        photoRecords[indexPath.row].state = .new
     }
     
     // MARK: - ScrollView delegate methods
@@ -312,18 +330,3 @@ extension FeedsVC {
     }
 }
 
-// MARK: - Navigation
-
-
-extension FeedsVC {
-    
-    /*
-    
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
-    
-}

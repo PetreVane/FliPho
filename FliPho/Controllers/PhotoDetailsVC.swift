@@ -9,22 +9,34 @@
 import UIKit
 
 class PhotoDetailsVC: UIViewController {
-
+    
+    var selectedImage: UIImage?
+    
+    @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet weak var imageView: UIImageView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        scrollView.delegate = self
 
-        // Do any additional setup after loading the view.
+        
+        imageView.image = selectedImage
+        
+        scrollViewProperties()
     }
     
+}
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+extension PhotoDetailsVC: UIScrollViewDelegate {
+    
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imageView
     }
-    */
-
+    
+    func scrollViewProperties() {
+        
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 3
+        scrollView.zoomScale = 1
+    }
 }
