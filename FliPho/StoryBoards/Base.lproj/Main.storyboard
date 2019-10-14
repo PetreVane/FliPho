@@ -196,6 +196,7 @@
                     <tabBarItem key="tabBarItem" title="Around Me" image="ic_add_location_24px" id="8OX-zN-Ua2"/>
                     <connections>
                         <outlet property="mapView" destination="p7y-s8-sYx" id="dL7-ai-UqF"/>
+                        <segue destination="IFf-Eh-tJS" kind="show" identifier="annotationDetails" id="RnV-wF-dZh"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="z5p-ZJ-Wjp" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -348,7 +349,7 @@
             <objects>
                 <viewController id="IFf-Eh-tJS" customClass="PhotoDetailsVC" customModule="FliPho" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Bm8-3L-PJq">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="842"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QnV-FJ-TSc">
@@ -380,7 +381,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YVg-PH-eRV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1671.0144927536232" y="1631.9196428571429"/>
+            <point key="canvasLocation" x="-649" y="1632"/>
         </scene>
         <!--Navigation-->
         <scene sceneID="yGq-GP-Clh">
@@ -410,6 +411,6 @@
         <image name="locationbutton" width="67" height="67"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="ze5-dC-xD2"/>
+        <segue reference="RnV-wF-dZh"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -14,6 +14,7 @@ let mainMenu = "mainMenu"
 let logout = "logout"
 let feedImageDetails = "feedPhotoDetails"
 let userImageDetails = "userPhotoDetails"
+let annotationImageDetails = "annotationDetails"
 
 // MARK: Constants
 

@@ -200,14 +200,14 @@ extension MapVC: MKMapViewDelegate {
         if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
             dequedAnnotation.annotation = annotation
             markerAnnotation = dequedAnnotation
-            markerAnnotation.clusteringIdentifier = reuseIdentifier
+//            markerAnnotation.clusteringIdentifier = reuseIdentifier
             markerAnnotation.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
 
         } else {
             
             markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
             markerAnnotation.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-            markerAnnotation.clusteringIdentifier = reuseIdentifier
+//            markerAnnotation.clusteringIdentifier = reuseIdentifier
             markerAnnotation.canShowCallout = true
     
         }
@@ -219,7 +219,7 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-//        print("Button pressed: trigger segue here")
+        performSegue(withIdentifier: annotationImageDetails, sender: view)
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
@@ -227,7 +227,6 @@ extension MapVC: MKMapViewDelegate {
         guard let customAnnotation = view.annotation as? FlickrAnnotation else { print("Failed casting view as Flickr Annotation (line 227)"); return }
         
         if customAnnotation.isKind(of: FlickrAnnotation.self) {
-//            print("success casting annotation as FlickrAnnotation")
             view.canShowCallout = true
             guard let recordIdentifier = customAnnotation.identifier else { print("Failed getting annotation id for record"); return }
             guard let photoRecord = photoAlbum[recordIdentifier] else { print("Failed getting photoRecord from dictionary"); return }
@@ -379,7 +378,7 @@ extension MapVC: JSONDecoding {
             
             _ = album.compactMap { [weak self] photo in
                                 
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
+                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
                     
                     // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
@@ -486,17 +485,15 @@ extension MapVC {
      
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             
-//        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
-//        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
-//        guard let indexPath = indexPaths.first else { return }
-//        let cellImage = userPhotoRecords[indexPath.item].image
-//        let photoRecord = userPhotoRecords[indexPath.item]
+        guard let sender = sender as? MKAnnotationView else { print("Sender is not an annotation"); return }
+        guard let annotation = sender.annotation as? FlickrAnnotation else { print("Cannot cast segue-sender as FlickrAnnotation"); return }
+        guard let recordIdentifier = annotation.identifier else { print("No annotation with this identifier"); return }
+        guard let photoRecord = photoAlbum[recordIdentifier] else { print("Cannot retrieve photoRecord with this annotation identifier"); return }
         
         guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
-        if segue.identifier == userImageDetails {
-            
-//            destinationVC.delegatedPhotoRecord = photoRecord
-            
+        
+        if segue.identifier == annotationImageDetails {
+            destinationVC.delegatedPhotoRecord = photoRecord
         }
     }
     

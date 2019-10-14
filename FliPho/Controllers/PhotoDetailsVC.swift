@@ -11,7 +11,6 @@ import UIKit
 class PhotoDetailsVC: UIViewController {
     
     weak var delegatedPhotoRecord: PhotoRecord?
-//    weak var networkManager: NetworkManager?
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
@@ -21,14 +20,17 @@ class PhotoDetailsVC: UIViewController {
         
         // delegation
         scrollView.delegate = self
-        imageView.image = delegatedPhotoRecord?.image
+        guard let photoRecord = delegatedPhotoRecord else { print("No photoRecord passed to PhotoDetails ViewController"); return }
+        imageView.image = photoRecord.image
+        
+        
                     
         // scrollView methods
         zoomParameters(scrollView.bounds.size)
         centerImage()
         
         // networking
-        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: delegatedPhotoRecord!.photoID) else { return }
+        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
         fetchCommentsFrom(commentsURL)
     }
     
@@ -78,7 +80,7 @@ extension PhotoDetailsVC: JSONDecoding {
             
         case .success(let decodedComments):
             let commentsList = decodedComments.comments.comment
-            print("Here is your comment: \(commentsList)")
+//            print("Here is your comment: \(commentsList)")
             
         case .none:
             print("No data to be decoded")

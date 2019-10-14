@@ -137,14 +137,13 @@ struct Comment: Codable {
     let iconfarm: Int
     let datecreate: String
     let permalink: String
-    let pathAlias, realname, content: String
+    let realname, content: String
 
     enum CodingKeys: String, CodingKey {
         
         case id, author
         case authorIsDeleted = "author_is_deleted"
         case authorname, iconserver, iconfarm, datecreate, permalink
-        case pathAlias = "path_alias"
         case realname
         case content = "_content"
     }

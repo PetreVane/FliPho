@@ -36,7 +36,7 @@ struct FlickrURLs {
         
         // flickr.interestingness.getList
 
-        guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key=\(consumerKey)&per_page=250&page=&format=json&nojsoncallback=1")
+        guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key=\(consumerKey)&date=2019-01-01&per_page=250&page=&format=json&nojsoncallback=1")
             else { return URL(string: "No valid url for flickr.interestingness.getList ")
         }
 //        print("Interesting url: \(url.absoluteString)")
