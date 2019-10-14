@@ -77,6 +77,7 @@ struct Photos: Codable {
         
         case photo
     }
+    
 
 struct Photo: Codable {
     

@@ -351,21 +351,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QnV-FJ-TSc">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QnV-FJ-TSc">
                                 <rect key="frame" x="0.0" y="44" width="414" height="808"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="I2r-Ll-EB5">
-                                        <rect key="frame" x="0.0" y="49" width="414" height="429"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="I2r-Ll-EB5">
+                                        <rect key="frame" x="0.0" y="49" width="414" height="629"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                     </imageView>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="I2r-Ll-EB5" secondAttribute="trailing" id="5Gh-o3-g9y"/>
-                                    <constraint firstAttribute="bottom" secondItem="I2r-Ll-EB5" secondAttribute="bottom" constant="286" id="9o8-2G-2x8"/>
-                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="leading" secondItem="7bh-wp-VSw" secondAttribute="leading" id="Fyj-MJ-1Df"/>
-                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="centerX" secondItem="QnV-FJ-TSc" secondAttribute="centerX" id="T3G-Qw-f5n"/>
-                                    <constraint firstItem="7bh-wp-VSw" firstAttribute="bottom" secondItem="I2r-Ll-EB5" secondAttribute="bottom" constant="286" id="dVl-76-YaK"/>
-                                    <constraint firstItem="I2r-Ll-EB5" firstAttribute="top" secondItem="7bh-wp-VSw" secondAttribute="top" constant="93" id="rhc-fQ-eCm"/>
-                                </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="RNf-Ms-tQL"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="7bh-wp-VSw"/>
                             </scrollView>
@@ -387,7 +380,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YVg-PH-eRV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-1671" y="1632"/>
+            <point key="canvasLocation" x="-1671.0144927536232" y="1631.9196428571429"/>
         </scene>
         <!--Navigation-->
         <scene sceneID="yGq-GP-Clh">

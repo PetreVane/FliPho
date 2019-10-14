@@ -200,6 +200,8 @@ extension MapVC: MKMapViewDelegate {
         if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
             dequedAnnotation.annotation = annotation
             markerAnnotation = dequedAnnotation
+            markerAnnotation.clusteringIdentifier = reuseIdentifier
+            markerAnnotation.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
 
         } else {
             
@@ -222,19 +224,21 @@ extension MapVC: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
-        guard let customAnnotation = view.annotation as? FlickrAnnotation else { print("Failed casting view as Flickr Annotation (line 225)"); return }
+        guard let customAnnotation = view.annotation as? FlickrAnnotation else { print("Failed casting view as Flickr Annotation (line 227)"); return }
         
-        view.canShowCallout = true
+        if customAnnotation.isKind(of: FlickrAnnotation.self) {
+//            print("success casting annotation as FlickrAnnotation")
+            view.canShowCallout = true
+            guard let recordIdentifier = customAnnotation.identifier else { print("Failed getting annotation id for record"); return }
+            guard let photoRecord = photoAlbum[recordIdentifier] else { print("Failed getting photoRecord from dictionary"); return }
+            
+            fetchImage(for: photoRecord) { (image) in
 
-        guard let recordIdentifier = customAnnotation.identifier else { print("Failed getting annotation id for record"); return }
-        guard let photoRecord = photoAlbum[recordIdentifier] else { print("Failed getting photoRecord from dictionary"); return }
-        
-        fetchImage(for: photoRecord) { (image) in
-
-            DispatchQueue.main.async {
-                let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
-                annotationImageView.image = image
-                view.leftCalloutAccessoryView = annotationImageView
+                DispatchQueue.main.async {
+                    let annotationImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 53, height: 53))
+                    annotationImageView.image = image
+                    view.leftCalloutAccessoryView = annotationImageView
+                }
             }
         }
     }
@@ -242,7 +246,7 @@ extension MapVC: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
 
         view.leftCalloutAccessoryView = nil
-        view.tintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
+        
         
     }
     
@@ -334,6 +338,7 @@ extension MapVC: JSONDecoding {
             switch result {
                 
             case .failure(let error):
+                // remember to add an alert 
                 print("You've got some errors: \(error.localizedDescription)")
                 
             case .success(let data):
@@ -376,6 +381,7 @@ extension MapVC: JSONDecoding {
                                 
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
                     
                     // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
                     if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {

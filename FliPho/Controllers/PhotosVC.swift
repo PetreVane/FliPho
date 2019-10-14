@@ -102,6 +102,8 @@ extension PhotosVC: JSONDecoding {
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                     self.userPhotoRecords.append(photoRecord)
+//                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
+
                 }
             }
         case .success(_):
@@ -171,7 +173,6 @@ extension PhotosVC {
         
         imageFetching.completionBlock = {
             
-            
             DispatchQueue.main.async {
                 self.collectionView.reloadItems(at: [indexPath])
             }
@@ -230,7 +231,7 @@ extension PhotosVC {
             for indexPath in operationsToBeStarted {
                 let imageToBeFetched = userPhotoRecords[indexPath.item]
                 startOperations(for: imageToBeFetched, indexPath: indexPath)
-                
+
             }
         }
     
@@ -263,7 +264,7 @@ extension PhotosVC {
         
         case .downloaded:
             if !collectionView.isDragging && !collectionView.isDecelerating {
-                
+  
              }
 //            print("Image downloaded at indexPath: \(indexPath.item)")
 //            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {

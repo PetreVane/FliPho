@@ -15,7 +15,7 @@ class FeedsVC: UITableViewController {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-    fileprivate let cache = Cache()
+//    fileprivate let cache = Cache()
     fileprivate let networkManager = NetworkManager()
     
     
@@ -35,7 +35,6 @@ class FeedsVC: UITableViewController {
 extension FeedsVC: JSONDecoding {
         
     func fetchImageURLs(from url: URL?) {
-        
         guard let flickrUrl = url else { return }
         
         networkManager.fetchData(from: flickrUrl) { [weak self] (result) in
@@ -43,6 +42,7 @@ extension FeedsVC: JSONDecoding {
             switch result {
                 
             case .success(let receivedData):
+               
                 if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: receivedData) {
                     self?.parseResults(from: decodedData)
                 }
@@ -60,7 +60,7 @@ extension FeedsVC: JSONDecoding {
     // MARK: - Parsing JSON
     
     func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
-        
+
         let decoder = JSONDecoder()
         
         do {
@@ -73,18 +73,18 @@ extension FeedsVC: JSONDecoding {
     }
     
     func parseResults<T>(from decodedData:  Result<T, Error>) {
-
+        
         switch decodedData {
 
         case .success(let photos as DecodedPhotos):
             let album = photos.photos.photo
             _ = album.compactMap { photo in
-                
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_z.jpg") {
                     let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
                     self.photoRecords.append(photoRecord)
                 }
             }
+            
             
         case .failure(let error):
             showAlert(with: error.localizedDescription)
@@ -143,7 +143,6 @@ extension FeedsVC: OperationsManagement {
     }
 
      func startDownload(for photoRecord: PhotoRecord, indexPath: IndexPath) {
-        
         guard pendingOperations.downloadInProgress[indexPath] == nil else { return }
 //        print("Image url: \(photoRecord.imageUrl.absoluteString)")
         let imageFetching = ImageFetcher(photo: photoRecord)
@@ -160,10 +159,8 @@ extension FeedsVC: OperationsManagement {
             
             DispatchQueue.main.async {
                 self.tableView.reloadRows(at: [indexPath], with: .fade)
-                
             }
         }
-//        print("Your pendingOperation dict has: \(pendingOperations.downloadInProgress.count) downloads in progress")
     }
     
      func suspendOperations() {
@@ -180,7 +177,6 @@ extension FeedsVC: OperationsManagement {
     
     
     func loadImagesOnVisibleRows() {
-        
         // getting a reference of all visible rows
         if let listOfVisibleRows = tableView.indexPathsForVisibleRows {
             
@@ -281,8 +277,7 @@ extension FeedsVC {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         tableView.deselectRow(at: indexPath, animated: true)
-        
-        
+                
     }
 
     
