@@ -10,24 +10,83 @@ import UIKit
 
 class PhotoDetailsVC: UIViewController {
     
-    var selectedImage: UIImage?
+    weak var delegatedPhotoRecord: PhotoRecord?
+//    weak var networkManager: NetworkManager?
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // delegation
         scrollView.delegate = self
-
-        
-        imageView.image = selectedImage
-        
-//        scrollViewProperties()
+        imageView.image = delegatedPhotoRecord?.image
+                    
+        // scrollView methods
         zoomParameters(scrollView.bounds.size)
         centerImage()
+        
+        // networking
+        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: delegatedPhotoRecord!.photoID) else { return }
+        fetchCommentsFrom(commentsURL)
     }
     
 }
+
+    //MARK: - Networking
+
+extension PhotoDetailsVC: JSONDecoding {
+        
+    func fetchCommentsFrom(_ commentsURL: URL ) {
+        
+        let networkManager = NetworkManager()
+        print("FetchCommends method called with url: \(commentsURL.absoluteString)")
+        
+        networkManager.fetchData(from: commentsURL) { [weak self] result in
+            
+            switch result {
+            case .failure(let error):
+                print("Fetching comments for image returned with error: \(error.localizedDescription)")
+                
+            case .success(let data):
+                let decodedData = self?.decodeJSON(model: DecodedPhotoComments.self, from: data)
+                self?.parseDecodedData(data: decodedData)
+            }
+        }
+    }
+    
+    func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
+        
+        let decoder = JSONDecoder()
+        
+        do {
+            let decodedData = try decoder.decode(model.self, from: data)
+            return .success(decodedData)
+
+        } catch let error {
+            return .failure(error)
+        }
+    }
+    
+    func parseDecodedData(data: Result<DecodedPhotoComments, Error>?) {
+        
+        switch data {
+            
+        case .failure(let error):
+            print("Errors while decoding: \(error.localizedDescription)")
+            
+        case .success(let decodedComments):
+            let commentsList = decodedComments.comments.comment
+            print("Here is your comment: \(commentsList)")
+            
+        case .none:
+            print("No data to be decoded")
+        }
+    }
+}
+
+
 
 extension PhotoDetailsVC: UIScrollViewDelegate {
     

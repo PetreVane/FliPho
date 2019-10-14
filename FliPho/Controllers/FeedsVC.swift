@@ -80,7 +80,7 @@ extension FeedsVC: JSONDecoding {
             let album = photos.photos.photo
             _ = album.compactMap { photo in
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_z.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
+                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
                     self.photoRecords.append(photoRecord)
                 }
             }
@@ -316,11 +316,11 @@ extension FeedsVC {
         
         guard let indexPath = tableView.indexPathForSelectedRow else { return }
         guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
-        let rowImage = photoRecords[indexPath.row].image
+        let photoRecord = photoRecords[indexPath.row]
         
         if segue.identifier == feedImageDetails {
        
-            destinationVC.selectedImage = rowImage
+            destinationVC.delegatedPhotoRecord = photoRecord
         }
     }
 }

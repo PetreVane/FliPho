@@ -380,8 +380,7 @@ extension MapVC: JSONDecoding {
             _ = album.compactMap { [weak self] photo in
                                 
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
+                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
                     
                     // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
                     if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
@@ -463,7 +462,7 @@ extension MapVC: JSONDecoding {
                 
         let customAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
         customAnnotation.title = photoRecord.name
-        customAnnotation.identifier = photoRecord.imageUrl.absoluteString
+        customAnnotation.identifier = photoRecord.photoID
         photoAlbum.updateValue(photoRecord, forKey: customAnnotation.identifier ?? "randomID")
     // showing annotation
         DispatchQueue.main.async {
@@ -483,11 +482,23 @@ extension MapVC: JSONDecoding {
     
 extension MapVC {
      // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
+
      
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            
+//        guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
+//        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
+//        guard let indexPath = indexPaths.first else { return }
+//        let cellImage = userPhotoRecords[indexPath.item].image
+//        let photoRecord = userPhotoRecords[indexPath.item]
+        
+        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
+        if segue.identifier == userImageDetails {
+            
+//            destinationVC.delegatedPhotoRecord = photoRecord
+            
+        }
+    }
     
 }
 

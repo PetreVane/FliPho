@@ -69,6 +69,7 @@ struct DecodedPhotos: Codable {
     
 }
 
+    
 struct Photos: Codable {
     
     let photo: [Photo]
@@ -78,7 +79,8 @@ struct Photos: Codable {
         case photo
     }
     
-
+  
+    
 struct Photo: Codable {
     
     let id: String
@@ -106,4 +108,47 @@ struct Photo: Codable {
         }
     }
 }
+
+    //MARK: -  Decoding Model for Photo Comments
+
+struct DecodedPhotoComments: Codable {
+
+    let comments: Comments
+}
+
+
+
+struct Comments: Codable {
+    
+    let photoID: String
+    let comment: [Comment]
+
+    enum CodingKeys: String, CodingKey {
+        case photoID = "photo_id"
+        case comment
+    }
+}
+
+struct Comment: Codable {
+    
+    let id, author: String
+    let authorIsDeleted: Int
+    let authorname, iconserver: String
+    let iconfarm: Int
+    let datecreate: String
+    let permalink: String
+    let pathAlias, realname, content: String
+
+    enum CodingKeys: String, CodingKey {
+        
+        case id, author
+        case authorIsDeleted = "author_is_deleted"
+        case authorname, iconserver, iconfarm, datecreate, permalink
+        case pathAlias = "path_alias"
+        case realname
+        case content = "_content"
+    }
+}
+
+
 

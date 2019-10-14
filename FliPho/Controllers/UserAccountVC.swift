@@ -109,9 +109,9 @@ class UserAccountVC: UIViewController {
         let decoder = JSONDecoder()
         
         guard let decodedData = try? decoder.decode(DecodedUserInfo.self, from: data) else { return }
-        let decodedInfo = decodedData.person
-        guard let profilePictUrl = URL(string: "http://farm\(decodedInfo.iconfarm).staticflickr.com/\(decodedInfo.iconserver)/buddyicons/\(decodedInfo.nsid)_l.jpg") else { return }
-        let photoRecord = PhotoRecord(name: decodedInfo.nsid, imageUrl: profilePictUrl)
+        let user = decodedData.person
+        guard let userProfilePictureURL = URL(string: "http://farm\(user.iconfarm).staticflickr.com/\(user.iconserver)/buddyicons/\(user.nsid)_l.jpg") else { return }
+        let photoRecord = PhotoRecord(name: user.nsid, imageUrl: userProfilePictureURL, photoID: user.id)
         fetchUserImage(record: photoRecord)
         
     }
@@ -122,7 +122,7 @@ class UserAccountVC: UIViewController {
         pendingOperations.downloadQueue.addOperation(imageFetcher)
         
         imageFetcher.completionBlock = {
-//            print("User Image: \(record.name) has been fetched")
+            
             self.photoRecords.append(record)
             
             DispatchQueue.main.async {
