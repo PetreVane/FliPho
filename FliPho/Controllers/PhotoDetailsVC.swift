@@ -61,6 +61,7 @@ extension PhotoDetailsVC: JSONDecoding {
     func decodeJSON<T>(model: T.Type, from data: Data) -> Result<T, Error> where T : Decodable {
         
         let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
         
         do {
             let decodedData = try decoder.decode(model.self, from: data)
@@ -80,12 +81,32 @@ extension PhotoDetailsVC: JSONDecoding {
             
         case .success(let decodedComments):
             let commentsList = decodedComments.comments.comment
-//            print("Here is your comment: \(commentsList)")
+            _ = commentsList.compactMap { comment in
+                let unixTime = comment.datecreate
+                guard let decodedDate = decodeDatefrom(unixTime) else {print("No comments for this image"); return }
+                print("Comment added on: \(decodedDate)")
+                
+            }
             
         case .none:
             print("No data to be decoded")
         }
     }
+    
+    func decodeDatefrom(_ unixTime: String) -> String? {
+        
+        var decodedDate: String?
+        
+        if let unixTime = Double(unixTime) {
+            let dateFormatter = DateFormatter()
+            let date = Date(timeIntervalSince1970: unixTime)
+            dateFormatter.dateFormat = "dd.MM.yyyy"
+            decodedDate = dateFormatter.string(from: date)
+        }
+        return decodedDate
+    }
+    
+    
 }
 
 

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0B368CCE23201000003D93F7 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B368CCD23201000003D93F7 /* Cache.swift */; };
+		0B3EE5DA2355ABFC006653FD /* CommentData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3EE5D92355ABFC006653FD /* CommentData.swift */; };
 		0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B891803232FD546008950D0 /* FlickrAnnotation.swift */; };
 		0B8AF2F22321352D003D2750 /* FlickrURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B8AF2F12321352D003D2750 /* FlickrURLs.swift */; };
 		0BA60BAC231FA64F00154E7C /* CustomTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA60BAB231FA64F00154E7C /* CustomTableViewCell.swift */; };
@@ -34,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		0B368CCD23201000003D93F7 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		0B3EE5D92355ABFC006653FD /* CommentData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentData.swift; sourceTree = "<group>"; };
 		0B891803232FD546008950D0 /* FlickrAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrAnnotation.swift; sourceTree = "<group>"; };
 		0B8AF2F12321352D003D2750 /* FlickrURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrURLs.swift; sourceTree = "<group>"; };
 		0BA60BAB231FA64F00154E7C /* CustomTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTableViewCell.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 				0BB36E6F231D11EE003151F2 /* PendingOperations.swift */,
 				0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */,
 				0BE13BA22337E1A70026BFF2 /* NetworkManager.swift */,
+				0B3EE5D92355ABFC006653FD /* CommentData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -300,6 +303,7 @@
 				0BA60BAC231FA64F00154E7C /* CustomTableViewCell.swift in Sources */,
 				0BE641C8231934AB00D7DB44 /* PhotoDetailsVC.swift in Sources */,
 				0BE641C62319340700D7DB44 /* LoginVC.swift in Sources */,
+				0B3EE5DA2355ABFC006653FD /* CommentData.swift in Sources */,
 				0B891804232FD546008950D0 /* FlickrAnnotation.swift in Sources */,
 				0BE641C22319331F00D7DB44 /* MapVC.swift in Sources */,
 				0B368CCE23201000003D93F7 /* Cache.swift in Sources */,

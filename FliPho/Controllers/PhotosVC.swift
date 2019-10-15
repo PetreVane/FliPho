@@ -17,7 +17,6 @@ import OAuthSwift
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
     fileprivate let userDefaults = UserDefaults()
-    fileprivate let cache = Cache()
     fileprivate var userPhotoRecords: [PhotoRecord] = []
     fileprivate let pendingOperations = PendingOperations()
     fileprivate let networkManager = NetworkManager()
