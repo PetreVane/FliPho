@@ -379,7 +379,7 @@ extension MapVC: JSONDecoding {
             _ = album.compactMap { [weak self] photo in
                                 
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
+                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
                     
                     // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
                     if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
@@ -460,7 +460,7 @@ extension MapVC: JSONDecoding {
             let photoLongitude = photoRecord.longitude else {return}
                 
         let customAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
-        customAnnotation.title = photoRecord.name
+        customAnnotation.title = photoRecord.title
         customAnnotation.identifier = photoRecord.photoID
         photoAlbum.updateValue(photoRecord, forKey: customAnnotation.identifier ?? "randomID")
     // showing annotation

@@ -99,7 +99,7 @@ extension PhotosVC: JSONDecoding {
             let userAlbum = photos.photos.photo
             _ = userAlbum.compactMap { photo in
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
+                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
                     self.userPhotoRecords.append(photoRecord)
 //                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
 

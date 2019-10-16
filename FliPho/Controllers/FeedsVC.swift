@@ -80,7 +80,7 @@ extension FeedsVC: JSONDecoding {
             let album = photos.photos.photo
             _ = album.compactMap { photo in
                 if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_z.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL, photoID: photo.id)
+                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
                     self.photoRecords.append(photoRecord)
                 }
             }
