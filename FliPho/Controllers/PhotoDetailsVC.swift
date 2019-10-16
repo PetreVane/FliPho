@@ -99,6 +99,8 @@ extension PhotoDetailsVC: JSONDecoding {
         }
     }
     
+    //MARK: - Text Operations
+    
     func decodeDatefrom(_ unixTime: String) -> String? {
         
         // converts comment date into meaningful date
@@ -137,7 +139,6 @@ extension PhotoDetailsVC: JSONDecoding {
         }
     }
     
-
     func timeDuration(for operation: () ->Void) -> TimeInterval {
         
         // measures how much time an operation / function needs for completion
@@ -148,6 +149,7 @@ extension PhotoDetailsVC: JSONDecoding {
 }
 
 
+//MARK: - Scroll View Delegate
 
 extension PhotoDetailsVC: UIScrollViewDelegate {
     
