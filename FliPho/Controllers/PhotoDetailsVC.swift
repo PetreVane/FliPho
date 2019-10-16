@@ -29,8 +29,8 @@ class PhotoDetailsVC: UIViewController {
         centerImage()
         
         // networking
-        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
-        fetchCommentsFrom(commentsURL)
+//        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
+//        fetchCommentsFrom(commentsURL)
                 
     }
     

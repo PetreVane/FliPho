@@ -110,9 +110,9 @@ class UserAccountVC: UIViewController {
         
         guard let decodedData = try? decoder.decode(DecodedUserInfo.self, from: data) else { return }
         let user = decodedData.person
-        guard let userProfilePictureURL = URL(string: "http://farm\(user.iconfarm).staticflickr.com/\(user.iconserver)/buddyicons/\(user.nsid)_l.jpg") else { return }
-        let photoRecord = PhotoRecord(title: user.nsid, imageUrl: userProfilePictureURL, photoID: user.id)
-        fetchUserImage(record: photoRecord)
+//        guard let userProfilePictureURL = URL(string: "http://farm\(user.iconfarm).staticflickr.com/\(user.iconserver)/buddyicons/\(user.nsid)_l.jpg") else { return }
+//        let photoRecord = PhotoRecord(title: user.nsid, imageUrl: userProfilePictureURL, photoID: user.id)
+//        fetchUserImage(record: photoRecord)
         
     }
     

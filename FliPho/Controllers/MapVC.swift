@@ -377,21 +377,23 @@ extension MapVC: JSONDecoding {
             let album = decodedPhotos.photos.photo
             
             _ = album.compactMap { [weak self] photo in
+                
+                let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
                                 
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
-                    
-                    // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
-                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
-                        
-                        // step 5: using the url for flickr.photos.geo.getLocation api method, for another network request which returns a json object containing the geographic coordinates for that particular imageID; see method declaration at line 387
-                        fetchImageCoordinates(from: photoCoordinatesURL) { [weak self] (latitude, longitude) in
-                            photoRecord.latitude = latitude
-                            photoRecord.longitude = longitude
-                            self?.addMapAnnotation(for: photoRecord)
-                        }
-                    }
-                }
+//                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+//                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
+//
+//                    // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
+//                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
+//
+//                        // step 5: using the url for flickr.photos.geo.getLocation api method, for another network request which returns a json object containing the geographic coordinates for that particular imageID; see method declaration at line 387
+//                        fetchImageCoordinates(from: photoCoordinatesURL) { [weak self] (latitude, longitude) in
+//                            photoRecord.latitude = latitude
+//                            photoRecord.longitude = longitude
+//                            self?.addMapAnnotation(for: photoRecord)
+//                        }
+//                    }
+//                }
             }
         default:
             print("Default case reached")

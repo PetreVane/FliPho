@@ -18,14 +18,15 @@ class ImageFetcher: Operation {
         self.photo = photo
     }
     
+    
     override func main() {
         
         if isCancelled {
             return
         }
         
-        
-        if let imageData = try? Data(contentsOf: photo.imageUrl) {
+        guard  photo.imageUrl != nil else { return }
+        if let imageData = try? Data(contentsOf: photo.imageUrl!) {
 
             if !imageData.isEmpty {
                 photo.image = UIImage(data: imageData)

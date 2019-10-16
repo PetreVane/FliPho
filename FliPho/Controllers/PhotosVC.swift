@@ -98,12 +98,15 @@ extension PhotosVC: JSONDecoding {
             
             let userAlbum = photos.photos.photo
             _ = userAlbum.compactMap { photo in
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
-                    self.userPhotoRecords.append(photoRecord)
-//                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
-
-                }
+                
+                let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
+                
+//                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
+//                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
+//                    self.userPhotoRecords.append(photoRecord)
+////                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
+//
+//                }
             }
         case .success(_):
             print(" --> xcode bug <--")
