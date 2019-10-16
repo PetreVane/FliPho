@@ -11,6 +11,7 @@ import UIKit
 class PhotoDetailsVC: UIViewController {
     
     weak var delegatedPhotoRecord: PhotoRecord?
+    var listOfComments: [CommentData] = []
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
@@ -22,9 +23,7 @@ class PhotoDetailsVC: UIViewController {
         scrollView.delegate = self
         guard let photoRecord = delegatedPhotoRecord else { print("No photoRecord passed to PhotoDetails ViewController"); return }
         imageView.image = photoRecord.image
-        
-        
-                    
+                            
         // scrollView methods
         zoomParameters(scrollView.bounds.size)
         centerImage()
@@ -32,6 +31,7 @@ class PhotoDetailsVC: UIViewController {
         // networking
         guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
         fetchCommentsFrom(commentsURL)
+                
     }
     
 }
@@ -43,8 +43,8 @@ extension PhotoDetailsVC: JSONDecoding {
     func fetchCommentsFrom(_ commentsURL: URL ) {
         
         let networkManager = NetworkManager()
-        print("FetchCommends method called with url: \(commentsURL.absoluteString)")
-        
+//        print("FetchCommends method called with url: \(commentsURL.absoluteString)")
+        print("======== ===================== ================ =============")
         networkManager.fetchData(from: commentsURL) { [weak self] result in
             
             switch result {
@@ -81,11 +81,17 @@ extension PhotoDetailsVC: JSONDecoding {
             
         case .success(let decodedComments):
             let commentsList = decodedComments.comments.comment
-            _ = commentsList.compactMap { comment in
-                let unixTime = comment.datecreate
-                guard let decodedDate = decodeDatefrom(unixTime) else {print("No comments for this image"); return }
-                print("Comment added on: \(decodedDate)")
-                
+            _ = commentsList.compactMap { commentRecord in
+                let unixTime = commentRecord.datecreate
+                guard let decodedDate = decodeDatefrom(unixTime) else { print("No comments for this image"); return }
+                let comment = CommentData(id: commentRecord.id, authorNSID: commentRecord.author, authorName: commentRecord.authorname, iconServer: commentRecord.iconserver, iconFarm: commentRecord.iconfarm, commentDate: decodedDate, commentContent: commentRecord.content)
+                listOfComments.append(comment)
+
+                let commentContent = commentRecord
+                let timming = timeDuration {
+                    cleanUpContent(comment: commentContent)
+                }
+                print("Operation needed: \(timming)")
             }
             
         case .none:
@@ -94,6 +100,8 @@ extension PhotoDetailsVC: JSONDecoding {
     }
     
     func decodeDatefrom(_ unixTime: String) -> String? {
+        
+        // converts comment date into meaningful date
         
         var decodedDate: String?
         
@@ -106,7 +114,37 @@ extension PhotoDetailsVC: JSONDecoding {
         return decodedDate
     }
     
+    func cleanUpContent(comment: Comment) {
+        
+        // removes tags and references from commented content
+        var content = comment.content
+        
+        if content.contains("[") && content.contains("]") {
+            
+            guard let openingBraketIndex = content.firstIndex(of: "[") else { return }
+            guard let closingBraketIndex = content.lastIndex(of: "]") else { return }
+            let _ = content.removeSubrange(openingBraketIndex...closingBraketIndex)
+            
+        } else if content.contains("<") && content.contains(">") {
     
+            guard let firstTagIndex = content.firstIndex(of: "<") else { return }
+            guard let lastTagIndex = content.lastIndex(of: ">") else { return }
+            let _ = content.removeSubrange(firstTagIndex...lastTagIndex)
+        }
+        
+        if !content.isEmpty {
+            print("\(comment.authorname): \(content)")
+        }
+    }
+    
+
+    func timeDuration(for operation: () ->Void) -> TimeInterval {
+        
+        // measures how much time an operation / function needs for completion
+        let operationStartingTime = Date()
+        operation()
+        return Date().timeIntervalSince(operationStartingTime)
+    }
 }
 
 

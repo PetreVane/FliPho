@@ -147,12 +147,12 @@
 			children = (
 				0B368CCD23201000003D93F7 /* Cache.swift */,
 				0BB36E6B231CF003003151F2 /* PhotoRecord.swift */,
+				0B3EE5D92355ABFC006653FD /* CommentData.swift */,
 				0B891803232FD546008950D0 /* FlickrAnnotation.swift */,
 				0BB36E6D231D0D22003151F2 /* ImageFetcher.swift */,
 				0BB36E6F231D11EE003151F2 /* PendingOperations.swift */,
 				0BEE9E57232664F000FAEB80 /* OperationsManagement.swift */,
 				0BE13BA22337E1A70026BFF2 /* NetworkManager.swift */,
-				0B3EE5D92355ABFC006653FD /* CommentData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
