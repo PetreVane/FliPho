@@ -68,7 +68,6 @@ extension PhotosVC: JSONDecoding {
                 if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: data) {
                     self?.parseData(from: decodedData)
                 }
-                
             }
         }
     }
@@ -100,13 +99,7 @@ extension PhotosVC: JSONDecoding {
             _ = userAlbum.compactMap { photo in
                 
                 let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
-                
-//                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-//                    let photoRecord = PhotoRecord(title: photo.title, imageUrl: photoURL, photoID: photo.id)
-//                    self.userPhotoRecords.append(photoRecord)
-////                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
-//
-//                }
+                self.userPhotoRecords.append(photoRecord)
             }
         case .success(_):
             print(" --> xcode bug <--")
@@ -348,13 +341,11 @@ extension PhotosVC {
         guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
         guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
         guard let indexPath = indexPaths.first else { return }
-        let cellImage = userPhotoRecords[indexPath.item].image
         let photoRecord = userPhotoRecords[indexPath.item]
         
         if segue.identifier == userImageDetails {
             
             destinationVC.delegatedPhotoRecord = photoRecord
-            
         }
     }
 }

@@ -82,6 +82,7 @@ extension PhotoDetailsVC: JSONDecoding {
         case .success(let decodedComments):
             let commentsList = decodedComments.comments.comment
             _ = commentsList.compactMap { commentRecord in
+                
                 let unixTime = commentRecord.datecreate
                 guard let decodedDate = decodeDatefrom(unixTime) else { print("No comments for this image"); return }
                 let comment = CommentData(id: commentRecord.id, authorNSID: commentRecord.author, authorName: commentRecord.authorname, iconServer: commentRecord.iconserver, iconFarm: commentRecord.iconfarm, commentDate: decodedDate, commentContent: commentRecord.content)

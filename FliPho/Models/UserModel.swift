@@ -8,7 +8,7 @@
 
 import Foundation
 
-class UserModel {
+class User {
     
     let userNSID: String
     let userName: String

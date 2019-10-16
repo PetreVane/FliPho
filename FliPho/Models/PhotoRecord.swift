@@ -21,11 +21,11 @@ enum PhotoRecordState {
 class PhotoRecord {
     
     // essential photoRecord properties
-    internal var photoID: String?
-    internal var photoSecret: String?
-    internal var photoServer: String?
-    internal var photoFarm: Int?
-    internal let title: String?
+    internal var photoID: String
+    internal var photoSecret: String
+    internal var photoServer: String
+    internal var photoFarm: Int
+    internal let title: String
     internal var imageUrl: URL?
     
     // optional photoRecord properties
@@ -50,7 +50,7 @@ class PhotoRecord {
         self.photoServer = server
         self.photoFarm = farm
         self.title = title
-        self.imageUrl = URL(string: "https://farm\(farm).staticflickr.com/\(server)/\(identifier)_\(secret)_z.jpg")
+        self.imageUrl = URL(string: "https://farm\(farm).staticflickr.com/\(server)/\(identifier)_\(secret)_c.jpg")
     }
     
 }

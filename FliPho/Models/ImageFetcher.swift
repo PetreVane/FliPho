@@ -25,7 +25,7 @@ class ImageFetcher: Operation {
             return
         }
         
-        guard  photo.imageUrl != nil else { return }
+        guard  photo.imageUrl != nil else { return } // throw an error here 
         if let imageData = try? Data(contentsOf: photo.imageUrl!) {
 
             if !imageData.isEmpty {
