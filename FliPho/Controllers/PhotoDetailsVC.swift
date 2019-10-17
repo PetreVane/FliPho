@@ -11,7 +11,6 @@ import UIKit
 class PhotoDetailsVC: UIViewController {
     
     weak var delegatedPhotoRecord: PhotoRecord?
-    var listOfComments: [CommentData] = []
     
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var imageView: UIImageView!
@@ -29,9 +28,7 @@ class PhotoDetailsVC: UIViewController {
         centerImage()
         
         // networking
-//        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
-//        fetchCommentsFrom(commentsURL)
-                
+        fetchComments(for: photoRecord)
     }
     
 }
@@ -40,7 +37,9 @@ class PhotoDetailsVC: UIViewController {
 
 extension PhotoDetailsVC: JSONDecoding {
         
-    func fetchCommentsFrom(_ commentsURL: URL ) {
+    func fetchComments(for photoRecord: PhotoRecord) {
+        
+        guard let commentsURL = FlickrURLs.fetchPhotoComments(photoID: photoRecord.photoID) else { return }
         
         let networkManager = NetworkManager()
 //        print("FetchCommends method called with url: \(commentsURL.absoluteString)")
@@ -53,7 +52,9 @@ extension PhotoDetailsVC: JSONDecoding {
                 
             case .success(let data):
                 let decodedData = self?.decodeJSON(model: DecodedPhotoComments.self, from: data)
-                self?.parseDecodedData(data: decodedData)
+                let curatedComments = self?.parseDecodedData(data: decodedData)
+                photoRecord.comments = curatedComments
+                print("You've got \(curatedComments?.count) comments")
             }
         }
     }
@@ -72,7 +73,9 @@ extension PhotoDetailsVC: JSONDecoding {
         }
     }
     
-    func parseDecodedData(data: Result<DecodedPhotoComments, Error>?) {
+    func parseDecodedData(data: Result<DecodedPhotoComments, Error>?) -> [CommentData] {
+        
+        var comments: [CommentData] = []
         
         switch data {
             
@@ -86,18 +89,16 @@ extension PhotoDetailsVC: JSONDecoding {
                 let unixTime = commentRecord.datecreate
                 guard let decodedDate = decodeDatefrom(unixTime) else { print("No comments for this image"); return }
                 let comment = CommentData(id: commentRecord.id, authorNSID: commentRecord.author, authorName: commentRecord.authorname, iconServer: commentRecord.iconserver, iconFarm: commentRecord.iconfarm, commentDate: decodedDate, commentContent: commentRecord.content)
-                listOfComments.append(comment)
-
-                let commentContent = commentRecord
-                let timming = timeDuration {
-                    cleanUpContent(comment: commentContent)
+                if let curatedComment = cleanContent(of: comment) {
+                    comments.append(curatedComment)
                 }
-                print("Operation needed: \(timming)")
             }
             
         case .none:
             print("No data to be decoded")
         }
+        
+        return comments
     }
     
     //MARK: - Text Operations
@@ -117,27 +118,31 @@ extension PhotoDetailsVC: JSONDecoding {
         return decodedDate
     }
     
-    func cleanUpContent(comment: Comment) {
+    func cleanContent(of comment: CommentData) -> CommentData? {
         
-        // removes tags and references from commented content
+        // removes tags and references from comments
+        
         var content = comment.content
         
         if content.contains("[") && content.contains("]") {
             
-            guard let openingBraketIndex = content.firstIndex(of: "[") else { return }
-            guard let closingBraketIndex = content.lastIndex(of: "]") else { return }
+            guard let openingBraketIndex = content.firstIndex(of: "[") else { return nil }
+            guard let closingBraketIndex = content.lastIndex(of: "]") else { return nil }
             let _ = content.removeSubrange(openingBraketIndex...closingBraketIndex)
             
         } else if content.contains("<") && content.contains(">") {
     
-            guard let firstTagIndex = content.firstIndex(of: "<") else { return }
-            guard let lastTagIndex = content.lastIndex(of: ">") else { return }
+            guard let firstTagIndex = content.firstIndex(of: "<") else { return nil }
+            guard let lastTagIndex = content.lastIndex(of: ">") else { return nil }
             let _ = content.removeSubrange(firstTagIndex...lastTagIndex)
         }
         
         if !content.isEmpty {
-            print("\(comment.authorname): \(content)")
+            let curatedContent = content
+            comment.content = curatedContent
         }
+
+        return comment
     }
     
     func timeDuration(for operation: () ->Void) -> TimeInterval {

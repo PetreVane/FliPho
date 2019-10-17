@@ -27,6 +27,7 @@ class PhotoRecord {
     internal var photoFarm: Int
     internal let title: String
     internal var imageUrl: URL?
+    internal var comments: [CommentData]?
     
     // optional photoRecord properties
     internal var latitude: Double?
@@ -35,13 +36,6 @@ class PhotoRecord {
     internal var image = UIImage(named: "Flickr image")
     internal var state = PhotoRecordState.new
     
-    
-//    init(title: String, imageUrl: URL, photoID: String) {
-//
-//        self.title = title
-//        self.imageUrl = imageUrl
-//        self.photoID = photoID
-//    }
     
      init(identifier: String, secret: String, server: String, farm: Int, title: String) {
         

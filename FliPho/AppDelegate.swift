@@ -21,21 +21,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     }
 
+
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         // Override point for customization after application launch.
-        let userPreferences = UserDefaults()
-        print("App did finishLaunching with username: \(userPreferences.value(forKey: "username") ?? "no username")")
         
-        if userPreferences.value(forKey: "username") != nil {
-            let storyBoard = UIStoryboard(name: "Main", bundle: nil)
-            
-            if let tabBarViewController = storyBoard.instantiateViewController(withIdentifier: "tabView") as? UITabBarController {
-                self.window?.rootViewController = tabBarViewController
-            }
-            
+        let userData = try? retrieveUserInfo()
+        if let usernsid = userData?.userNSID {
+            print("App did finishLaunching with user_nsid: \(usernsid)")
+            performSegueToMainMenu()
         }
-    
+        
         return true
     }
 
@@ -59,6 +56,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+
+    fileprivate func retrieveUserInfo() throws -> User? {
+        
+        let plistDecoder = PropertyListDecoder()
+        let filePath = FileManager.documentsDirectory
+        let file = filePath.appendingPathComponent("SavedUserData").appendingPathExtension("plist")
+        guard let retrievedData = try? Data(contentsOf: file) else { return nil }
+        guard let decodedUserData = try? plistDecoder.decode(User.self, from: retrievedData) else { return nil }
+
+        return decodedUserData
+    }
+    
+    fileprivate func performSegueToMainMenu() {
+        let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+        
+        if let tabBarViewController = storyBoard.instantiateViewController(withIdentifier: "tabView") as? UITabBarController {
+            self.window?.rootViewController = tabBarViewController
+        }
     }
 
 

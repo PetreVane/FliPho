@@ -8,27 +8,6 @@
 
 import Foundation
 
-enum NetworkManagerError: Error {
-    
-    case failedRequest
-    case unexpectedResponse
-    case missingData
-    case unknownError
-    
-   var localizedDescription: String {
-        
-        switch self {
-        case .failedRequest:
-            return "Server unreachable. Connect to internet and try again"
-        case .unexpectedResponse:
-            return "Server responded with unexpected status code"
-        case .missingData:
-            return "Missing of corrupt data"
-        default:
-            return "Unknown error; default case"
-        }
-    }
-}
 
 class NetworkManager {
     
@@ -55,6 +34,28 @@ class NetworkManager {
             completionWith(.success(receivedData))
 
         } .resume()
+    }
+}
+
+enum NetworkManagerError: Error {
+    
+    case failedRequest
+    case unexpectedResponse
+    case missingData
+    case unknownError
+    
+   var localizedDescription: String {
+        
+        switch self {
+        case .failedRequest:
+            return "Server unreachable. Connect to internet and try again"
+        case .unexpectedResponse:
+            return "Server responded with unexpected status code"
+        case .missingData:
+            return "Missing of corrupt data"
+        default:
+            return "Unknown error; default case"
+        }
     }
 }
 

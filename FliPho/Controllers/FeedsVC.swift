@@ -46,7 +46,6 @@ extension FeedsVC: JSONDecoding {
                     self?.parseResults(from: decodedData)
                 }
                 
-                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self?.showAlert(with: error.localizedDescription)
@@ -83,12 +82,11 @@ extension FeedsVC: JSONDecoding {
                 self.photoRecords.append(photoRecord)
             }
             
-            
         case .failure(let error):
             showAlert(with: error.localizedDescription)
             
         case .success(_):
-            print(" --> xcode bug <-- ")
+            print(" --> xcode default case <-- ")
         }
         
         DispatchQueue.main.async {
@@ -248,13 +246,6 @@ extension FeedsVC {
             if !tableView.isDragging && !tableView.isDecelerating {
                 
                  }
-//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-//                print(" ")
-//                if !tableView.isDragging && !tableView.isDecelerating {
-//                    cell.tableImageView.image = imageFromCache as? UIImage
-//                    print("Success showing image from cache for indexPath: \(indexPath.row)")
-//                }
-//            }
 
         case .failed:
             print("Image failed to load at indexPath")
@@ -262,7 +253,7 @@ extension FeedsVC {
         }
         
         cell.tableImageView.image = currentRecord.image
-      
+  
         return cell
     }
 }

@@ -12,7 +12,7 @@ import UIKit
 
 class ImageFetcher: Operation {
     
-  unowned var photo: PhotoRecord
+    var photo: PhotoRecord
     
     init(photo: PhotoRecord) {
         self.photo = photo
@@ -25,7 +25,7 @@ class ImageFetcher: Operation {
             return
         }
         
-        guard  photo.imageUrl != nil else { return } // throw an error here 
+        guard  photo.imageUrl != nil else { return } // throw an error here
         if let imageData = try? Data(contentsOf: photo.imageUrl!) {
 
             if !imageData.isEmpty {
