@@ -21,7 +21,7 @@ Features under development:
 
 - My Feeds tab: 
   - cells will have a different size and customization such as shapes and animations
-  - cells shown in Feeds, will also show a small rounded picture of the image owner + owner name
+  - cells shown in Feeds, will also show a small rounded profil picture of the owner + owner name
   - when a cell is tapped, the image is passed into another screen (Detailed View) which will fetch & display comments for that image
   - users will be able to add an image to Favorites
   - users will be able to see / retrieve more than 250 pictures from Flickr
