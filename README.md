@@ -10,11 +10,11 @@ UI: there are no custom cells or custom views yet. The UI contains the minimum e
 
 Functionalities:
 
-- At this moment, users can login into their acccounts and see recent pictures which are usually shown on Explore tab (on Flickr).
-- Users can also see their pictures in a grid-like view. At this moment, only the first 250 images are being shown.
+- At this moment, users can login into their acccounts and see recent pictures of Explore collection (on Flickr).
+- Users can also see their own pictures in a grid-like view. At this moment, only the first 250 images are being shown.
 - The app contains a map view, which asks for user location, so it can retrieve and display images taken around user location.
-- When tapped, images are being passed into a different view, so that images can be zoomed in / out.
 - When map annotation are tapped, a small accessory view is shown. Tapping the accessory view will pass the image to another scree.
+- When tapped, images from MyFeeds & MyPhotos are being passed into a different view, so that images can be zoomed in / out.
 - Users can also deauthenticate from their accounts.
 
 Features under development:
