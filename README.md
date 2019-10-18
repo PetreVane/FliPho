@@ -1,7 +1,7 @@
 # FliPho-iOS
 FliPho: just another iOS client for Flickr
 
-If you're cloning this project, make sure you get your own key at: https://www.flickr.com/services/apps/create/
+Please, make sure you get your own free key at: https://www.flickr.com/services/apps/create/
 
 The app is under development: there can be various bugs and unexpected crashes.
 
