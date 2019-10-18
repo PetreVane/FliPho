@@ -35,6 +35,7 @@ struct FlickrURLs {
     static func fetchInterestingPhotos() -> URL? {
         
         // flickr.interestingness.getList
+        // &date=2019-01-01 before per_page
 
         guard let url = URL(string: "https://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key=\(consumerKey)&per_page=250&page=&format=json&nojsoncallback=1")
             else { return URL(string: "No valid url for flickr.interestingness.getList ")
@@ -69,6 +70,15 @@ struct FlickrURLs {
         
         guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.geo.getLocation&api_key=\(consumerKey)&photo_id=\(photoID)&format=json&nojsoncallback=1")
             else { return URL(string: "No valid url for flickr.photos.geo.getLocation") }
+        
+        return url
+    }
+    
+    static func fetchPhotoComments(photoID: String) -> URL? {
+        
+        // flickr.photos.comments.getList
+        
+        guard let url = URL(string: "https://www.flickr.com/services/rest/?method=flickr.photos.comments.getList&api_key=\(consumerKey)&photo_id=\(photoID)&format=json&nojsoncallback=1") else { return URL(string: "No valid url for flickr.photos.comments.getList")}
         
         return url
     }

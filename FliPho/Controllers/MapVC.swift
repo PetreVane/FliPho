@@ -184,7 +184,7 @@ extension MapVC: MKMapViewDelegate {
 
     }
     
-    /// Sets annotations on map
+    /// Configures annotations for map
     /// - Parameter mapView: Reference to an embeddable map interface, similar to the one provided by the Maps application.
     /// - Parameter annotation: Reference to an interface for associating your content with a specific map location.
     
@@ -200,14 +200,14 @@ extension MapVC: MKMapViewDelegate {
         if let dequedAnnotation = mapView.dequeueReusableAnnotationView(withIdentifier: reuseIdentifier) as? MKMarkerAnnotationView {
             dequedAnnotation.annotation = annotation
             markerAnnotation = dequedAnnotation
-            markerAnnotation.clusteringIdentifier = reuseIdentifier
+//            markerAnnotation.clusteringIdentifier = reuseIdentifier
             markerAnnotation.markerTintColor = #colorLiteral(red: 0.4666666687, green: 0.7647058964, blue: 0.2666666806, alpha: 1)
 
         } else {
             
             markerAnnotation = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: reuseIdentifier)
             markerAnnotation.markerTintColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
-            markerAnnotation.clusteringIdentifier = reuseIdentifier
+//            markerAnnotation.clusteringIdentifier = reuseIdentifier
             markerAnnotation.canShowCallout = true
     
         }
@@ -219,7 +219,7 @@ extension MapVC: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-//        print("Button pressed: trigger segue here")
+        performSegue(withIdentifier: annotationImageDetails, sender: view)
     }
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
@@ -227,7 +227,6 @@ extension MapVC: MKMapViewDelegate {
         guard let customAnnotation = view.annotation as? FlickrAnnotation else { print("Failed casting view as Flickr Annotation (line 227)"); return }
         
         if customAnnotation.isKind(of: FlickrAnnotation.self) {
-//            print("success casting annotation as FlickrAnnotation")
             view.canShowCallout = true
             guard let recordIdentifier = customAnnotation.identifier else { print("Failed getting annotation id for record"); return }
             guard let photoRecord = photoAlbum[recordIdentifier] else { print("Failed getting photoRecord from dictionary"); return }
@@ -365,36 +364,37 @@ extension MapVC: JSONDecoding {
         }
     }
     
-  // step 3.2: parsing the decoded data & iterating over each image url, to get the image ID
+  // step 3.2: parsing the decoded data & initializing PhotoRecord objects
     func parseImageData<T>(from data: Result<T, Error>) {
         
         switch data {
             
-        case .failure(let error):
+        case .failure(let error): // show an alert / error
             print("Decoding ImageURLs in MapVC returned with errors: \(error.localizedDescription)")
             
+            // casting decodedPhotos from Result <Generic Type>
         case .success(let decodedPhotos as DecodedPhotos):
             
+            // album is an array of decoded records -> see its type
             let album = decodedPhotos.photos.photo
             
             _ = album.compactMap { [weak self] photo in
-                                
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_s.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
+                
+                let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
+                
+                 // step 4: here, each image ID is used to construct an url for flickr.photos.geo.getLocation endPoint
+                guard let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) else { return }
+                
+                // step 5: photoCoordinatesURL is used for flickr.photos.geo.getLocation api method, which returns a json object containing the geographic coordinates for that particular imageID
+                fetchImageCoordinates(from: photoCoordinatesURL) { [weak self ] (latitude, longitude) in
                     
-                    // step 4: here, each image ID is used to construct an url for another Flickr endPoint(flickr.photos.geo.getLocation api method)
-                    if let photoCoordinatesURL = FlickrURLs.fetchPhotoCoordinates(photoID: photo.id) {
-                        
-                        // step 5: using the url for flickr.photos.geo.getLocation api method, for another network request which returns a json object containing the geographic coordinates for that particular imageID; see method declaration at line 387
-                        fetchImageCoordinates(from: photoCoordinatesURL) { [weak self] (latitude, longitude) in
-                            photoRecord.latitude = latitude
-                            photoRecord.longitude = longitude
-                            self?.addMapAnnotation(for: photoRecord)
-                        }
-                    }
+                    // assigns the returned coordinates to photoRecord
+                    photoRecord.latitude = latitude
+                    photoRecord.longitude = longitude
+                    self?.addMapAnnotation(for: photoRecord)
                 }
             }
+            
         default:
             print("Default case reached")
         }
@@ -462,8 +462,8 @@ extension MapVC: JSONDecoding {
             let photoLongitude = photoRecord.longitude else {return}
                 
         let customAnnotation = FlickrAnnotation(coordinate: CLLocationCoordinate2D.init(latitude: photoLatitude, longitude: photoLongitude))
-        customAnnotation.title = photoRecord.name
-        customAnnotation.identifier = photoRecord.imageUrl.absoluteString
+        customAnnotation.title = photoRecord.title
+        customAnnotation.identifier = photoRecord.photoID
         photoAlbum.updateValue(photoRecord, forKey: customAnnotation.identifier ?? "randomID")
     // showing annotation
         DispatchQueue.main.async {
@@ -475,19 +475,27 @@ extension MapVC: JSONDecoding {
     }
 }
 
-
-
     
      // MARK: - Navigation
     
     
 extension MapVC {
      // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
+
      
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            
+        guard let sender = sender as? MKAnnotationView else { print("Sender is not an annotation"); return }
+        guard let annotation = sender.annotation as? FlickrAnnotation else { print("Cannot cast segue-sender as FlickrAnnotation"); return }
+        guard let recordIdentifier = annotation.identifier else { print("No annotation with this identifier"); return }
+        guard let photoRecord = photoAlbum[recordIdentifier] else { print("Cannot retrieve photoRecord with this annotation identifier"); return }
+        
+        guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
+        
+        if segue.identifier == annotationImageDetails {
+            destinationVC.delegatedPhotoRecord = photoRecord
+        }
+    }
     
 }
 

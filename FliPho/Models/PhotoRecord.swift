@@ -20,18 +20,31 @@ enum PhotoRecordState {
 
 class PhotoRecord {
     
-    let imageUrl: URL
-    var latitude: Double?
-    var longitude: Double?
-    var image = UIImage(named: "Flickr image")
-    var state = PhotoRecordState.new
-    let name: String
+    // essential photoRecord properties
+    internal var photoID: String
+    internal var photoSecret: String
+    internal var photoServer: String
+    internal var photoFarm: Int
+    internal let title: String
+    internal var imageUrl: URL?
+    internal var comments: [CommentData]?
+    
+    // optional photoRecord properties
+    internal var latitude: Double?
+    internal var longitude: Double?
+    
+    internal var image = UIImage(named: "Flickr image")
+    internal var state = PhotoRecordState.new
     
     
-    init(name: String, imageUrl: URL) {
+     init(identifier: String, secret: String, server: String, farm: Int, title: String) {
         
-        self.name = name
-        self.imageUrl = imageUrl
+        self.photoID = identifier
+        self.photoSecret = secret
+        self.photoServer = server
+        self.photoFarm = farm
+        self.title = title
+        self.imageUrl = URL(string: "https://farm\(farm).staticflickr.com/\(server)/\(identifier)_\(secret)_c.jpg")
     }
     
 }

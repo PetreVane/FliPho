@@ -15,7 +15,6 @@ class FeedsVC: UITableViewController {
 
     fileprivate var photoRecords: [PhotoRecord] = []
     fileprivate var pendingOperations = PendingOperations()
-//    fileprivate let cache = Cache()
     fileprivate let networkManager = NetworkManager()
     
     
@@ -46,7 +45,6 @@ extension FeedsVC: JSONDecoding {
                 if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: receivedData) {
                     self?.parseResults(from: decodedData)
                 }
-                
                 
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -79,18 +77,16 @@ extension FeedsVC: JSONDecoding {
         case .success(let photos as DecodedPhotos):
             let album = photos.photos.photo
             _ = album.compactMap { photo in
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_z.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                    self.photoRecords.append(photoRecord)
-                }
+                
+            let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
+                self.photoRecords.append(photoRecord)
             }
-            
             
         case .failure(let error):
             showAlert(with: error.localizedDescription)
             
         case .success(_):
-            print(" --> xcode bug <-- ")
+            print(" --> xcode default case <-- ")
         }
         
         DispatchQueue.main.async {
@@ -250,13 +246,6 @@ extension FeedsVC {
             if !tableView.isDragging && !tableView.isDecelerating {
                 
                  }
-//            if let imageFromCache = cache.retrieveFromCache(with: currentRecord.imageUrl.absoluteString as NSString) {
-//                print(" ")
-//                if !tableView.isDragging && !tableView.isDecelerating {
-//                    cell.tableImageView.image = imageFromCache as? UIImage
-//                    print("Success showing image from cache for indexPath: \(indexPath.row)")
-//                }
-//            }
 
         case .failed:
             print("Image failed to load at indexPath")
@@ -264,7 +253,7 @@ extension FeedsVC {
         }
         
         cell.tableImageView.image = currentRecord.image
-      
+  
         return cell
     }
 }
@@ -316,11 +305,11 @@ extension FeedsVC {
         
         guard let indexPath = tableView.indexPathForSelectedRow else { return }
         guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
-        let rowImage = photoRecords[indexPath.row].image
+        let photoRecord = photoRecords[indexPath.row]
         
         if segue.identifier == feedImageDetails {
        
-            destinationVC.selectedImage = rowImage
+            destinationVC.delegatedPhotoRecord = photoRecord
         }
     }
 }

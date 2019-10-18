@@ -17,7 +17,6 @@ import OAuthSwift
 class PhotosVC: UICollectionViewController, OperationsManagement {
 
     fileprivate let userDefaults = UserDefaults()
-    fileprivate let cache = Cache()
     fileprivate var userPhotoRecords: [PhotoRecord] = []
     fileprivate let pendingOperations = PendingOperations()
     fileprivate let networkManager = NetworkManager()
@@ -69,7 +68,6 @@ extension PhotosVC: JSONDecoding {
                 if let decodedData = self?.decodeJSON(model: DecodedPhotos.self, from: data) {
                     self?.parseData(from: decodedData)
                 }
-                
             }
         }
     }
@@ -99,12 +97,9 @@ extension PhotosVC: JSONDecoding {
             
             let userAlbum = photos.photos.photo
             _ = userAlbum.compactMap { photo in
-                if let photoURL = URL(string: "https://farm\(photo.farm).staticflickr.com/\(photo.server)/\(photo.id)_\(photo.secret)_b.jpg") {
-                    let photoRecord = PhotoRecord(name: photo.title, imageUrl: photoURL)
-                    self.userPhotoRecords.append(photoRecord)
-//                    print("Photo URL: \(photoURL.absoluteString) for if: \(photo.id)")
-
-                }
+                
+                let photoRecord = PhotoRecord(identifier: photo.id, secret: photo.secret, server: photo.server, farm: photo.farm, title: photo.title)
+                self.userPhotoRecords.append(photoRecord)
             }
         case .success(_):
             print(" --> xcode bug <--")
@@ -346,11 +341,11 @@ extension PhotosVC {
         guard let indexPaths = collectionView.indexPathsForSelectedItems else { return }
         guard let destinationVC = segue.destination as? PhotoDetailsVC else { return }
         guard let indexPath = indexPaths.first else { return }
-        let cellImage = userPhotoRecords[indexPath.item].image
+        let photoRecord = userPhotoRecords[indexPath.item]
         
         if segue.identifier == userImageDetails {
-            destinationVC.selectedImage = cellImage
             
+            destinationVC.delegatedPhotoRecord = photoRecord
         }
     }
 }

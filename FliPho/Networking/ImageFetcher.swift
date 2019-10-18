@@ -12,11 +12,12 @@ import UIKit
 
 class ImageFetcher: Operation {
     
-  unowned var photo: PhotoRecord
+    var photo: PhotoRecord
     
     init(photo: PhotoRecord) {
         self.photo = photo
     }
+    
     
     override func main() {
         
@@ -24,8 +25,8 @@ class ImageFetcher: Operation {
             return
         }
         
-        
-        if let imageData = try? Data(contentsOf: photo.imageUrl) {
+        guard  photo.imageUrl != nil else { return } // throw an error here
+        if let imageData = try? Data(contentsOf: photo.imageUrl!) {
 
             if !imageData.isEmpty {
                 photo.image = UIImage(data: imageData)

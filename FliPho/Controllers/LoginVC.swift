@@ -17,6 +17,9 @@ class LoginVC: UIViewController {
     
     fileprivate let userDefaults = UserDefaults.standard
     fileprivate let callBackURL = URL(string: "FliPho://")
+//    let fileManager = FileManager()
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,21 +57,20 @@ class LoginVC: UIViewController {
         
         authObject.authorizeURLHandler = SafariURLHandler(viewController: self, oauthSwift: authObject)
         
-        _ =  authObject.authorize(withCallbackURL: callBackURL!) { (result) in
+        _ =  authObject.authorize(withCallbackURL: callBackURL!) { [weak self] (result) in
             
             switch result {
             case .success(let (_, _, parameters)):
-                for (key, _) in parameters {
-                    if let valueAsString = parameters[key] as? String {
-//                        print("Value as string: \(valueAsString.removingPercentEncoding)")
-                        self.userDefaults.set(valueAsString.removingPercentEncoding, forKey: key)
-//                        self.userDefaults.set(true, forKey: "loggedIn")
-                    }
+                
+                if let user_nsid = parameters["user_nsid"] as? String {
+                    
+                    guard let userID = user_nsid.removingPercentEncoding else { return }
+                    self?.userDefaults.set(userID, forKey: "user_nsid")
+                    self?.authenticateUser(userID, with: authObject)
                 }
-                self.authenticate(with: authObject)
+
             case .failure( _):
-//                print("Authentication process ended with error: \(error.description)")
-                self.showAlert(with: "Make sure you're connected to internet")
+                self?.showAlert(with: "Make sure you're connected to internet")
             }
         }
     }
@@ -85,19 +87,40 @@ class LoginVC: UIViewController {
                 case .success:
                 DispatchQueue.main.async {
                     self.performSegue(withIdentifier: "mainMenu", sender: nil)
-//                    print("Authentication successful")
                 }
             case .failure( _):
-//                print(error.localizedDescription)
                 DispatchQueue.main.async {
                     self.showAlert(with: "Authentication: something went wrong")
                 }
             }
         }
     }
-
+    
      // MARK: - Alert
     
+    enum Failure: Error {
+        case failedWritingToFile
+        case missingFile
+        case failedReadingFile
+        case failedDecodingFile
+        
+        var errorDescription: String {
+            
+            switch self {
+            case .failedReadingFile:
+                return "Failed reading from file"
+                
+            case .failedWritingToFile:
+                return "Failed writing to file"
+                
+            case .missingFile:
+                return "File is missing"
+                
+            case .failedDecodingFile:
+                return "Failed decoding file"
+            }
+        }
+    }
     
     func showAlert(with errorMessage: String) {
         
@@ -108,5 +131,75 @@ class LoginVC: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    
+    func authenticateUser(_ userID: String, with authenticationObject: OAuth1Swift) {
+        
+        guard let userInfoURL = FlickrURLs.fetchUserInfo(userID: userID) else { return }
+        
+        let networkManager = NetworkManager()
+        
+        networkManager.fetchData(from: userInfoURL) { [weak self ] result in
+
+            switch result {
+            case .failure(let error):
+                print("Authentication error: \(error.localizedDescription)")
+
+            case .success(let data):
+                guard let userData = self?.decodeUserInfo(from: data) else { return }
+                self?.saveUserInfo(userData)
+                
+                DispatchQueue.main.async {
+                    self?.performSegue(withIdentifier: "mainMenu", sender: nil)
+                }
+            }
+        }
+    }
+    
+    func decodeUserInfo(from data: Data) -> Result<User, Failure> {
+        
+        let decoder = JSONDecoder()
+        let decodedData = try? decoder.decode(DecodedUserInfo.self, from: data)
+        guard let userData = decodedData?.person else { print("Errors while decoding UserData: \(Failure.failedDecodingFile.errorDescription)"); return .failure(.failedDecodingFile)}
+        let user = User(userID: userData.id, userName: userData.username.content, iconServer: userData.iconserver, iconFarm: userData.iconfarm)
+        _ = user.iconURL
+        
+        return .success(user)
+    }
+    
+    func saveUserInfo(_ userData: Result<User, Failure>) {
+        
+        let plistEncoder = PropertyListEncoder()
+        plistEncoder.outputFormat = .xml
+        
+        let userDirectoryPath = FileManager.documentsDirectory
+        let fileToSaveInto = URL(fileURLWithPath: "SavedUserData", relativeTo: userDirectoryPath).appendingPathExtension("plist")
+        print("File location: \(fileToSaveInto.path)")
+        
+        switch userData {
+            
+        case .failure(let error ):
+            print("Error: \(error.localizedDescription)")
+            
+        case .success(let user):
+            do {
+                let dataToBeSaved = try plistEncoder.encode(user)
+                try dataToBeSaved.write(to: fileToSaveInto, options: .atomic)
+
+            } catch {
+                print("Errors while writing user to Documents Directory: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func retrieveUserInfo() throws -> User {
+        
+        let plistDecoder = PropertyListDecoder()
+        let filePath = FileManager.documentsDirectory
+        let file = filePath.appendingPathComponent("SavedUserData").appendingPathExtension("plist")
+        guard let retrievedData = try? Data(contentsOf: file) else { print("Errors: \(Failure.missingFile.errorDescription)"); throw Failure.missingFile }
+        guard let decodedUserData = try? plistDecoder.decode(User.self, from: retrievedData) else { print("Error: \(Failure.failedDecodingFile.errorDescription)"); throw Failure.failedDecodingFile}
+
+        return decodedUserData
+    }
     
 }
