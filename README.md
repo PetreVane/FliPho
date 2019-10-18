@@ -4,7 +4,8 @@ FliPho: just another iOS client for Flickr
 If you're cloning this project, make sure you get your own key at: https://www.flickr.com/services/apps/create/
 
 The app is under development: there can be various bugs and unexpected crashes.
-Use the "Develop" branch for progress reference.
+
+Use the "Develop" branch for latest additions.
 
 UI: there are no custom cells or custom views yet. The UI contains the minimum elements for showing images.
 
