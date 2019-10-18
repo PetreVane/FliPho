@@ -10,19 +10,17 @@ UI: there are no custom cells or custom views yet. The UI contains the minimum e
 
 Functionalities:
 
-At this moment, users can login into their acccounts and see recent pictures which are usually shown on Explore tab, on Flickr.
-Users can also see their pictures in a grid-like view. At this moment, only the first 250 images are being shown.
-
-The app contains a map view, which asks for user location, so it can retrieve and display images taken around user location.
-
-When tapped, images are being passed into a different view, so that images can be zoomed in / out.
-
-Users can also deauthenticate from their accounts.
+- At this moment, users can login into their acccounts and see recent pictures which are usually shown on Explore tab (on Flickr).
+- Users can also see their pictures in a grid-like view. At this moment, only the first 250 images are being shown.
+- The app contains a map view, which asks for user location, so it can retrieve and display images taken around user location.
+- When tapped, images are being passed into a different view, so that images can be zoomed in / out.
+- When map annotation are tapped, a small accessory view is shown. Tapping the accessory view will pass the image to another scree.
+- Users can also deauthenticate from their accounts.
 
 Features under development:
 
 - My Feeds tab: 
-  - cells will have a different size and customization sunch as shapes and animations
+  - cells will have a different size and customization such as shapes and animations
   - cells shown in Feeds, will also show a small rounded picture of the image owner + owner name
   - when a cell is tapped, the image is passed into another screen (Detailed View) which will fetch & display comments for that image
   - users will be able to add an image to Favorites
